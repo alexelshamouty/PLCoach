@@ -38,7 +38,7 @@
         username: email.value, 
         password: password.value,
     }).then(user => {
-       await router.navigateTo('/');
+       router.navigateTo('/');
 });
     } catch (err) {
       error.value = err.message || "Login failed.";
