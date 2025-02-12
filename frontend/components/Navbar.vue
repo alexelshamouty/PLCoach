@@ -4,6 +4,7 @@
       <button @click="toggleMenu" class="text-white text-2xl">
         ☰
       </button>
+      <button @click="console.log('hey')" class="text-white text-2xl"> bleh </button>
   
       <!-- Logo -->
       <NuxtLink to="/" class="flex items-center">
