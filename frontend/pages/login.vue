@@ -23,10 +23,10 @@
   import {  signIn  } from 'aws-amplify/auth'; 
   import { useAuthStore } from './stores/auth';
   import { onMounted } from 'vue';
-  import { storeToRef } from 'pinia';
+  import { storeToRefs } from 'pinia';
 
   const authStore = useAuthStore();
-  const {user, loading} = storeToRef(authStore); 
+  const {user, loading} = storeToRefs(authStore); 
   const email = ref('');
   const password = ref('');
   const error = ref('');
