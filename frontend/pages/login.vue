@@ -1,6 +1,7 @@
 <template>
-  <div v-if="authStore.user">
+  <div v-if="user">
     <p> You are already logged in. Redirecting...</p>
+
   </div>
   <div v-else>
     <div class="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
@@ -22,8 +23,10 @@
   import {  signIn  } from 'aws-amplify/auth'; 
   import { useAuthStore } from './stores/auth';
   import { onMounted } from 'vue';
+  import { storeToRef } from 'pinia';
 
   const authStore = useAuthStore();
+  const {user, error, loading} = storeToRef(authStore); 
   const email = ref('');
   const password = ref('');
   const error = ref('');
