@@ -14,8 +14,6 @@ const authStore = useAuthStore();
 onMounted(async () => {
   await authStore.logout();
   authStore.loading = false;
-  setTimeout(() => {
-    await router.navigateTo('/login');
-  }, 2000);
+  await router.navigateTo('/login');
 });
 </script>
