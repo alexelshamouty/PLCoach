@@ -11,6 +11,8 @@
         <img src="/logo_bg_gray_900.png" alt="Logo" class="w-12 h-12 mr-2">
         <span class="text-white text-lg font-bold">Sweaty Duck Coaching </span>
       </NuxtLink>
+<LoginLink />
+<LogoutLink /> 
   
       <!-- Login & Signup Buttons -->
       <div class="hidden md:flex space-x-2">
@@ -32,8 +34,6 @@
       <NuxtLink to="/dashboard" class="block text-white py-2">Dashboard</NuxtLink>
       <NuxtLink to="/programs" class="block text-white py-2">Programs</NuxtLink>
       <NuxtLink to="/contact" class="block text-white py-2">Contact</NuxtLink>
-<LoginLink />
-<LogoutLink /> 
     </div>
   </div>
   </template>
