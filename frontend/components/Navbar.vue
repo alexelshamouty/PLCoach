@@ -32,6 +32,8 @@
       <NuxtLink to="/dashboard" class="block text-white py-2">Dashboard</NuxtLink>
       <NuxtLink to="/programs" class="block text-white py-2">Programs</NuxtLink>
       <NuxtLink to="/contact" class="block text-white py-2">Contact</NuxtLink>
+<LoginLink />
+<LogoutLink /> 
     </div>
   </div>
   </template>
