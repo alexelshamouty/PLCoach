@@ -41,8 +41,8 @@
   <script setup>
   import { ref } from 'vue';
   import { useAuthStore } from '~/stores/auth';
-import Navbar from '~/components/LoginLink.vue';
-import Navbar from '~/components/LogoutLink.vue';
+import LoginLink from '~/components/LoginLink.vue';
+import LogoutLink from '~/components/LogoutLink.vue';
 
 
   const authStore = useAuthStore();
