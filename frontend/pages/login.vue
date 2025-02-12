@@ -26,7 +26,7 @@
   import { storeToRef } from 'pinia';
 
   const authStore = useAuthStore();
-  const {user, error, loading} = storeToRef(authStore); 
+  const {user, loading} = storeToRef(authStore); 
   const email = ref('');
   const password = ref('');
   const error = ref('');
@@ -37,8 +37,9 @@
       await signIn({
         username: email.value, 
         password: password.value,
-    });
-      await router.navigateTo('/');
+    }).then(user => {
+       await router.navigateTo('/');
+});
     } catch (err) {
       error.value = err.message || "Login failed.";
       console.log(error)
