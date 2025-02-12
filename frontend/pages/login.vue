@@ -1,4 +1,8 @@
 <template>
+  <div v-if="authStore.user">
+    <p> You are already logged in. Redirecting...</p>
+  </div>
+  <div v-else>
     <div class="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
       <h2 class="text-2xl font-bold mb-4">Login</h2>
       
@@ -9,13 +13,17 @@
   
       <p v-if="error" class="text-red-500 mt-2">{{ error }}</p>
     </div>
+  </div>
   </template>
   
   <script setup>
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import {  signIn  } from 'aws-amplify/auth'; 
-  
+  import { useAuthStore } from './stores/auth';
+  import { onMounted } from 'vue';
+
+  const authStore = useAuthStore();
   const email = ref('');
   const password = ref('');
   const error = ref('');
@@ -28,9 +36,14 @@
         password: password.value,
     });
       router.push('/'); // Redirect after login
+      router.go(0)
     } catch (err) {
       error.value = err.message || "Login failed.";
       console.log(error)
     }
   };
+
+  onMounted(() => {
+    authStore.fetchUser();
+  });
   </script>  
