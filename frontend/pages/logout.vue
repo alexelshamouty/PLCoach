@@ -15,7 +15,7 @@ onMounted(async () => {
   await authStore.logout();
   authStore.loading = false;
   setTimeout(() => {
-    router.go('/login');
+    await router.navigateTo('/login');
   }, 2000);
 });
 </script>
