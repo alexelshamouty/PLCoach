@@ -35,8 +35,7 @@
         username: email.value, 
         password: password.value,
     });
-      router.push('/'); // Redirect after login
-      router.go(0)
+      await router.navigateTo('/');
     } catch (err) {
       error.value = err.message || "Login failed.";
       console.log(error)
