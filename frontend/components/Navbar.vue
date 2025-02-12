@@ -11,8 +11,6 @@
         <img src="/logo_bg_gray_900.png" alt="Logo" class="w-12 h-12 mr-2">
         <span class="text-white text-lg font-bold">Sweaty Duck Coaching </span>
       </NuxtLink>
-<LoginLink />
-<LogoutLink /> 
   
       <!-- Login & Signup Buttons -->
       <div class="hidden md:flex space-x-2">
@@ -41,8 +39,6 @@
   <script setup>
   import { ref } from 'vue';
   import { useAuthStore } from '~/stores/auth';
-import LoginLink from '~/components/LoginLink.vue';
-import LogoutLink from '~/components/LogoutLink.vue';
 
 
   const authStore = useAuthStore();
