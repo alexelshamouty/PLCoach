@@ -1,9 +1,8 @@
 <template>
-  <div v-if="user">
-    <p> You are already logged in. Redirecting...</p>
-
+  <div v-if="loading" class="flex items-center justify-center min-h-screen bg-gray-900">
+    <div class="w-16 h-16 border-4 border-gray-300 border-t-yellow-400 rounded-full animate-spin"></div>
   </div>
-  <div v-else>
+  <div v-else-if="!user?.username">
     <div class="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
       <h2 class="text-2xl font-bold mb-4">Login</h2>
       
@@ -18,7 +17,7 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue';
+  import { watchEffect, ref } from 'vue';
   import { useRouter } from 'vue-router';
   import {  signIn  } from 'aws-amplify/auth'; 
   import { useAuthStore } from './stores/auth';
@@ -26,19 +25,19 @@
   import { storeToRefs } from 'pinia';
 
   const authStore = useAuthStore();
-  const {user, loading} = storeToRefs(authStore); 
+  
+  const { user,loading } = storeToRefs(authStore);
   const email = ref('');
   const password = ref('');
   const error = ref('');
-  const router = useRouter();
-  
+
   const login = async () => {
     try {
       await signIn({
         username: email.value, 
         password: password.value,
     }).then(user => {
-       router.navigateTo('/');
+       navigateTo('/');
 });
     } catch (err) {
       error.value = err.message || "Login failed.";
@@ -48,5 +47,13 @@
 
   onMounted(() => {
     authStore.fetchUser();
+  });
+
+  watchEffect(() => {
+    if (user.value?.username) {
+      console.log(user)
+      console.log(user.username + "    afasfsa ")
+      navigateTo('/');
+    }
   });
   </script>  

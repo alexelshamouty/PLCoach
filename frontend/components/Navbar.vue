@@ -1,5 +1,6 @@
 <template>
-  <div v-if="authStore.loading"> Loading </div>
+  <div v-if=loading> 
+  </div>
   <div v-else>
     <nav class="bg-gray-800 px-6 py-4 flex items-center justify-between">
       <!-- Mobile Menu Button -->
@@ -30,8 +31,13 @@
     <!-- Mobile Menu (Dropdown) -->
     <div v-if="menuOpen" class="absolute left-0 w-64 h-full bg-gray-800 p-4 shadow-lg transition-transform duration-300 ease-in-out">
       <NuxtLink to="/dashboard" class="block text-white py-2">Dashboard</NuxtLink>
+      <NuxtLink to="/profile" class="block text-white py-2">Profile</NuxtLink>
       <NuxtLink to="/programs" class="block text-white py-2">Programs</NuxtLink>
       <NuxtLink to="/contact" class="block text-white py-2">Contact</NuxtLink>
+      <NuxtLink v-if="user?.username" class="block text-white py-2" to="/logout"> Logout </NuxtLink>
+      <NuxtLink v-if="!user?.username" class="block text-white py-2" to="/login"> Login </NuxtLink>
+      <NuxtLink v-if="!user?.username" class="block text-white py-2" to="/signup"> Signup </NuxtLink>
+
     </div>
   </div>
   </template>
@@ -39,9 +45,10 @@
   <script setup>
   import { ref } from 'vue';
   import { useAuthStore } from '~/stores/auth';
-
+  import { storeToRefs } from 'pinia';
 
   const authStore = useAuthStore();
+  const {user, loading} = storeToRefs(authStore);
 
   const menuOpen = ref(false);
   const toggleMenu = () => {
