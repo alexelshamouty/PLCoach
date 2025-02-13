@@ -51,8 +51,8 @@
 
   watchEffect(() => {
     if (user.value?.username) {
-      console.log(user)
-      console.log(user.username + "    afasfsa ")
+      console.log(user.value)
+      console.log(user.value.profile)
       navigateTo('/');
     }
   });

@@ -8,7 +8,7 @@ export default defineNuxtPlugin((nuxtApp) => {
               loginWith: { // Optional
                 oauth: {
                   domain: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_SvGcTQ7MA',
-                  scopes: ['openid','email','profile'],
+                  scopes: ['openid','email','profile','group'],
                   redirectSignIn: ['http://localhost:3000/signin','https://sweatyduck.netlify.app/signin'],
                   redirectSignOut: ['http://localhost:3000/signout','https://sweatyduck.netlify.app/signout'],
                   responseType: 'code',

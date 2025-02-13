@@ -1,9 +1,11 @@
 import { defineStore } from "pinia";
-import { getCurrentUser, signOut } from "@aws-amplify/auth";
+import { getCurrentUser, fetchAuthSession, signOut } from "@aws-amplify/auth";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null,
+    admin: null,
+    groups: [],
     error: null,
     loading: true,
   }),
@@ -11,6 +13,19 @@ export const useAuthStore = defineStore("auth", {
     async fetchUser() {
       try {
         const user = await getCurrentUser();
+        try{
+          const session = await fetchAuthSession();
+          const idToken = session.tokens?.idToken?.toString();
+          if(idToken){
+            const payload = JSON.parse(atob(idToken.split('.')[1]));
+            this.groups = payload["cognito:groups"] || [];
+            if(this.groups.includes('coaches')){
+              this.admin = true;
+            }
+          }  
+        }catch(error){
+          console.log(error)
+        }
         this.user = user;
         this.loading = false;
       } catch (error) {
