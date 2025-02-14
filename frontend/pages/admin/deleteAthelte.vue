@@ -5,7 +5,7 @@
           <Form @submit="delSubmit" :validation-schema="schema" class="space-y-4">
   
           <div>
-              <label for="name" class="block text-sm font-medium mb-1">Username:</label>
+              <label for="email" class="block text-sm font-medium mb-1">Username:</label>
             <Field id="email" name="email" v-model="formData.email"
                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <ErrorMessage name="email" class="text-red-400 text-sm mt-1" />
@@ -31,7 +31,7 @@
           </div>
       </Form>
       </div>
-  </div>
+    </div>
   </template>
   
   <script setup>

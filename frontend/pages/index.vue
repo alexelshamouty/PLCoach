@@ -1,7 +1,7 @@
 <template>
     <div class="flex justify-center items-center min-h-screen">
       <div class="text-center">
-        <img src="/logo_bg_gray_900.png" alt="Supreme Strength Coaching" class="w-64 mx-auto">
+        <img src="/logo_bg_gray_900.png" alt="Sweaty Duck Coaching" class="w-64 mx-auto">
         <div v-if="user" class="text-gray-400"> Hello {{  user?.username  }}</div>
         <div v-if="admin" class="text-gray-400"> Check on your <NuxtLink to="/admin" class="text-white py-2" > Atheletes </NuxtLink></div>
       </div>
