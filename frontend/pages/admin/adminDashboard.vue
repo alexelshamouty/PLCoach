@@ -4,7 +4,7 @@
   
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-4xl">
         <!-- Add Athlete -->
-        <NuxtLink to="/admin/add-athlete" class="dashboard-card">
+        <NuxtLink to="/admin/addAthlete" class="dashboard-card">
           <div class="p-6 bg-blue-600 hover:bg-blue-500 rounded-lg shadow-md text-center">
             <h2 class="text-xl font-semibold">Add Athlete</h2>
             <p class="text-sm mt-2">Create a new athlete profile</p>
@@ -12,7 +12,7 @@
         </NuxtLink>
   
         <!-- Delete Athlete -->
-        <NuxtLink to="/admin/delete-athlete" class="dashboard-card">
+        <NuxtLink to="/admin/deleteAthelte" class="dashboard-card">
           <div class="p-6 bg-red-600 hover:bg-red-500 rounded-lg shadow-md text-center">
             <h2 class="text-xl font-semibold">Delete Athlete</h2>
             <p class="text-sm mt-2">Remove an athlete from the system</p>
@@ -20,7 +20,7 @@
         </NuxtLink>
   
         <!-- List Athletes -->
-        <NuxtLink to="/admin/list-athletes" class="dashboard-card">
+        <NuxtLink to="/admin/listAtheltes" class="dashboard-card">
           <div class="p-6 bg-green-600 hover:bg-green-500 rounded-lg shadow-md text-center">
             <h2 class="text-xl font-semibold">List Athletes</h2>
             <p class="text-sm mt-2">View all registered athletes</p>
