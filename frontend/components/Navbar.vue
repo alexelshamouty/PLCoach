@@ -36,6 +36,7 @@
 
       <!-- Admin section -->
       <NuxtLink v-if="admin" to="/atheletes" class="block text-white py-2"> Atheletes </NuxtLink>
+      <NuxtLink v-if="admin" to="/addAthlete" class="block text-white py-2"> Add Athelete </NuxtLink>
       <NuxtLink v-if="admin" to="/admin" class="block text-white py-2">Admin</NuxtLink>
 
       <!-- User stuff -->

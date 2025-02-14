@@ -12,11 +12,13 @@
   "dependencies": {
     "@aws-amplify/auth": "^6.11.0",
     "@aws-amplify/ui-vue": "^4.2.28",
+    "@aws-sdk/client-cognito-identity-provider": "^3.744.0",
     "@nuxtjs/tailwindcss": "^6.13.1",
     "@pinia/nuxt": "^0.10.1",
     "aws-amplify": "^6.13.0",
     "nuxt": "^3.15.4",
     "pinia": "^3.0.1",
+    "vee-validate": "^4.15.0",
     "vue": "latest",
     "vue-router": "latest"
   }
