@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-900 min-h-screen text-white flex items-center justify-center">
-    <div v-if="admin" class="w-full max-w-md p-6 rounded-lg shadow-md">
+    <div class="w-full max-w-md p-6 rounded-lg shadow-md">
         <h2 class="text-2xl font-semibold text-center mb-4">Add Athlete</h2>
         <Form @submit="inviteUser" :validation-schema="schema" class="space-y-4">
 
@@ -44,18 +44,18 @@
         </div>
     </Form>
     </div>
-    <div v-else>
-        <p>You are not an admin</p>
-    </div>
 </div>
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref } from "vue";
 import { useAuthStore } from '~/stores/auth';
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import *  as yup from 'yup';
 
+definePageMeta({
+  middleware: ['auth-admin'],}
+);
 
 const authStore = useAuthStore();
 const {user, groups, admin, loading} = storeToRefs(authStore);

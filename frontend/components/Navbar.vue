@@ -29,15 +29,12 @@
     </nav>
   
     <!-- Mobile Menu (Dropdown) -->
-    <div v-if="menuOpen" class="absolute left-0 w-64 h-full bg-gray-800 p-4 shadow-lg transition-transform duration-300 ease-in-out">
-      <NuxtLink to="/dashboard" class="block text-white py-2">Dashboard</NuxtLink>
+    <div @click="toggleMenu" v-if="menuOpen" class="absolute left-0 w-64 h-full bg-gray-800 p-4 shadow-lg transition-transform duration-300 ease-in-out">
       <NuxtLink to="/profile" class="block text-white py-2">Profile</NuxtLink>
       <NuxtLink to="/contact" class="block text-white py-2">Contact</NuxtLink>
 
       <!-- Admin section -->
-      <NuxtLink v-if="admin" to="/atheletes" class="block text-white py-2"> Atheletes </NuxtLink>
-      <NuxtLink v-if="admin" to="/addAthlete" class="block text-white py-2"> Add Athelete </NuxtLink>
-      <NuxtLink v-if="admin" to="/admin" class="block text-white py-2">Admin</NuxtLink>
+      <NuxtLink v-if="admin" to="/admin/adminDashboard" class="block text-white py-2">Admin</NuxtLink>
 
       <!-- User stuff -->
       <NuxtLink v-if="user?.username" class="block text-white py-2" to="/logout"> Logout </NuxtLink>
