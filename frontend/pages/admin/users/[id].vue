@@ -1,7 +1,7 @@
 <template>
 <div class="bg-gray-900 min-h-screen text-white flex justify-center">
-    <div class="w-full max-w-md p-6 rounded-lg shadow-md">        
-        <h2 class="text-2xl font-semibold text-center mb-4">Athlete Program Managment</h2>
+    <div class="w-full max-w-lg p-6 rounded-lg shadow-md">        
+        <h2 class="text-2xl font-semibold text-center mb-4">Athlete {{ username }} Program Managment</h2>
         <div class="bg-gray-700 p-4 rounded-lg flex space-x-4">
             <!-- First Dropdown -->
             <select v-model="selectedOption1" class="w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
@@ -77,14 +77,19 @@
     </div>
     </div>
   </div>
-
     </div>
   </template>
   
   <script setup>
   import { ref } from "vue";
   import { useRoute } from "vue-router";
-
+  import { useAthleteStore } from '~/stores/athlete'
+  const username = ref("")
+  const athleteStore = useAthleteStore();
+  const {athletes} = storeToRefs(athleteStore);
+  const route = useRoute();
+  const userId = route.params.id;
+  username.value = athletes.value[userId-1]?.username
   definePageMeta({middleware: ['auth-admin'],});
   const options1 = ref([
     { value: "Block 1", label: "Block 1" },
