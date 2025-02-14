@@ -19,7 +19,7 @@
               <tr v-for="athlete in athletes" :key="athlete.id"
                   class="hover:bg-gray-700 transition">
                 <td class="px-4 py-3 border border-gray-600">
-                    <NuxtLink :to="`/users/athlete/${athlete.id}`" class="text-blue-400 hover:text-blue-300 underline">
+                    <NuxtLink :to="`/users/${athlete.id}`" class="text-blue-400 hover:text-blue-300 underline">
                     {{ athlete.username }}
                     </NuxtLink>
                 </td>
@@ -27,7 +27,7 @@
                 <td class="px-4 py-3 border border-gray-600">{{ athlete.weight }} kg</td>
                 <td class="px-4 py-3 border border-gray-600">{{ athlete.gender }}</td>
                 <td class="px-4 py-3 border border-gray-600">
-                    <NuxtLink :to="`/users/athlete/${athlete.id}`" class="text-blue-400 hover:text-blue-300 underline">
+                    <NuxtLink :to="`/users/${athlete.id}`" class="text-blue-400 hover:text-blue-300 underline">
                     {{ athlete.program }}
                     </NuxtLink>
                 </td>
