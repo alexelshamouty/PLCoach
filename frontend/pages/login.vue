@@ -3,17 +3,17 @@
     <div class="w-16 h-16 border-4 border-gray-300 border-t-yellow-400 rounded-full animate-spin"></div>
   </div>
   <div v-else-if="!user?.username && !newUser">
-    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-      <h2 class="text-2xl font-bold mb-4">Login</h2>
-      
-      <input v-model="email" type="email" placeholder="Email" class="p-2 mb-2 text-black rounded">
-      <input v-model="password" type="password" placeholder="Password" class="p-2 mb-2 text-black rounded">
-      
-      <button @click="login" class="bg-yellow-400 px-4 py-2 rounded">Login</button>
-  
-      <p v-if="error" class="text-red-500 mt-2">{{ error }}</p>
+    <BearFace :email="email" :isTypingPassword="isTypingPassword" />
+      <div class="flex flex-col items-center min-h-screen bg-gray-900 text-white">
+        <h2 class="text-2xl font-bold mb-4">Login</h2>
+        <input v-model="email" type="email" placeholder="Email" class="w-80 p-3 mb-3 text-black rounded-md text-lg" @focus="isTypingPassword = false">
+        <input v-model="password" type="password" placeholder="Password" class="w-80 p-3 mb-3 text-black rounded-md text-lg" @focus="isTypingPassword = true">
+        
+        <button @click="login" class="bg-yellow-400 px-4 py-2 rounded">Login</button>
+    
+        <p v-if="error" class="text-red-500 mt-2">{{ error }}</p>
+      </div>
     </div>
-  </div>
   <div v-if="newUser">
     <div class="bg-gray-900 min-h-screen text-white flex items-center justify-center">
       <div class="w-full max-w-md p-6 rounded-lg shadow-md">

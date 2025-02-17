@@ -51,6 +51,7 @@
               <th class="py-2 px-4 text-center">Sets</th>
               <th class="py-2 px-4 text-center">Reps</th>
               <th class="py-2 px-4 text-center">RPE</th>
+              <th class="py-2 px-4 text-center">Comments</th>
             </tr>
           </thead>
           <tbody>
@@ -59,6 +60,7 @@
               <td class="py-2 px-4 text-center">{{ exercise.sets }}</td>
               <td class="py-2 px-4 text-center">{{ exercise.reps }}</td>
               <td class="py-2 px-4 text-center font-semibold text-yellow-400">{{ exercise.rpe }}</td>
+              <td class="py-2 px-4 text-center font-semibold text-yellow-400">{{ exercise.comments }}</td>
             </tr>
           </tbody>
         </table>
@@ -129,17 +131,17 @@ const items = ref({
     { 
       title: "Monday", 
       content: [
-        { name: "Bench Press", sets: 4, reps: 10, rpe: 8 },
-        { name: "Pull-ups", sets: 3, reps: 12, rpe: 7 },
-        { name: "Squats", sets: 4, reps: 8, rpe: 9 }
+        { name: "Bench Press", sets: 4, reps: 10, comments: " Great work", rpe: 8 },
+        { name: "Pull-ups", sets: 3, reps: 12, comments: " Great work", rpe: 7 },
+        { name: "Squats", sets: 4, reps: 8, comments: " Great work", rpe: 9 }
       ]
     },
     { 
       title: "Tuesday", 
       content: [
-        { name: "Squat", sets: 5, reps: 10, rpe: 8 },
-        { name: "Lunges", sets: 3, reps: 15, rpe: 7 },
-        { name: "Leg Press", sets: 4, reps: 12, rpe: 9 }
+        { name: "Squat", sets: 5, reps: 10, comments: " Great work", rpe: 8 },
+        { name: "Lunges", sets: 3, reps: 15, comments: " Great work", rpe: 7 },
+        { name: "Leg Press", sets: 4, reps: 12, comments: " Great work", rpe: 9 }
       ]
     }
   ],
@@ -147,16 +149,16 @@ const items = ref({
     { 
       title: "Monday", 
       content: [
-        { name: "Deadlift", sets: 4, reps: 6, rpe: 9 },
-        { name: "Good Mornings", sets: 3, reps: 12, rpe: 8 },
-        { name: "Hamstring Curls", sets: 4, reps: 15, rpe: 7 }
+        { name: "Deadlift", sets: 4, reps: 6, comments: " Great work", rpe: 9 },
+        { name: "Good Mornings", sets: 3, reps: 12, comments: " Great work", rpe: 8 },
+        { name: "Hamstring Curls", sets: 4, reps: 15, comments: " Great work", rpe: 7 }
       ]
     },
     { 
       title: "Tuesday", 
       content: [
-        { name: "Squat", sets: 5, reps: 8, rpe: 9 },
-        { name: "Leg Extensions", sets: 3, reps: 12, rpe: 7 }
+        { name: "Squat", sets: 5, reps: 8, comments: " Great work", rpe: 9 },
+        { name: "Leg Extensions", sets: 3, reps: 12, comments: " Great work", rpe: 7 }
       ]
     }
   ],
@@ -164,23 +166,23 @@ const items = ref({
     { 
       title: "Monday", 
       content: [
-        { name: "Bench Press", sets: 4, reps: 10, rpe: 8 },
-        { name: "Dips", sets: 3, reps: 12, rpe: 7 },
-        { name: "Push-ups", sets: 4, reps: 15, rpe: 6 }
+        { name: "Bench Press", sets: 4, reps: 10, comments: " Great work", rpe: 8 },
+        { name: "Dips", sets: 3, reps: 12, comments: " Great work", rpe: 7 },
+        { name: "Push-ups", sets: 4, reps: 15, comments: " Great work", rpe: 6 }
       ]
     },
     { 
       title: "Tuesday", 
       content: [
-        { name: "Squat", sets: 4, reps: 8, rpe: 9 },
-        { name: "Step-ups", sets: 3, reps: 10, rpe: 7 }
+        { name: "Squat", sets: 4, reps: 8, comments: " Great work", rpe: 9 },
+        { name: "Step-ups", sets: 3, reps: 10, comments: " Great work", rpe: 7 }
       ]
     },
     { 
       title: "Wednesday", 
       content: [
-        { name: "Deadlift", sets: 4, reps: 6, rpe: 10 },
-        { name: "Pull-ups", sets: 3, reps: 12, rpe: 7 }
+        { name: "Deadlift", sets: 4, reps: 6, comments: " Great work", rpe: 10 },
+        { name: "Pull-ups", sets: 3, reps: 12, comments: " Great work", rpe: 7 }
       ]
     }
   ],
@@ -188,15 +190,15 @@ const items = ref({
     { 
       title: "Monday", 
       content: [
-        { name: "Dumbbell Press", sets: 3, reps: 12, rpe: 8 },
-        { name: "Incline Press", sets: 3, reps: 10, rpe: 7 }
+        { name: "Dumbbell Press", sets: 3, reps: 12, comments: " Great work", rpe: 8 },
+        { name: "Incline Press", sets: 3, reps: 10, comments: " Great work", rpe: 7 }
       ]
     },
     { 
       title: "Tuesday", 
       content: [
-        { name: "Goblet Squats", sets: 4, reps: 12, rpe: 8 },
-        { name: "Lunges", sets: 3, reps: 15, rpe: 7 }
+        { name: "Goblet Squats", sets: 4, reps: 12, comments: " Great work", rpe: 8 },
+        { name: "Lunges", sets: 3, reps: 15, comments: " Great work", rpe: 7 }
       ]
     }
   ],
@@ -204,15 +206,15 @@ const items = ref({
     { 
       title: "Monday", 
       content: [
-        { name: "Bench Press", sets: 4, reps: 8, rpe: 9 },
-        { name: "Triceps Dips", sets: 3, reps: 12, rpe: 7 }
+        { name: "Bench Press", sets: 4, reps: 8, comments: " Great work", rpe: 9 },
+        { name: "Triceps Dips", sets: 3, reps: 12, comments: " Great work", rpe: 7 }
       ]
     },
     { 
       title: "Tuesday", 
       content: [
-        { name: "Squat", sets: 4, reps: 10, rpe: 8 },
-        { name: "Lunges", sets: 3, reps: 15, rpe: 6 }
+        { name: "Squat", sets: 4, reps: 10, comments: " Great work", rpe: 8 },
+        { name: "Lunges", sets: 3, reps: 15, comments: " Great work", rpe: 6 }
       ]
     }
   ],
@@ -220,22 +222,22 @@ const items = ref({
     { 
       title: "Monday", 
       content: [
-        { name: "Dips", sets: 3, reps: 12, rpe: 8 },
-        { name: "Close-grip Bench Press", sets: 4, reps: 10, rpe: 9 }
+        { name: "Dips", sets: 3, reps: 12, comments: " Great work", rpe: 8 },
+        { name: "Close-grip Bench Press", sets: 4, reps: 10, comments: " Great work", rpe: 9 }
       ]
     },
     { 
       title: "Tuesday", 
       content: [
-        { name: "Front Squats", sets: 4, reps: 8, rpe: 8 },
-        { name: "Step-ups", sets: 3, reps: 12, rpe: 7 }
+        { name: "Front Squats", sets: 4, reps: 8, comments: " Great work", rpe: 8 },
+        { name: "Step-ups", sets: 3, reps: 12, comments: " Great work", rpe: 7 }
       ]
     },
     { 
       title: "Friday", 
       content: [
-        { name: "Front Squats", sets: 4, reps: 8, rpe: 8 },
-        { name: "Step-ups", sets: 3, reps: 12, rpe: 7 }
+        { name: "Front Squats", sets: 4, reps: 8, comments: " Great work", rpe: 8 },
+        { name: "Step-ups", sets: 3, reps: 12, comments: " Great work", rpe: 7 }
       ]
     }
   ],
@@ -243,15 +245,15 @@ const items = ref({
     { 
       title: "Monday", 
       content: [
-        { name: "Flat Bench Press", sets: 3, reps: 10, rpe: 7 },
-        { name: "Incline Bench Press", sets: 4, reps: 8, rpe: 9 }
+        { name: "Flat Bench Press", sets: 3, reps: 10, comments: " Great work", rpe: 7 },
+        { name: "Incline Bench Press", sets: 4, reps: 8, comments: " Great work", rpe: 9 }
       ]
     },
     { 
       title: "Tuesday", 
       content: [
-        { name: "Leg Press", sets: 4, reps: 12, rpe: 8 },
-        { name: "Bulgarian Split Squat", sets: 3, reps: 10, rpe: 7 }
+        { name: "Leg Press", sets: 4, reps: 12, comments: " Great work", rpe: 8 },
+        { name: "Bulgarian Split Squat", sets: 3, reps: 10, comments: " Great work", rpe: 7 }
       ]
     }
   ],
@@ -259,22 +261,22 @@ const items = ref({
     { 
       title: "Monday", 
       content: [
-        { name: "Barbell Bench Press", sets: 4, reps: 8, rpe: 9 },
-        { name: "Dips", sets: 3, reps: 12, rpe: 7 }
+        { name: "Barbell Bench Press", sets: 4, reps: 8, comments: " Great work", rpe: 9 },
+        { name: "Dips", sets: 3, reps: 12, comments: " Great work", rpe: 7 }
       ]
     },
     { 
       title: "Tuesday", 
       content: [
-        { name: "Box Jumps", sets: 3, reps: 10, rpe: 6 },
-        { name: "Lunges", sets: 4, reps: 12, rpe: 7 }
+        { name: "Box Jumps", sets: 3, reps: 10, comments: " Great work", rpe: 6 },
+        { name: "Lunges", sets: 4, reps: 12, comments: " Great work", rpe: 7 }
       ]
     },
     { 
       title: "Friday", 
       content: [
-        { name: "Box Jumps", sets: 3, reps: 10, rpe: 6 },
-        { name: "Lunges", sets: 4, reps: 12, rpe: 7 }
+        { name: "Box Jumps", sets: 3, reps: 10, comments: " Great work", rpe: 6 },
+        { name: "Lunges", sets: 4, reps: 12, comments: " Great work", rpe: 7 }
       ]
     }
   ],
@@ -282,22 +284,22 @@ const items = ref({
     { 
       title: "Monday", 
       content: [
-        { name: "Chest Press", sets: 3, reps: 12, rpe: 7 },
-        { name: "Triceps Pushdowns", sets: 4, reps: 10, rpe: 8 }
+        { name: "Chest Press", sets: 3, reps: 12, comments: " Great work", rpe: 7 },
+        { name: "Triceps Pushdowns", sets: 4, reps: 10, comments: " Great work", rpe: 8 }
       ]
     },
     { 
       title: "Tuesday", 
       content: [
-        { name: "Hack Squats", sets: 4, reps: 10, rpe: 8 },
-        { name: "Jump Squats", sets: 3, reps: 12, rpe: 7 }
+        { name: "Hack Squats", sets: 4, reps: 10, comments: " Great work", rpe: 8 },
+        { name: "Jump Squats", sets: 3, reps: 12, comments: " Great work", rpe: 7 }
       ]
     },
     { 
       title: "Friday", 
       content: [
-        { name: "Hack Squats", sets: 4, reps: 10, rpe: 8 },
-        { name: "Jump Squats", sets: 3, reps: 12, rpe: 7 }
+        { name: "Hack Squats", sets: 4, reps: 10, comments: " Great work", rpe: 8 },
+        { name: "Jump Squats", sets: 3, reps: 12, comments: " Great work", rpe: 7 }
       ]
     }
   ]
