@@ -63,90 +63,90 @@
       </div>
     </div>
   </div>
-  </template>
-  
-  <script setup>
-  import { watchEffect, ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  import {  signIn  } from 'aws-amplify/auth';
-  import { useAuthStore } from './stores/auth';
-  import { useAthleteStore } from '~/stores/athlete';
-  import { onMounted } from 'vue';
-  import { storeToRefs } from 'pinia';
-  import { Field, Form, ErrorMessage } from 'vee-validate';
-  import *  as yup from 'yup';
+</template>
 
-  const authStore = useAuthStore();
-  
-  const { user,loading } = storeToRefs(authStore);
-  const email = ref('');
-  const password = ref('');
-  const error = ref('');
-  const newUser = ref(false);
-  const formData = ref({newpassword: "", confirmPassword: "", weight:""});
-  const messageOpen = ref(false)
-  const success = ref(false)
-  const message = ref("")
-  let userSession = null;
-  const schema = computed(() => yup.object({
-    name: yup.string().required("Name is required"),
-    email: yup.string().email("Invalid Email Format").required("Email is required"),
-    gender: yup.string().required("Gender is required"),
-    weight: yup.number().required("Weight is required"),
-    newpassword: yup.string().required("New Password is required"),
-    confirmPassword: yup
+<script setup>
+import { watchEffect, ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { signIn, confirmSignIn } from 'aws-amplify/auth';
+import { useAuthStore } from './stores/auth';
+import { useAthleteStore } from '~/stores/athlete';
+import { onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { Field, Form, ErrorMessage } from 'vee-validate';
+import * as yup from 'yup';
+
+const authStore = useAuthStore();
+const { user, loading } = storeToRefs(authStore);
+const email = ref('');
+const password = ref('');
+const error = ref('');
+const newUser = ref(false);
+const formData = ref({ newpassword: "", confirmPassword: "", weight: "" });
+const messageOpen = ref(false);
+const success = ref(false);
+const message = ref("");
+let userSession = null;
+const schema = computed(() => yup.object({
+  newpassword: yup.string().required("New Password is required"),
+  confirmPassword: yup
     .string()
     .oneOf([yup.ref("newpassword"), null], "Passwords must match")
     .required("Confirm Password is required"),
+  weight: yup.number().required("Weight is required"),
 }));
 
-  const login = async () => {
-    try {
-     const userLogIn = await signIn({
-        username: email.value, 
-        password: password.value,
-    })
-    if(userLogIn?.nextStep?.signInStep == "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"){
+const login = async () => {
+  try {
+    const userLogIn = await signIn({
+      username: email.value,
+      password: password.value,
+    });
+    logTelemetry("User login attempt", { email: email.value, success: true });
+    if (userLogIn?.nextStep?.signInStep == "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
       newUser.value = true;
       userSession = userLogIn;
-    }else{
-      navigateTo("/")
+    } else {
+      navigateTo("/");
     }
-    } catch (err) {
-      error.value = err.message || "Login failed.";
-      console.log(error)
-    }
-  };
-
-  async function confirmNewUser(values){
-    if(!userSession){
-      alert("No user session found. Please try to login again");
-      return
-    }
-    try{
-      const updatedUser = await confirmSignIn(userSession, values.newpassword);
-      console.log("Ok I got everything now")
-      console.log(updatedUser)
-    }catch(error){
-      message.value=error;
-      error.value=true;
-    }
-    
-  }  
-  function toggleMessage(){
-    messageOpen.value = !messageOpen.value
+  } catch (err) {
+    error.value = err.message || "Login failed.";
+    logTelemetry("User login attempt", { email: email.value, success: false, error: err.message });
   }
+};
 
+async function confirmNewUser(values) {
+  if (!userSession) {
+    alert("No user session found. Please try to login again");
+    return;
+  }
+  try {
+    const updatedUser = await confirmSignIn(userSession, values.newpassword);
+    logTelemetry("User password confirmation", { email: email.value, success: true });
+    navigateTo("/");
+  } catch (err) {
+    message.value = err.message;
+    success.value = false;
+    logTelemetry("User password confirmation", { email: email.value, success: false, error: err.message });
+  }
+}
 
-  onMounted(() => {
-    authStore.fetchUser();
-  });
+function toggleMessage() {
+  messageOpen.value = !messageOpen.value;
+}
 
-  watchEffect(() => {
-    if (user.value?.username) {
-      console.log(user.value)
-      console.log(user.value.profile)
-      navigateTo('/');
-    }
-  });
-  </script>  
+function logTelemetry(event, data) {
+  console.log("Telemetry Event:", event, "Data:", data);
+  // Here you can send the telemetry data to your server or a third-party service
+}
+
+onMounted(() => {
+  authStore.fetchUser();
+});
+
+watchEffect(() => {
+  if (user.value?.username) {
+    navigateTo('/');
+  }
+});
+</script>
