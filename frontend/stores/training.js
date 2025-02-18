@@ -353,6 +353,6 @@ export const useTrainingStore = defineStore('training', {
         this.items[week] = [];
       }
       this.items[week].push({ title: dayTitle, content: [] });
-    }
+    },
   }
 });

@@ -2,9 +2,9 @@
   <div class="bg-gray-900 min-h-screen text-white flex justify-center">
     <div class="w-full max-w-4xl p-6 rounded-lg shadow-md">
       <h2 class="text-2xl font-semibold text-center mb-4">Athlete {{ username }} Profile</h2>
-      <div class="bg-gray-700 p-4 rounded-lg flex space-x-4">
+      <div class="bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
         <!-- First Dropdown -->
-        <select v-model="selectedOption1" class="w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        <select v-model="selectedOption1" class="w-full md:w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
           <option value="" disabled>Select Block</option>
           <option v-for="option in options1" :key="option.id" :value="option.id">
             {{ option.label }}
@@ -12,7 +12,7 @@
         </select>
 
         <!-- Second Dropdown -->
-        <select v-model="selectedOption2" class="w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        <select v-model="selectedOption2" class="w-full md:w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
           <option value="" disabled>Select Week</option>
           <option v-for="option in filteredOptions2" :key="option.id" :value="option.id">
             {{ option.label }}
@@ -20,7 +20,7 @@
         </select>
       </div>
       <!-- Training -->
-      <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md">
+      <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md mt-4">
         <div v-for="(item, index) in filteredOptions3" :key="index" class="border-b border-gray-600">
           <button @click="toggle(index)" class="w-full flex justify-between items-center p-4 focus:outline-none">
             <span class="font-semibold">{{ item.title }}</span>
