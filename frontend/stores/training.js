@@ -347,6 +347,12 @@ export const useTrainingStore = defineStore('training', {
       } else {
         console.error("Invalid week, day index, or exercise index");
       }
+    },
+    addDay(week, dayTitle) {
+      if (!this.items[week]) {
+        this.items[week] = [];
+      }
+      this.items[week].push({ title: dayTitle, content: [] });
     }
   }
 });

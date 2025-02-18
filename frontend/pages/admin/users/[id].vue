@@ -1,12 +1,15 @@
 <template>
 <div class="bg-gray-900 min-h-screen text-white flex justify-center">
     <div class="w-full max-w-4xl p-6 rounded-lg shadow-md">        
+        <button @click="debug" class="mb-4 p-2 bg-red-600 rounded-lg hover:bg-red-700">
+            Debug
+        </button>
         <h2 class="text-2xl font-semibold text-center mb-4">Athlete {{ username }} Program Managment</h2>
         <div class="bg-gray-700 p-4 rounded-lg flex space-x-4">
             <!-- First Dropdown -->
             <select v-model="selectedOption1" class="w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
             <option value="" disabled>Select Block</option>
-            <option v-for="option in options1" :key="option.value" :value="option.value">
+            <option v-for="option in options1" :key="option.id" :value="option.id">
                 {{ option.label }}
             </option>
             </select>
@@ -14,10 +17,21 @@
             <!-- Second Dropdown -->
             <select v-model="selectedOption2" class="w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
             <option value="" disabled>Select Week</option>
-            <option v-for="option in filteredOptions2" :key="option.value" :value="option.value">
+            <option v-for="option in filteredOptions2" :key="option.id" :value="option.id">
                 {{ option.label }}
             </option>
             </select>
+        </div>
+        <!-- Add block -->
+        <div class="mt-4 bg-gray-800 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold">Add Block</h3>
+          <div class="flex space-x-4">
+            <input v-model="newBlockValue" placeholder="Block Value" class="w-1/2 p-2 bg-gray-700 text-white rounded-lg outline-none" />
+            <input v-model="newBlockLabel" placeholder="Block Label" class="w-1/2 p-2 bg-gray-700 text-white rounded-lg outline-none" />
+          </div>
+          <button @click="addBlock" class="w-full mt-2 p-2 bg-purple-600 rounded-lg hover:bg-purple-700">
+            Add Block
+          </button>
         </div>
         <!-- Add week -->
         <div class="mt-4 bg-gray-800 p-4 rounded-lg">
@@ -35,6 +49,7 @@
           Add Day
         </button>
         </div>
+        <!-- Training -->
     <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md">
         <div v-for="(item, index) in filteredOptions3" :key="index" class="border-b border-gray-600">
         <button @click="toggle(index)" class="w-full flex justify-between items-center p-4 focus:outline-none">
@@ -117,7 +132,8 @@
   </template>
   
   <script setup>
-  import { ref, computed } from "vue";
+  import { ref, computed, watch } from "vue";
+  import { storeToRefs } from "pinia";
   import { useRoute } from "vue-router";
   import { useAthleteStore } from '~/stores/athlete';
   import { useTrainingStore } from '~/stores/training';
@@ -130,7 +146,8 @@
   const { athletes } = storeToRefs(athleteStore);
   const route = useRoute();
   const userId = route.params.id;
-  username.value = athletes.value[userId - 1]?.username;
+  const athlete = computed(() => athletes.value.find(a => a.id === parseInt(userId)));
+  username.value = athlete.value?.username;
   definePageMeta({ middleware: ['auth-admin'] });
 
   const messageOpen = ref(false);
@@ -138,18 +155,19 @@
   const labelColor = ref("");
 
   const blocksStore = useBlocksStore();
-  const options1 = computed(() => blocksStore.blocks);
+  const options1 = ref(blocksStore.getBlocksByIds(athlete.value?.blocks.map(block => block.id) || []));
+  const selectedOption1 = ref(options1.value.length ? options1.value[options1.value.length - 1].id : "");
 
   const weeksStore = useWeeksStore();
-  const options2 = computed(() => weeksStore.weeks);
+  const options2 = computed(() => weeksStore.getWeeksByBlockId(selectedOption1.value));
 
-  const selectedOption1 = ref(options1.value[options1.value.length - 1].value);
-
-  const filteredOptions2 = computed(() => {
-    return options2.value[selectedOption1.value] || [];
+  const filteredOptions2 = ref(options2.value || []);
+  watch(() => options2.value, (newVal) => {
+    filteredOptions2.value = newVal || [];
   });
+
   const selectedOption2 = ref(
-    filteredOptions2.value.length ? filteredOptions2.value[filteredOptions2.value.length - 1].value : ""
+    filteredOptions2.value.length ? filteredOptions2.value[filteredOptions2.value.length - 1].id : ""
   );
 
   const trainingStore = useTrainingStore();
@@ -171,9 +189,15 @@
     messageOpen.value = !messageOpen.value;
   }
 
-  const filteredOptions3 = computed(() => {
-    return items.value[selectedOption2.value] || [];
+  const filteredOptions3 = ref(items.value[selectedOption2.value] || []);
+  watch(() => trainingStore.items[selectedOption2.value], (newItems) => {
+    filteredOptions3.value = newItems || [];
+  }, { deep: true });
+
+  watch(() => selectedOption2.value, (newVal) => {
+    filteredOptions3.value = items.value[newVal] || [];
   });
+
   const activeIndex = ref(null);
 
   const toggle = (index) => {
@@ -209,4 +233,49 @@
   function deleteExercise(dayIndex, exerciseIndex) {
     trainingStore.deleteExercise(selectedOption2.value, dayIndex, exerciseIndex);
   }
+
+  const newBlockValue = ref("");
+  const newBlockLabel = ref("");
+
+  function addBlock() {
+    blocksStore.addBlock(newBlockValue.value, newBlockLabel.value);
+    const newBlock = blocksStore.blocks[blocksStore.blocks.length - 1];
+    athleteStore.addBlockToAthlete(athlete.value.id, newBlock);
+    options1.value = blocksStore.getBlocksByIds(athlete.value?.blocks.map(block => block.id) || []);
+    newBlockValue.value = "";
+    newBlockLabel.value = "";
+  }
+
+  const newWeekTitle = ref("");
+
+  function addWeek() {
+    console.log("I am adding a week")
+    console.log(selectedOption1.value)
+    weeksStore.addWeek(selectedOption1.value, newWeekTitle.value);
+    newWeekTitle.value = "";
+  }
+
+  const newDayTitle = ref("");
+
+  function addDay() {
+    trainingStore.addDay(selectedOption2.value, newDayTitle.value);
+    newDayTitle.value = "";
+  }
+
+  function debug() {
+    console.log("Debugging...");
+    console.log("Selected Block ID:", selectedOption1.value);
+    console.log("Selected Block ID from options:", options1.value);
+    console.log("Selected Week ID:", selectedOption2.value);
+    console.log("Filtered Weeks:", filteredOptions2.value);
+    console.log("Filtered Training Items:", filteredOptions3.value);
+  }
+
+  watch(() => athlete.value.blocks, (newBlocks) => {
+    options1.value = blocksStore.getBlocksByIds(newBlocks.map(block => block.id));
+  }, { deep: true });
+
+  watch(() => selectedOption1.value, (newVal) => {
+    filteredOptions2.value = weeksStore.getWeeksByBlockId(newVal) || [];
+  });
   </script>
