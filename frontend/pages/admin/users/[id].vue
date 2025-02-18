@@ -1,9 +1,9 @@
 <template>
 <div class="bg-gray-900 min-h-screen text-white flex justify-center">
-    <div class="w-full max-w-4xl p-6 rounded-lg shadow-md">        
+    <div class="w-full max-w-4xl p-6 rounded-lg shadow-md"> <!--     
         <button @click="debug" class="mb-4 p-2 bg-red-600 rounded-lg hover:bg-red-700">
             Debug
-        </button>
+        </button> -->  
         <h2 class="text-2xl font-semibold text-center mb-4">Athlete {{ username }} Program Managment</h2>
         <div class="bg-gray-700 p-4 rounded-lg flex space-x-4">
             <!-- First Dropdown -->
@@ -22,34 +22,43 @@
             </option>
             </select>
         </div>
-        <!-- Managment Section -->
-        <!-- Add block -->
+        <!-- Management Section -->
         <div class="mt-4 bg-gray-800 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold">Add Block</h3>
-          <div class="flex space-x-4">
-            <input v-model="newBlockLabel" placeholder="Block Label" class="w-full p-2 mt-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
-          <button @click="addBlock" class="w-full mt-2 p-2 bg-purple-600 rounded-lg hover:bg-purple-700">
-            Add Block
-          </button>
+            <button @click="toggleManage" class="w-full flex justify-between items-center p-4 focus:outline-none">
+                <h3 class="text-lg font-semibold">Manage Athlete</h3>
+                <span :class="{'rotate-180': manageOpen}" class="transition-transform duration-300">
+                    ⬇️
+                </span>
+            </button>
+            <div v-if="manageOpen" class="p-4">
+                <!-- Add block -->
+                <div class="mt-4 bg-gray-800 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold">Add Block</h3>
+                    <div class="flex space-x-4">
+                        <input v-model="newBlockLabel" placeholder="Block Label" class="w-full p-2 mt-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <button @click="addBlock" class="w-full mt-2 p-2 bg-purple-600 rounded-lg hover:bg-purple-700">
+                        Add Block
+                    </button>
+                </div>
+                <!-- Add week -->
+                <div class="mt-4 bg-gray-800 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold">Add a New Week</h3>
+                    <input v-model="newWeekTitle" placeholder="Enter week number (e.g., Week 4)" class="w-full p-2 mt-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
+                    <button @click="addWeek" class="w-full mt-2 p-2 bg-purple-600 rounded-lg hover:bg-purple-700">
+                        Add Week
+                    </button>
+                </div>
+                <!-- Add day -->
+                <div class="mt-4 bg-gray-800 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold">Add a New Day</h3>
+                    <input v-model="newDayTitle" placeholder="Enter day (e.g., Wednesday)" class="w-full p-2 mt-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
+                    <button @click="addDay" class="w-full mt-2 p-2 bg-blue-600 rounded-lg hover:bg-blue-700">
+                        Add Day
+                    </button>
+                </div>
+            </div>
         </div>
-        <!-- Add week -->
-        <div class="mt-4 bg-gray-800 p-4 rounded-lg">
-        <h3 class="text-lg font-semibold">Add a New Week</h3>
-        <input v-model="newWeekTitle" placeholder="Enter week number (e.g., Week 4)" class="w-full p-2 mt-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
-        <button @click="addWeek" class="w-full mt-2 p-2 bg-purple-600 rounded-lg hover:bg-purple-700">
-          Add Week
-        </button>
-      </div>
-        <!-- Add day -->
-        <div class="mt-4 bg-gray-800 p-4 rounded-lg">
-        <h3 class="text-lg font-semibold">Add a New Day</h3>
-        <input v-model="newDayTitle" placeholder="Enter day (e.g., Wednesday)" class="w-full p-2 mt-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
-        <button @click="addDay" class="w-full mt-2 p-2 bg-blue-600 rounded-lg hover:bg-blue-700">
-          Add Day
-        </button>
-        </div>
-        <!-- Managment Section -->
         <!-- Training -->
     <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md">
         <div v-for="(item, index) in filteredOptions3" :key="index" class="border-b border-gray-600">
@@ -259,6 +268,12 @@
   function addDay() {
     trainingStore.addDay(selectedOption2.value, newDayTitle.value);
     newDayTitle.value = "";
+  }
+
+  const manageOpen = ref(false);
+
+  function toggleManage() {
+    manageOpen.value = !manageOpen.value;
   }
 
   function debug() {
