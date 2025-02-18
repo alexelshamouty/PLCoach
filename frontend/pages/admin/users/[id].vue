@@ -22,12 +22,12 @@
             </option>
             </select>
         </div>
+        <!-- Managment Section -->
         <!-- Add block -->
         <div class="mt-4 bg-gray-800 p-4 rounded-lg">
           <h3 class="text-lg font-semibold">Add Block</h3>
           <div class="flex space-x-4">
-            <input v-model="newBlockValue" placeholder="Block Value" class="w-1/2 p-2 bg-gray-700 text-white rounded-lg outline-none" />
-            <input v-model="newBlockLabel" placeholder="Block Label" class="w-1/2 p-2 bg-gray-700 text-white rounded-lg outline-none" />
+            <input v-model="newBlockLabel" placeholder="Block Label" class="w-full p-2 mt-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <button @click="addBlock" class="w-full mt-2 p-2 bg-purple-600 rounded-lg hover:bg-purple-700">
             Add Block
@@ -49,6 +49,7 @@
           Add Day
         </button>
         </div>
+        <!-- Managment Section -->
         <!-- Training -->
     <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md">
         <div v-for="(item, index) in filteredOptions3" :key="index" class="border-b border-gray-600">
@@ -234,15 +235,13 @@
     trainingStore.deleteExercise(selectedOption2.value, dayIndex, exerciseIndex);
   }
 
-  const newBlockValue = ref("");
   const newBlockLabel = ref("");
 
   function addBlock() {
-    blocksStore.addBlock(newBlockValue.value, newBlockLabel.value);
+    blocksStore.addBlock(newBlockLabel.value);
     const newBlock = blocksStore.blocks[blocksStore.blocks.length - 1];
     athleteStore.addBlockToAthlete(athlete.value.id, newBlock);
     options1.value = blocksStore.getBlocksByIds(athlete.value?.blocks.map(block => block.id) || []);
-    newBlockValue.value = "";
     newBlockLabel.value = "";
   }
 

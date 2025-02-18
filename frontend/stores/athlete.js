@@ -11,8 +11,8 @@ export const useAthleteStore = defineStore("athletes", {
           gender: "Male", 
           program: "Strength Training",
           blocks: [
-            { id: 101, value: "Block 1", label: "Block 1" },
-            { id: 102, value: "Block 2", label: "Block 2" }
+            { id: 101, label: "Block 1" },
+            { id: 102, label: "Block 2" }
           ]
         },
         { 
@@ -23,8 +23,8 @@ export const useAthleteStore = defineStore("athletes", {
           gender: "Female", 
           program: "Cardio",
           blocks: [
-            { id: 103, value: "Block 1", label: "Block 1" },
-            { id: 104, value: "Block 3", label: "Block 3" }
+            { id: 103, label: "Block 1" },
+            { id: 104, label: "Block 3" }
           ]
         },
         { 
@@ -35,8 +35,8 @@ export const useAthleteStore = defineStore("athletes", {
           gender: "Male", 
           program: "CrossFit",
           blocks: [
-            { id: 105, value: "Block 2", label: "Block 2" },
-            { id: 106, value: "Block 3", label: "Block 3" }
+            { id: 105, label: "Block 2" },
+            { id: 106, label: "Block 3" }
           ]
         },
         { 
@@ -47,8 +47,8 @@ export const useAthleteStore = defineStore("athletes", {
           gender: "Female", 
           program: "Yoga",
           blocks: [
-            { id: 107, value: "Block 1", label: "Block 1" },
-            { id: 108, value: "Block 2", label: "Block 2" }
+            { id: 107, label: "Block 1" },
+            { id: 108, label: "Block 2" }
           ]
         }    
     ]
