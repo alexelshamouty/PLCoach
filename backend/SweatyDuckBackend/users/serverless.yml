@@ -1,0 +1,31 @@
+service: traditional
+
+provider:
+  name: aws
+  runtime: python3.11
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "*"
+  ecr:
+    images:
+      userImage:
+        path: ./
+        platform: linux/amd64
+        file: Dockerfile
+functions:
+  hello:
+    image: userImage'
+    timeout: 60
+    memorySize: 265
+    events:
+      - httpApi:
+          path: /
+          method: get
+    environment:
+      # We are using the output of the shared resources CloudFormation template
+      # that is passed down from Serverless Compose, and the staged param "domain".
+      TABLE_NAME: ${param:tableName}
