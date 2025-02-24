@@ -24,13 +24,17 @@ services:
     path: dynamodb-table
     params:
       tableNamePrefix: users
-  
-  cognito:
-    path: cognito
-    params:
-      domain: ${param.domain} # This is the value of the "domain" param in the current stage
   users:
     path: users
     params:
       tableName: ${dynamodbTable.TableName}
       tableArn: ${dynamodbTable.TableArn}
+  cognito:
+    path: cognito
+    params:
+      userLambdaArn: ${users.UsersRegisterationLambdaFunctionQualifiedArn}
+  lambdaPermission:
+    path: cloudformation
+    params:
+      userLambdaArn: ${users.UsersRegisterationLambdaFunctionQualifiedArn}
+      userPoolArn: ${cognito.UserPoolArn}

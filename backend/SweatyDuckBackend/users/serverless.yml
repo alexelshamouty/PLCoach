@@ -10,6 +10,10 @@ provider:
           Action:
             - dynamodb:*
           Resource: "${param:tableArn}"
+        - Effect: Allow
+          Action:
+            - cognito-idp:*
+          Resource: "*"
   ecr:
     images:
       userImage:

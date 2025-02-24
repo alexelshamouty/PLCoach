@@ -3,8 +3,8 @@ AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   UserPool:
     Type: AWS::Cognito::UserPool
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
     Properties:
       UserPoolName: ${sls:stage}-SweatyDuckUserPool
       AutoVerifiedAttributes:
@@ -22,34 +22,66 @@ Resources:
           AttributeDataType: String
           Mutable: true
           Required: true
-        - Name: birthdate
-          AttributeDataType: String
-          Mutable: true
-          Required: true
         - Name: weight
           AttributeDataType: Number
           Mutable: true
-          Required: true
-        - Name: username
+          Required: false
+        - Name: preferred_username
           AttributeDataType: String
           Mutable: true
           Required: true
       UsernameAttributes:
         - email
+      LambdaConfig:
+        PostConfirmation: ${param:userLambdaArn}
+  UserPoolDomain: 
+    Type: AWS::Cognito::UserPoolDomain 
+    Properties:
+      UserPoolId: !Ref UserPool 
+      Domain: "my-test-user-pool-domain"
+      ManagedLoginVersion: "2"
   UserPoolClient:
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Type: AWS::Cognito::UserPoolClient
     Properties:
       ClientName: ${sls:stage}-SweatyDuckUserPoolClient
+      GenerateSecret: false
       UserPoolId: !Ref UserPool
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_CUSTOM_AUTH
       CallbackURLs:
-        - ${params.domain}
+        - ${param:domain}
       LogoutURLs:
-        - ${params.domain}/logout
+        - ${param:domain}/logout
+      AllowedOAuthFlows:
+        - code
+        - implicit
       AllowedOAuthScopes:
-        - email
-        - openid
         - profile
-
+        - openid
+        - email
+  CoachesGroup:
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref UserPool
+      GroupName: coaches
+      Description: Admin Group For Coaches
+  AthletesGroup:
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref UserPool
+      GroupName: athletes
+      Description: Group For Athletes
 # We are outputting the table name so that other services can reference it.
 Outputs:
   UserPool:
@@ -58,3 +90,5 @@ Outputs:
     Value: !Ref UserPoolClient
   ClientName:
     Value: !GetAtt UserPoolClient.ClientId
+  UserPoolArn:
+    Value: !GetAtt UserPool.Arn
