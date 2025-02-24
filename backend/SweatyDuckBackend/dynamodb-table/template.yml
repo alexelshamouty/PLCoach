@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+  UsersTable:
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      # We are using the parameter passed down from Serverless Compose, and the current stage.
+      # To construct the final table name.
+      TableName: ${param:tableNamePrefix}-${sls:stage}
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+Outputs:
+  TableName:
+    Value: !Ref UsersTable
+  TableArn:
+    Value: !GetAtt UsersTable.Arn

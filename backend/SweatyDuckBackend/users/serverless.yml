@@ -1,4 +1,4 @@
-service: traditional
+service: usersRegisteration
 
 provider:
   name: aws
@@ -9,7 +9,7 @@ provider:
         - Effect: Allow
           Action:
             - dynamodb:*
-          Resource: "*"
+          Resource: "${param:tableArn}"
   ecr:
     images:
       userImage:
@@ -17,8 +17,8 @@ provider:
         platform: linux/amd64
         file: Dockerfile
 functions:
-  hello:
-    image: userImage'
+  usersRegisteration:
+    image: userImage
     timeout: 60
     memorySize: 265
     events:
@@ -29,3 +29,4 @@ functions:
       # We are using the output of the shared resources CloudFormation template
       # that is passed down from Serverless Compose, and the staged param "domain".
       TABLE_NAME: ${param:tableName}
+      TABLE_ARN: ${param:tableArn}

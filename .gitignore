@@ -2,3 +2,4 @@
 .netlify
 dynamodb/*
 dynamodb
+.serverless

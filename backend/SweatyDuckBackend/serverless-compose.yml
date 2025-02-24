@@ -1,5 +1,6 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: alexelshamouty
+app: sweaty-duck-backend
 # Serverless Framework can deploy multiple types of templates:
 #   1) Traditional Serverless Framework templates
 #   2) AWS Cloudformation Templates
@@ -19,21 +20,13 @@ stages:
       #domain: "prod-api.acmeinc.com" # This is the value of the "domain" param in the prod stage
 
 services:
-  # Framework: AWS CloudFormation
-  # The service name here will be used as the underlying cloudformation stack name.
-  # Make sure it’s unique so it doesn’t collide, and accidently update another stack.
-  # If you change it, make sure you update the references in other services.
-  shared-resources-example:
-    path: cloudformation
+  dynamodbTable:
+    path: dynamodb-table
     params:
-      # We are passing a simple string parameter to the CloudFormation template.
-      # If you open the template file, you will see that we reference it with ${param:tableNamePrefix}
       tableNamePrefix: users
 
-  # Framework: Serverless Framework Traditional
   users:
     path: users
     params:
-      # We are passing a reference to the shared CloudFormation stack output to the traditional service.
-      # The shared CloudFormation stack is deployed first, and the output is passed to this service.
-      tableName: ${shared-resources-example.TableName}
+      tableName: ${dynamodbTable.TableName}
+      tableArn: ${dynamodbTable.TableArn}

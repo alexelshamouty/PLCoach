@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      UserPoolName: ${sls:stage}-SweatyDuckUserPool
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: gender
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: birthdate
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: weight
+          AttributeDataType: Number
+          Mutable: true
+          Required: true
+        - Name: username
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+      UsernameAttributes:
+        - email
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: ${sls:stage}-SweatyDuckUserPoolClient
+      UserPoolId: !Ref UserPool
+
+# We are outputting the table name so that other services can reference it.
+Outputs:
+  UserPool:
+    Value: !Ref UserPool
