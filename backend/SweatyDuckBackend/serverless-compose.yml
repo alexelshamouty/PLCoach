@@ -14,17 +14,21 @@ app: sweaty-duck-backend
 stages:
   default:
     params:
-      #domain: "dev-api.acmeinc.com" # This is the value of the "domain" param in the dev stage
+      domain: "https://sweatyduckz.netlify.app/" # This is the value of the "domain" param in the dev stage
   prod:
     params:
-      #domain: "prod-api.acmeinc.com" # This is the value of the "domain" param in the prod stage
+      domain: "https://sweatyduckz.netlify.app/" # This is the value of the "domain" param in the prod stage
 
 services:
   dynamodbTable:
     path: dynamodb-table
     params:
       tableNamePrefix: users
-
+  
+  cognito:
+    path: cognito
+    params:
+      domain: ${param.domain} # This is the value of the "domain" param in the current stage
   users:
     path: users
     params:

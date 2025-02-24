@@ -41,8 +41,20 @@ Resources:
     Properties:
       ClientName: ${sls:stage}-SweatyDuckUserPoolClient
       UserPoolId: !Ref UserPool
+      CallbackURLs:
+        - ${params.domain}
+      LogoutURLs:
+        - ${params.domain}/logout
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
 
 # We are outputting the table name so that other services can reference it.
 Outputs:
   UserPool:
     Value: !Ref UserPool
+  ClientId:
+    Value: !Ref UserPoolClient
+  ClientName:
+    Value: !GetAtt UserPoolClient.ClientId
