@@ -1,0 +1,10 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: '${param:userLambdaArn}'
+      Principal: 'cognito-idp.amazonaws.com'
+      SourceArn: '${param:userPoolArn}/*'
