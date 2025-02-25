@@ -81,9 +81,9 @@ Resources:
         - ALLOW_USER_SRP_AUTH
         - ALLOW_CUSTOM_AUTH
       CallbackURLs:
-        - ${param:domain}
-      # LogoutURLs:
-      #   - ${param:domain}logout
+        - ${param:domain}redirect-login
+      LogoutURLs:
+        - ${param:domain}logout
       AllowedOAuthFlows:
         - code
         - implicit
