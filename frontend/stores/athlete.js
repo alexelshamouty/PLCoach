@@ -29,6 +29,7 @@ export const useAthleteStore = defineStore('athlete', {
           Gender: user.Gender,
           Weight: parseInt(user.Weight),
           preferredUsername: user.Preferred_username,
+          photoUrl: user.photoUrl || false,
           program: "N/A",
           blocks: []
         }));
@@ -62,6 +63,7 @@ export const useAthleteStore = defineStore('athlete', {
           Gender: userData[0].Gender,
           Weight: parseInt(userData[0].Weight),
           preferredUsername: userData[0].Preferred_username,
+          photoUrl: userData[0].photoUrl || false,
           program: "N/A",
           blocks: []
         };

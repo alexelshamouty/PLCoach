@@ -21,11 +21,33 @@
                 </p>
             </div>
           </div>
-          <!-- Add a placeholder avatar or icon -->
-          <div class="bg-gray-700 rounded-full p-4">
-            <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-            </svg>
+          <!-- Updated Avatar Section -->
+          <div class="relative group">
+            <button type="button"
+                    class="bg-gray-700 rounded-full p-4 cursor-pointer hover:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    @click="openFileDialog"
+                    :disabled="uploadingPhoto">
+              <div class="relative w-16 h-16">
+                <img v-if="athlete?.photoUrl" 
+                     :src="athlete.photoUrl" 
+                     class="w-full h-full rounded-full object-cover"
+                     alt="Profile photo" />
+                <svg v-else class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+                <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+              </div>
+            </button>
+            <input type="file" 
+                   ref="fileInput" 
+                   class="hidden" 
+                   accept="image/*"
+                   @change="handleFileUpload" />
           </div>
         </div>
       </div>
@@ -138,11 +160,17 @@
 import { ref, computed, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
+import { useApi } from '~/composables/useApi';  // Add this import
 import { useAthleteStore } from '~/stores/athlete';
 import { useTrainingStore } from '~/stores/training';
 import { useLabelsStore } from '~/stores/labels';
 import { useBlocksStore } from '~/stores/blocks';
 import { useWeeksStore } from '~/stores/weeks';
+
+// Add file input ref and api
+const fileInput = ref(null);
+const uploadingPhoto = ref(false);
+const { authenticatedFetch } = useApi();
 
 const athleteStore = useAthleteStore();
 const { athletes, currentAthlete } = storeToRefs(athleteStore);
@@ -215,4 +243,61 @@ function submitDialog() {
   console.log("Submitted changes:", selectedExercise.value);
   closeDialog();
 }
+
+// File handling methods
+function openFileDialog() {
+  console.log('Opening file dialog');
+  if (!uploadingPhoto.value) {
+    fileInput.value?.click();
+  }
+}
+
+async function handleFileUpload(event) {
+  console.log('File upload triggered');
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    alert('Please upload an image file');
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert('File size should be less than 5MB');
+    return;
+  }
+
+  uploadingPhoto.value = true;
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('userId', userId);
+
+    const response = await authenticatedFetch('https://your-api-endpoint/uploadPhoto', {
+      method: 'POST',
+      body: formData,
+      headers: {} // Remove all headers for FormData
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload image');
+    }
+
+    await athleteStore.fetchAthlete(userId);
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    alert('Failed to upload image. Please try again.');
+  } finally {
+    uploadingPhoto.value = false;
+    // Clear the input
+    event.target.value = '';
+  }
+}
 </script>
+
+<style scoped>
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
+}
+</style>
