@@ -15,7 +15,7 @@ def handler(event, context):
         userPoolId = event['userPoolId']
         region = event['region']
         userid = userAttributes['sub']
-        username = userAttributes['username']
+        username = event['userName']
         email = userAttributes['email']
         name = userAttributes['name']
         preferred_username = userAttributes['preferred_username']
