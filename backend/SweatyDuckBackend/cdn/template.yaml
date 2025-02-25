@@ -1,0 +1,78 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+    DistributionOAC:
+      Type: AWS::CloudFront::OriginAccessControl
+      Properties:
+        OriginAccessControlConfig:
+          Description: "CloudFront OAC for Cost Spotty"
+          Name: "costspottyalex"
+          OriginAccessControlOriginType: s3
+          SigningBehavior: always
+          SigningProtocol: sigv4
+    S3Bucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
+      UpdateReplacePolicy: Retain
+      Properties:
+        BucketName: ${param:cndBucketName}-${sls:stage}
+        OwnershipControls:
+          Rules:
+            - ObjectOwnership: BucketOwnerEnforced
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref S3Bucket
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:*'
+              Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
+              Principal:
+                Service: 'lambda.amazonaws.com'
+              Condition:
+                StringEquals:
+                  #Allow only the lambda function to access the bucket
+                  AWS:SourceArn: ${param:uploadLambdaArn}
+            - Effect: Allow
+              Action:
+                - 's3:GetObject'
+              Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
+              Principal:
+                Service: cloudfront.amazonaws.com
+              Condition:
+                StringEquals:
+                  AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          DefaultCacheBehavior:
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            DefaultTTL: 86400
+            MinTTL: 0
+            MaxTTL: 31536000
+            ForwardedValues:
+              QueryString: false
+          Enabled: true
+          HttpVersion: http2
+          DefaultRootObject: index.html
+          Origins:
+            - Id: S3Origin
+              OriginAccessControlId: !Ref DistributionOAC
+              DomainName: !Sub "${S3Bucket}.s3.amazonaws.com"
+              S3OriginConfig: {}
+          ViewerCertificate:
+            CloudFrontDefaultCertificate: true
+      # Outputs disribution url
+Outputs:
+  CloudFrontDistributionDomainName:
+    Description: "The domain name of the CloudFront Distribution"
+    Value: !Sub "https://${CloudFrontDistribution.DomainName}"
+  S3BucketName:
+    Description: "The name of the S3 bucket"
+    Value: !Ref S3Bucket
