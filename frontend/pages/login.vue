@@ -2,151 +2,108 @@
   <div v-if="loading" class="flex items-center justify-center min-h-screen bg-gray-900">
     <div class="w-16 h-16 border-4 border-gray-300 border-t-yellow-400 rounded-full animate-spin"></div>
   </div>
-  <div v-else-if="!user?.username && !newUser">
-    <BearFace :email="email" :isTypingPassword="isTypingPassword" />
-      <div class="flex flex-col items-center min-h-screen bg-gray-900 text-white">
-        <h2 class="text-2xl font-bold mb-4">Login</h2>
-        <input v-model="email" type="email" placeholder="Email" class="w-80 p-3 mb-3 text-black rounded-md text-lg" @focus="isTypingPassword = false">
-        <input v-model="password" type="password" placeholder="Password" class="w-80 p-3 mb-3 text-black rounded-md text-lg" @focus="isTypingPassword = true">
-        
-        <button @click="login" class="bg-yellow-400 px-4 py-2 rounded">Login</button>
+  <div v-else class="flex flex-col items-center min-h-screen bg-gray-900 text-white p-4">
+    <h2 class="text-2xl font-bold mb-8">Login</h2>
     
-        <p v-if="error" class="text-red-500 mt-2">{{ error }}</p>
+    <!-- Direct Login Form -->
+    <form @submit.prevent="handleDirectLogin" class="w-full max-w-md space-y-4 mb-8">
+      <div>
+        <input 
+          v-model="email" 
+          type="email" 
+          placeholder="Email" 
+          class="w-full p-3 mb-3 text-black rounded-md text-lg"
+          required
+        />
       </div>
-    </div>
-  <div v-if="newUser">
-    <div class="bg-gray-900 min-h-screen text-white flex items-center justify-center">
-      <div class="w-full max-w-md p-6 rounded-lg shadow-md">
-          <h2 class="text-2xl font-semibold text-center mb-4">Create your new profile</h2>
-          <Form @submit="confirmNewUser" :validation-schema="schema" class="space-y-4">
-
-            <div>
-              <label for="newpassword" class="block text-sm font-medium mb-1">New Password:</label>
-              <Field id="newpassword" name="newpassword" type="password" v-model="formData.newpassword"
-                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500" />
-              <ErrorMessage name="newpassword" class="text-red-400 text-sm mt-1" />
-            </div>
-
-            <!-- Confirm Password Field -->
-            <div>
-              <label for="confirmPassword" class="block text-sm font-medium mb-1">Confirm Password:</label>
-              <Field id="confirmPassword" name="confirmPassword" type="password" v-model="formData.confirmPassword"
-                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500" />
-              <ErrorMessage name="confirmPassword" class="text-red-400 text-sm mt-1" />
-            </div>
-          <div>
-              <label for="weight" class="block text-sm font-medium mb-1">Weight:</label>
-            <Field id="weight" name="weight" v-model="formData.weight"
-                   class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <ErrorMessage name="weight" class="text-red-400 text-sm mt-1" />
-          </div>
-
-          <button class="bg-red-400 text-black px-4 py-2 rounded" type="submit">
-              Confirm Profile
-          </button>
-          <div v-if="messageOpen">
-            <div @click="toggleMessage()" v-if="success" class="mt-6 p-4 bg-yellow-500 text-black text-center rounded-lg shadow-lg animate-bounce">
-              <p class="text-lg font-semibold">{{ message }}</p>
-            </div>
-          </div>
-        <div v-if="messageOpen" @click="toggleMessage()">
-            <div v-if="success" class="mt-4 text-center">
-            <NuxtLink to="/" class="bg-yellow-400 text-black px-6 py-2 rounded-md font-semibold shadow-md hover:bg-yellow-300 transition">
-                Go Home
-            </NuxtLink>
-            </div>
-        </div>
-        <div v-if="error" class="mt-6 p-4 bg-red-500 text-black text-center rounded-lg shadow-lg">
-              <p class="text-lg font-semibold">{{ error }}</p>
-          </div>
-      </Form>
+      <div>
+        <input 
+          v-model="password" 
+          type="password" 
+          placeholder="Password" 
+          class="w-full p-3 mb-3 text-black rounded-md text-lg"
+          required
+        />
       </div>
+      <button 
+        type="submit" 
+        class="w-full bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-500 transition"
+      >
+        Login
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="w-full max-w-md flex items-center justify-center mb-8">
+      <div class="border-t border-gray-600 flex-grow"></div>
+      <span class="px-4 text-gray-400">or</span>
+      <div class="border-t border-gray-600 flex-grow"></div>
     </div>
+
+    <!-- Cognito Hosted UI Button -->
+    <button 
+      @click="handleCognitoLogin" 
+      class="w-full max-w-md bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+    >
+      Continue with Cognito
+    </button>
+
+    <p v-if="error" class="mt-4 text-red-500">{{ error }}</p>
   </div>
 </template>
 
 <script setup>
-import { watchEffect, ref, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { signIn, confirmSignIn } from 'aws-amplify/auth';
-import { useAuthStore } from './stores/auth';
-import { useAthleteStore } from '~/stores/athlete';
-import { onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
-import { Field, Form, ErrorMessage } from 'vee-validate';
-import * as yup from 'yup';
+import { signIn } from 'aws-amplify/auth';
+import { useAuthStore } from '~/stores/auth';
 
+const router = useRouter();
 const authStore = useAuthStore();
-const { user, loading } = storeToRefs(authStore);
 const email = ref('');
 const password = ref('');
 const error = ref('');
-const newUser = ref(false);
-const formData = ref({ newpassword: "", confirmPassword: "", weight: "" });
-const messageOpen = ref(false);
-const success = ref(false);
-const message = ref("");
-let userSession = null;
-const schema = computed(() => yup.object({
-  newpassword: yup.string().required("New Password is required"),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref("newpassword"), null], "Passwords must match")
-    .required("Confirm Password is required"),
-  weight: yup.number().required("Weight is required"),
-}));
+const loading = ref(false);
 
-const login = async () => {
+onMounted(async () => {
+  // Check if user is already authenticated
   try {
-    const userLogIn = await signIn({
+    await authStore.fetchUser();
+    if (authStore.user) {
+      handleSuccessfulLogin();
+    }
+  } catch (err) {
+    console.error('Auth check error:', err);
+  }
+});
+
+async function handleDirectLogin() {
+  loading.value = true;
+  error.value = '';
+  
+  try {
+    await signIn({
       username: email.value,
       password: password.value,
     });
-    logTelemetry("User login attempt", { email: email.value, success: true });
-    if (userLogIn?.nextStep?.signInStep == "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
-      newUser.value = true;
-      userSession = userLogIn;
-    } else {
-      navigateTo("/");
-    }
+    await authStore.fetchUser();
+    handleSuccessfulLogin();
   } catch (err) {
-    error.value = err.message || "Login failed.";
-    logTelemetry("User login attempt", { email: email.value, success: false, error: err.message });
-  }
-};
-
-async function confirmNewUser(values) {
-  if (!userSession) {
-    alert("No user session found. Please try to login again");
-    return;
-  }
-  try {
-    const updatedUser = await confirmSignIn(userSession, values.newpassword);
-    logTelemetry("User password confirmation", { email: email.value, success: true });
-    navigateTo("/");
-  } catch (err) {
-    message.value = err.message;
-    success.value = false;
-    logTelemetry("User password confirmation", { email: email.value, success: false, error: err.message });
+    error.value = err.message || 'Login failed';
+    loading.value = false;
   }
 }
 
-function toggleMessage() {
-  messageOpen.value = !messageOpen.value;
+function handleCognitoLogin() {
+  // Redirect to Cognito hosted UI
+  window.location.href = process.env.NUXT_PUBLIC_COGNITO_HOSTED_UI_URL;
 }
 
-function logTelemetry(event, data) {
-  console.log("Telemetry Event:", event, "Data:", data);
-  // Here you can send the telemetry data to your server or a third-party service
-}
-
-onMounted(() => {
-  authStore.fetchUser();
-});
-
-watchEffect(() => {
-  if (user.value?.username) {
-    navigateTo('/');
+function handleSuccessfulLogin() {
+  if (authStore.admin) {
+    router.push('/admin/adminDashboard');
+  } else if (authStore.user) {
+    router.push(`/users/profile/${authStore.user.userId}`);
   }
-});
+}
 </script>

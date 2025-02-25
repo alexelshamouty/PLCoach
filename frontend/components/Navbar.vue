@@ -30,7 +30,13 @@
   
     <!-- Mobile Menu (Dropdown) -->
     <div @click="toggleMenu" v-if="menuOpen" class="absolute left-0 w-64 h-full bg-gray-800 p-4 shadow-lg transition-transform duration-300 ease-in-out">
-      <NuxtLink to="/profile" class="block text-white py-2">Profile</NuxtLink>
+      <NuxtLink 
+        v-if="user" 
+        :to="`/users/profile/${user.userId}`" 
+        class="block text-white py-2"
+      >
+        Profile
+      </NuxtLink>
       <NuxtLink to="/contact" class="block text-white py-2">Contact</NuxtLink>
 
       <!-- Admin section -->
@@ -59,4 +65,4 @@
 
   watch(() => authStore.user, (newUser) => {
   });
-  </script>  
+  </script>

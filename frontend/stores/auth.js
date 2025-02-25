@@ -5,6 +5,7 @@ export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null,
     admin: null,
+    gender: null,
     groups: [],
     error: null,
     loading: true,
@@ -13,24 +14,32 @@ export const useAuthStore = defineStore("auth", {
     async fetchUser() {
       try {
         const user = await getCurrentUser();
-        try{
-          const session = await fetchAuthSession();
-          const idToken = session.tokens?.idToken?.toString();
-          if(idToken){
-            const payload = JSON.parse(atob(idToken.split('.')[1]));
-            this.groups = payload["cognito:groups"] || [];
-            if(this.groups.includes('coaches')){
-              this.admin = true;
-            }
-          }  
-        }catch(error){
-          console.log(error)
+        const session = await fetchAuthSession();
+        console.log(user)
+        if (session.tokens?.idToken) {
+          const payload = JSON.parse(atob(session.tokens.idToken.toString().split('.')[1]));
+          this.groups = payload["cognito:groups"] || [];
+          this.admin = this.groups.includes('coaches');
+          this.gender = payload.gender || 'other';
+          console.log(payload)
+          // Enhance user object with additional info from token
+          this.user = {
+            ...user,
+            userId: payload.sub,
+            email: payload.email,
+            username: payload.name || payload.email
+          };
+        } else {
+          this.user = user;
         }
-        this.user = user;
+        
         this.loading = false;
+        return this.user;
       } catch (error) {
         this.error = error;
-        this.loading = true;
+        this.user = null;
+        this.admin = false;
+        this.groups = [];
       } finally {
         this.loading = false;
       }
@@ -47,5 +56,9 @@ export const useAuthStore = defineStore("auth", {
         this.error = error;
       }
     },
+    setUser(userData) {
+      this.user = userData;
+      this.loading = false;
+    }
   },
 });
