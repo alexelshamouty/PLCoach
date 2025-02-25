@@ -33,8 +33,4 @@ services:
     path: cognito
     params:
       userLambdaArn: ${users.UsersRegisterationLambdaFunctionQualifiedArn}
-  lambdaPermission:
-    path: cloudformation
-    params:
-      userLambdaArn: ${users.UsersRegisterationLambdaFunctionQualifiedArn}
-      userPoolArn: ${cognito.UserPoolArn}
+      userLambdaFunctionName: usersRegisteration-${sls:stage}-usersRegisteration

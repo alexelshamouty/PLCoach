@@ -2,8 +2,8 @@ AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
   UsersTable:
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
     Type: "AWS::DynamoDB::Table"
     Properties:
       # We are using the parameter passed down from Serverless Compose, and the current stage.

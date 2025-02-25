@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
+#### User Pool #####
   UserPool:
     Type: AWS::Cognito::UserPool
     DeletionPolicy: Delete
@@ -34,17 +35,41 @@ Resources:
         - email
       LambdaConfig:
         PostConfirmation: ${param:userLambdaArn}
+#### User Pool Domain #####
   UserPoolDomain: 
-    Type: AWS::Cognito::UserPoolDomain 
+    Type: AWS::Cognito::UserPoolDomain
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
     Properties:
       UserPoolId: !Ref UserPool 
-      Domain: "my-test-user-pool-domain"
+      Domain: "testydomainduckduck"
       ManagedLoginVersion: "2"
+#### UI Customisation, otherwise the login page will fail ####
+  UICustomization:
+    Type: AWS::Cognito::UserPoolUICustomizationAttachment
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      ClientId: !Ref UserPoolClient
+      UserPoolId: !Ref UserPool
+  UIBranding:
+    Type: AWS::Cognito::ManagedLoginBranding
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientId: !Ref UserPoolClient
+      UseCognitoProvidedValues: true
+
+#### User Pool Client #####
   UserPoolClient:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Type: AWS::Cognito::UserPoolClient
     Properties:
+      AllowedOAuthFlowsUserPoolClient: true
+      SupportedIdentityProviders:
+        - COGNITO
       ClientName: ${sls:stage}-SweatyDuckUserPoolClient
       GenerateSecret: false
       UserPoolId: !Ref UserPool
@@ -57,8 +82,8 @@ Resources:
         - ALLOW_CUSTOM_AUTH
       CallbackURLs:
         - ${param:domain}
-      LogoutURLs:
-        - ${param:domain}/logout
+      # LogoutURLs:
+      #   - ${param:domain}logout
       AllowedOAuthFlows:
         - code
         - implicit
@@ -66,6 +91,15 @@ Resources:
         - profile
         - openid
         - email
+#### User Pool Groups #####
+  AdminsGroup:
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref UserPool
+      GroupName: admins
+      Description: Admin Group For SweatyDuck
   CoachesGroup:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
@@ -82,6 +116,22 @@ Resources:
       UserPoolId: !Ref UserPool
       GroupName: athletes
       Description: Group For Athletes
+
+### Lambda Permission ####
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: '${param:userLambdaFunctionName}'
+      Principal: cognito-idp.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - UserPool
+          - Arn
+
+#########################################
+# Outputs                               #
+#########################################
 # We are outputting the table name so that other services can reference it.
 Outputs:
   UserPool:
