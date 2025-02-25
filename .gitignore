@@ -3,3 +3,4 @@
 dynamodb/*
 dynamodb
 .serverless
+user-json.json
