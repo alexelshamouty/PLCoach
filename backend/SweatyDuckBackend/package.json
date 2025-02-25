@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "serverless-plugin-lambda-dead-letter": "^1.2.1"
+  }
+}

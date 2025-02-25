@@ -4,3 +4,4 @@ dynamodb/*
 dynamodb
 .serverless
 user-json.json
+node_modules
