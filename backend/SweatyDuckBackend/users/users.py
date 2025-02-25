@@ -23,7 +23,7 @@ def handler(event, context):
         weight = userAttributes.get('custom:weight', '0')
         date = datetime.now().isoformat()
         #Adding the user to the right cognito group
-        cognito.admin_add_user_to_group(UserPoolId=userPoolId, Username=username, Groupname='athletes')
+        cognito.admin_add_user_to_group(UserPoolId=userPoolId, Username=username, GroupName='athletes')
 
         #Adding the user to the dynamodb table
         #Just making sure if we get a double invocation for whatever reason..
