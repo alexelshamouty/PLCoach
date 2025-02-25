@@ -38,3 +38,10 @@ services:
     path: getUsers
     params:
       tableName: ${dynamodbTable.TableName}
+      tableArn: ${dynamodbTable.TableArn}
+      cognitoArn: ${cognito.UserPoolArn}
+  getUser:
+    path: getUser
+    params:
+      tableName: ${dynamodbTable.TableName}
+      tableArn: ${dynamodbTable.TableArn}

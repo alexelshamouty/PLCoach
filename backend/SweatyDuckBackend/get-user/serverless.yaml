@@ -1,0 +1,33 @@
+service: getUser
+
+provider:
+  name: aws
+  runtime: python3.11
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "${param:tableArn}"
+functions:
+  getUsers:
+    handler: getUser.handler
+    name: getUser-${sls:stage}
+    memorySize: 128
+    timeout: 60
+    events:
+      - http:
+          path: /getUser
+          method: get
+          timeout: 60
+          cors: true
+          integration: lambda
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+            claims:
+              - email
+              - cognito:username
+    environment:
+      TABLE_NAME: ${param:tableName}

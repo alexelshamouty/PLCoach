@@ -20,7 +20,7 @@ export const useApi = () => {
         },
       };
 
-      const response = await fetch(`https://c1yi9fd6kc.execute-api.eu-north-1.amazonaws.com/dev${endpoint}`, {
+      const response = await fetch(`${endpoint}`, {
         ...defaultOptions,
         ...options,
       });

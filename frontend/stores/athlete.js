@@ -4,6 +4,7 @@ import { useApi } from '~/composables/useApi';
 export const useAthleteStore = defineStore('athlete', {
   state: () => ({
     athletes: [],
+    currentAthlete: null,  // Add this new state property
     loading: false,
     error: null
   }),
@@ -14,7 +15,7 @@ export const useAthleteStore = defineStore('athlete', {
       this.loading = true;
       
       try {
-        const response = await authenticatedFetch('/users');
+        const response = await authenticatedFetch('https://c1yi9fd6kc.execute-api.eu-north-1.amazonaws.com/dev/users');
         if (!response.ok) throw new Error('Failed to fetch athletes');
         
         const responseData = await response.json();
@@ -38,6 +39,43 @@ export const useAthleteStore = defineStore('athlete', {
         this.loading = false;
       }
     },
+
+    async fetchAthlete(userId) {
+      const { authenticatedFetch } = useApi();
+      this.loading = true;
+      
+      try {
+        const response = await authenticatedFetch(`https://6yztzyjul9.execute-api.eu-north-1.amazonaws.com/dev/getUser?userId=${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch athlete');
+        
+        const responseData = await response.json();
+        const userData = JSON.parse(responseData.body);
+        console.log(userData)
+        console.log("sfasfas")
+        if (!userData) throw new Error('No user data found');
+
+        // Format the user data
+        this.currentAthlete = {
+          Userid: userData[0].Userid,
+          Name: userData[0].Name,
+          Email: userData[0].Email,
+          Gender: userData[0].Gender,
+          Weight: parseInt(userData[0].Weight),
+          preferredUsername: userData[0].Preferred_username,
+          program: "N/A",
+          blocks: []
+        };
+
+        return this.currentAthlete;
+      } catch (error) {
+        this.error = error.message;
+        console.error('Error fetching athlete:', error);
+        return null;
+      } finally {
+        this.loading = false;
+      }
+    },
+
     deleteAthlete(id){
         this.athletes = this.athletes.filter(athlete => athlete.id !== id);
     },
