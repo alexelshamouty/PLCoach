@@ -3,8 +3,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     Amplify.configure({
         Auth: {
             Cognito: {
-              userPoolClientId: '1ajqb01t618717pelfupggdevd',
-              userPoolId: 'eu-north-1_QloENnygS',
+              userPoolClientId: '7og58rnsguocu211secvdmtibf',
+              userPoolId: 'eu-north-1_wpbydxmmD',
               loginWith: { // Optional
                 oauth: {
                   domain: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_SvGcTQ7MA',
