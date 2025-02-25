@@ -1,0 +1,24 @@
+service: getUsers
+
+provider:
+  name: aws
+  runtime: python3.11
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "${param:tableArn}"
+functions:
+  getUsers:
+    handler: getUsers.handler
+    name: getUsers-${sls:stage}
+    memorySize: 128
+    timeout: 60
+    events:
+      - http:
+          path: /users
+          method: get
+    environment:
+      TABLE_NAME: ${param:tableName}

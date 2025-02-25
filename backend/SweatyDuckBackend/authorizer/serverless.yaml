@@ -1,0 +1,18 @@
+service: authorizer
+
+provider:
+  name: aws
+  runtime: python3.11
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "${param:tableArn}"
+functions:
+  authorizer:
+    handler: authorizer.handler
+    name: authorizer-${sls:stage}
+    memorySize: 128
+    timeout: 60

@@ -41,18 +41,18 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue';
-  import {deleteAthletes} from '~/composables/deleteAthlete';
-  import {useAthleteStore} from '~/stores/athlete'
-  import {storeToRefs} from 'pinia';
+  import { ref, onMounted } from 'vue';
+  import { deleteAthletes } from '~/composables/deleteAthlete';
+  import { useAthleteStore } from '~/stores/athlete';
+  import { storeToRefs } from 'pinia';
 
   const athleteStore = useAthleteStore();
-  // Sample athlete data (replace with API call if needed)
-  const {athletes} = storeToRefs(athleteStore);
-
-  console.log(athletes);
-
+  const { athletes } = storeToRefs(athleteStore);
   const { confirmDelete } = deleteAthletes(athletes);
+
+  onMounted(async () => {
+    await athleteStore.fetchAthletes();
+  });
 
   </script>
   
@@ -66,4 +66,3 @@
     text-align: left;
   }
   </style>
-  

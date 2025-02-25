@@ -25,7 +25,7 @@ services:
     params:
       tableNamePrefix: users
   users:
-    path: users
+    path: users-confirm
     params:
       tableName: ${dynamodbTable.TableName}
       tableArn: ${dynamodbTable.TableArn}
@@ -34,3 +34,7 @@ services:
     params:
       userLambdaArn: ${users.UsersRegisterationLambdaFunctionQualifiedArn}
       userLambdaFunctionName: usersRegisteration-${sls:stage}-usersRegisteration
+  getUsers:
+    path: getUsers
+    params:
+      tableName: ${dynamodbTable.TableName}

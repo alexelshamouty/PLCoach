@@ -1,59 +1,31 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia';
+import { useApi } from '~/composables/useApi';
 
-export const useAthleteStore = defineStore("athletes", {
+export const useAthleteStore = defineStore('athlete', {
   state: () => ({
-    athletes:[
-        { 
-          id: 1, 
-          username: "johndoe", 
-          email: "john@example.com", 
-          weight: 75, 
-          gender: "Male", 
-          program: "Strength Training",
-          blocks: [
-            { id: 101, label: "Block 1" },
-            { id: 102, label: "Block 2" }
-          ]
-        },
-        { 
-          id: 2, 
-          username: "janedoe", 
-          email: "jane@example.com", 
-          weight: 60, 
-          gender: "Female", 
-          program: "Cardio",
-          blocks: [
-            { id: 103, label: "Block 1" },
-            { id: 104, label: "Block 3" }
-          ]
-        },
-        { 
-          id: 3, 
-          username: "mike99", 
-          email: "mike@example.com", 
-          weight: 85, 
-          gender: "Male", 
-          program: "CrossFit",
-          blocks: [
-            { id: 105, label: "Block 2" },
-            { id: 106, label: "Block 3" }
-          ]
-        },
-        { 
-          id: 4, 
-          username: "sara_k", 
-          email: "sara@example.com", 
-          weight: 65, 
-          gender: "Female", 
-          program: "Yoga",
-          blocks: [
-            { id: 107, label: "Block 1" },
-            { id: 108, label: "Block 2" }
-          ]
-        }    
-    ]
+    athletes: [],
+    loading: false,
+    error: null
   }),
+
   actions: {
+    async fetchAthletes() {
+      const { authenticatedFetch } = useApi();
+      this.loading = true;
+      
+      try {
+        const response = await authenticatedFetch('/users');
+        if (!response.ok) throw new Error('Failed to fetch athletes');
+        
+        const data = await response.json();
+        this.athletes = data;
+      } catch (error) {
+        this.error = error.message;
+        console.error('Error fetching athletes:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
     deleteAthlete(id){
         this.athletes = this.athletes.filter(athlete => athlete.id !== id);
     },
