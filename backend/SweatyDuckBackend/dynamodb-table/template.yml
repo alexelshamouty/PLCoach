@@ -10,11 +10,15 @@ Resources:
       # To construct the final table name.
       TableName: ${param:tableNamePrefix}-${sls:stage}
       AttributeDefinitions:
-        - AttributeName: "Id"
+        - AttributeName: "Userid"
+          AttributeType: "S"
+        - AttributeName: "Timestamp"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "Id"
+        - AttributeName: "Userid"
           KeyType: "HASH"
+        - AttributeName: "Timestamp"
+          KeyType: "RANGE"
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
