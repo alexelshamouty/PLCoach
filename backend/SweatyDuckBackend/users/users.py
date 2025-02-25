@@ -3,6 +3,8 @@ import boto3
 import os
 from datetime import datetime
 
+import boto3.dynamodb
+
 def handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     cognito = boto3.client('cognito-idp')
@@ -27,7 +29,9 @@ def handler(event, context):
         #Just making sure if we get a double invocation for whatever reason..
         table = dynamodb.Table(tableName)
         try: 
-            item = table.get_item(Key={'Userid': userid})['Item']
+            item = table.query(
+                KeyConditionExpression=boto3.dynamodb.conditions.Key('Userid').eq(userid)
+            )['Items']
             if(item):
                 print ("User already exists")
             else:
@@ -51,7 +55,6 @@ def handler(event, context):
             print("Error while fetching user: " + e)
             event['response'] = 'Failed to query dynamo while making sure there are no duplicates'
     except Exception as e:
-        print ("Error + e")
+        print ("Error " + e)
         event['response'] = f"Something else happened {e}"
-
     return event

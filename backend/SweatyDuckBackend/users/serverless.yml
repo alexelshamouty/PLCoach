@@ -22,8 +22,6 @@ provider:
         file: Dockerfile
 functions:
   usersRegisteration:
-    deadLetter:
-      sqs: createUser-dl-queue-${sls:stage}
     image: userImage
     timeout: 60
     memorySize: 265
