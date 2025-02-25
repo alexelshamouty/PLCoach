@@ -12,7 +12,7 @@ provider:
           Resource: "${param:tableArn}"
 functions:
   authorizer:
-    handler: authorizer.handler
+    handler: authorizer.lambda_handler
     name: authorizer-${sls:stage}
     memorySize: 128
     timeout: 60

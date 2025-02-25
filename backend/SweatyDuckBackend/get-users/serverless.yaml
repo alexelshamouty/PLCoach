@@ -20,5 +20,14 @@ functions:
       - http:
           path: /users
           method: get
+          timeout: 60
+          cors: true
+          integration: lambda
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+            claims:
+              - email
+              - 'cognito:groups'
     environment:
       TABLE_NAME: ${param:tableName}

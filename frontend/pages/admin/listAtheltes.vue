@@ -18,13 +18,13 @@
               <tr v-for="athlete in athletes" :key="athlete.id"
                   class="hover:bg-gray-700 transition">
                 <td class="px-4 py-3 border border-gray-600">
-                    <NuxtLink :to="`/admin/users/${athlete.id}`" class="text-blue-400 hover:text-blue-300 underline">
-                    {{ athlete.username }}
+                    <NuxtLink :to="`/admin/users/${athlete.Userid}`" class="text-blue-400 hover:text-blue-300 underline">
+                    {{ athlete.Name }}
                     </NuxtLink>
                 </td>
-                <td class="px-4 py-3 border border-gray-600">{{ athlete.email }}</td>
-                <td class="px-4 py-3 border border-gray-600">{{ athlete.weight }} kg</td>
-                <td class="px-4 py-3 border border-gray-600">{{ athlete.gender }}</td>
+                <td class="px-4 py-3 border border-gray-600">{{ athlete.Email }}</td>
+                <td class="px-4 py-3 border border-gray-600">{{ athlete.Weight }} kg</td>
+                <td class="px-4 py-3 border border-gray-600">{{ athlete.Gender }}</td>
                 <td class="px-4 py-3 border border-gray-600 flex space-x-4">
                 <!-- Direct Delete Button -->
                 <button @click="confirmDelete(athlete.id)" 

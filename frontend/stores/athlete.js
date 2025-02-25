@@ -17,8 +17,20 @@ export const useAthleteStore = defineStore('athlete', {
         const response = await authenticatedFetch('/users');
         if (!response.ok) throw new Error('Failed to fetch athletes');
         
-        const data = await response.json();
-        this.athletes = data;
+        const responseData = await response.json();
+        // Parse the stringified body
+        const users = JSON.parse(responseData.body);
+        
+        this.athletes = users.map(user => ({
+          Userid: user.Userid,
+          Name: user.Name,
+          Email: user.Email,
+          Gender: user.Gender,
+          Weight: parseInt(user.Weight),
+          preferredUsername: user.Preferred_username,
+          program: "N/A",
+          blocks: []
+        }));
       } catch (error) {
         this.error = error.message;
         console.error('Error fetching athletes:', error);
