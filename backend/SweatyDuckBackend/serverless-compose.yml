@@ -45,3 +45,14 @@ services:
     params:
       tableName: ${dynamodbTable.TableName}
       tableArn: ${dynamodbTable.TableArn}
+  uploadPhoto:
+    path: upload-photo
+    param:
+      bucketName: sweatyDuckzCo
+      tableName: ${dynamodbTable.TableName}
+  cnd:
+    path: cdn
+    params:
+      bucketName: sweatyDuckzCo
+      uploadLambdaArn: ${uploadPhoto.UploadPhotoLambdaFunctionQualifiedArn}
+      

@@ -1,0 +1,31 @@
+service: uploadPhoto
+
+provider:
+  name: aws
+  runtime: python3.11
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "${param:tableArn}"
+functions:
+  uploadPhoto:
+    handler: uploadPhoto.handler
+    events:
+      - http:
+          path: /uploadPhoto
+          method: get
+          timeout: 60
+          cors: true
+          integration: lambda
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+            claims:
+              - email
+              - cognito:username
+    environment:
+      TABLE_NAME: ${param:tableName}
+      BUCKET_NAME: ${param:bucketName}
