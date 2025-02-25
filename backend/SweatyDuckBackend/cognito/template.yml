@@ -4,8 +4,8 @@ Resources:
 #### User Pool #####
   UserPool:
     Type: AWS::Cognito::UserPool
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       UserPoolName: ${sls:stage}-SweatyDuckUserPool
       AutoVerifiedAttributes:
@@ -38,8 +38,8 @@ Resources:
 #### User Pool Domain #####
   UserPoolDomain: 
     Type: AWS::Cognito::UserPoolDomain
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       UserPoolId: !Ref UserPool 
       Domain: "testydomainduckduck"
@@ -47,15 +47,15 @@ Resources:
 #### UI Customisation, otherwise the login page will fail ####
   UICustomization:
     Type: AWS::Cognito::UserPoolUICustomizationAttachment
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       ClientId: !Ref UserPoolClient
       UserPoolId: !Ref UserPool
   UIBranding:
     Type: AWS::Cognito::ManagedLoginBranding
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       UserPoolId: !Ref UserPool
       ClientId: !Ref UserPoolClient

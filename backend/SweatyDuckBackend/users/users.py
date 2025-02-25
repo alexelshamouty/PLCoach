@@ -27,6 +27,7 @@ def handler(event, context):
 
         #Adding the user to the dynamodb table
         #Just making sure if we get a double invocation for whatever reason..
+        print(f"Adding user to dynamo table {tableName}")
         table = dynamodb.Table(tableName)
         try: 
             item = table.query(
@@ -49,12 +50,12 @@ def handler(event, context):
                         }
                     )
                 except Exception as e:
-                    print("Error while inserting user: " + e)
+                    print(f"Error while adding user: {e}")
                     event['response'] = 'Failed to insert user into dynamo'
         except Exception as e:
-            print("Error while fetching user: " + e)
+            print(f"Error while fetching user: {e}")
             event['response'] = 'Failed to query dynamo while making sure there are no duplicates'
     except Exception as e:
-        print ("Error " + e)
+        print (f"Error {e}")
         event['response'] = f"Something else happened {e}"
     return event
