@@ -5,8 +5,8 @@ Resources:
       Type: AWS::CloudFront::OriginAccessControl
       Properties:
         OriginAccessControlConfig:
-          Description: "CloudFront OAC for Cost Spotty"
-          Name: "costspottyalex"
+          Description: "CloudFront OAC for SweatyDuckz"
+          Name: ${param:domain}
           OriginAccessControlOriginType: s3
           SigningBehavior: always
           SigningProtocol: sigv4
@@ -15,7 +15,7 @@ Resources:
       DeletionPolicy: Retain
       UpdateReplacePolicy: Retain
       Properties:
-        BucketName: ${param:cndBucketName}-${sls:stage}
+        BucketName: ${param:cdnBucketName}-${sls:stage}
         OwnershipControls:
           Rules:
             - ObjectOwnership: BucketOwnerEnforced

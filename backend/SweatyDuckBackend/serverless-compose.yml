@@ -35,24 +35,27 @@ services:
       userLambdaArn: ${users.UsersRegisterationLambdaFunctionQualifiedArn}
       userLambdaFunctionName: usersRegisteration-${sls:stage}-usersRegisteration
   getUsers:
-    path: getUsers
+    path: get-users
     params:
       tableName: ${dynamodbTable.TableName}
       tableArn: ${dynamodbTable.TableArn}
       cognitoArn: ${cognito.UserPoolArn}
   getUser:
-    path: getUser
+    path: get-user
     params:
       tableName: ${dynamodbTable.TableName}
       tableArn: ${dynamodbTable.TableArn}
+      cognitoArn: ${cognito.UserPoolArn}
   uploadPhoto:
     path: upload-photo
-    param:
+    params:
+      tableArn: ${dynamodbTable.TableArn}
       bucketName: sweatyDuckzCo
       tableName: ${dynamodbTable.TableName}
-  cnd:
+      cognitoArn: ${cognito.UserPoolArn}
+  cdn:
     path: cdn
     params:
-      bucketName: sweatyDuckzCo
+      cdnBucketName: sweatyDuckzCo
       uploadLambdaArn: ${uploadPhoto.UploadPhotoLambdaFunctionQualifiedArn}
       
