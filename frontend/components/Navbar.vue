@@ -9,7 +9,7 @@
       </button>  
       <!-- Logo -->
       <NuxtLink to="/" class="flex items-center">
-        <img src="/logo_bg_gray_900.png" alt="Logo" class="w-12 h-12 mr-2">
+        <img src="https://d2cu7vju76n2na.cloudfront.net/powerfull-duck.webp" alt="Logo" class="w-12 h-12 mr-2">
         <span class="text-white text-lg font-bold">Sweaty Duck Coaching </span>
       </NuxtLink>
   
@@ -30,22 +30,31 @@
   
     <!-- Mobile Menu (Dropdown) -->
     <div @click="toggleMenu" v-if="menuOpen" class="absolute left-0 w-64 h-full bg-gray-800 p-4 shadow-lg transition-transform duration-300 ease-in-out">
+      <!-- Added profile image -->
+      <div class="flex justify-center mb-4">
+        <img 
+          src="https://d2cu7vju76n2na.cloudfront.net/powerfull-duck.webp" 
+          alt="Profile" 
+          class="w-24 h-24 rounded-full border-2 border-yellow-400"
+        >
+      </div>
+      
       <NuxtLink 
         v-if="user" 
         :to="`/users/profile/${user.userId}`" 
-        class="block text-white py-2"
+        class="block text-white py-2 hover:bg-gray-700 rounded px-2"
       >
         Profile
       </NuxtLink>
-      <NuxtLink to="/contact" class="block text-white py-2">Contact</NuxtLink>
+      <NuxtLink to="/contact" class="block text-white py-2 hover:bg-gray-700 rounded px-2">Contact</NuxtLink>
 
       <!-- Admin section -->
-      <NuxtLink v-if="admin" to="/admin/adminDashboard" class="block text-white py-2">Admin</NuxtLink>
+      <NuxtLink v-if="admin" to="/admin/adminDashboard" class="block text-white py-2 hover:bg-gray-700 rounded px-2">Admin</NuxtLink>
 
       <!-- User stuff -->
-      <NuxtLink v-if="user?.username" class="block text-white py-2" to="/logout"> Logout </NuxtLink>
-      <NuxtLink v-if="!user?.username" class="block text-white py-2" to="/login"> Login </NuxtLink>
-      <NuxtLink v-if="!user?.username" class="block text-white py-2" to="/signup"> Signup </NuxtLink>
+      <NuxtLink v-if="user?.username" class="block text-white py-2 hover:bg-gray-700 rounded px-2" to="/logout">Logout</NuxtLink>
+      <NuxtLink v-if="!user?.username" class="block text-white py-2 hover:bg-gray-700 rounded px-2" to="/login">Login</NuxtLink>
+      <NuxtLink v-if="!user?.username" class="block text-white py-2 hover:bg-gray-700 rounded px-2" to="/signup">Signup</NuxtLink>
     </div>
   </div>
   </template>
