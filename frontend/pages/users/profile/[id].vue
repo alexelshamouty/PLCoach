@@ -1,5 +1,16 @@
 <template>
   <div class="bg-gray-900 min-h-screen text-white flex justify-center">
+    <!-- Error Alert -->
+    <div v-if="error" class="fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-fade-in">
+      <div class="flex items-center space-x-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{{ error }}</span>
+        <button @click="error = null" class="ml-4 hover:text-gray-200">×</button>
+      </div>
+    </div>
+
     <div class="w-full max-w-4xl p-6 rounded-lg shadow-md">
       <!-- New User Info Card -->
       <div class="bg-gray-800 rounded-xl p-6 mb-6 shadow-lg">
@@ -32,9 +43,7 @@
                      :src="athlete.photoUrl" 
                      class="w-full h-full rounded-full object-cover"
                      alt="Profile photo" />
-                <svg v-else class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                </svg>
+                <img v-else src="https://d2cu7vju76n2na.cloudfront.net/powerfull-duck.webp" class="w-16 h-16 rounded-full object-cover" alt="Default profile photo" />
                 <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -167,7 +176,8 @@ import { useLabelsStore } from '~/stores/labels';
 import { useBlocksStore } from '~/stores/blocks';
 import { useWeeksStore } from '~/stores/weeks';
 
-// Add file input ref and api
+// Add error ref and api
+const error = ref(null);
 const fileInput = ref(null);
 const uploadingPhoto = ref(false);
 const { authenticatedFetch } = useApi();
@@ -182,7 +192,14 @@ const athlete = computed(() => currentAthlete.value);
 
 // Update the onMounted hook to fetch single athlete
 onMounted(async () => {
-  await athleteStore.fetchAthlete(userId);
+  try {
+    const result = await athleteStore.fetchAthlete(userId);
+    if (!result) {
+      error.value = "Failed to load athlete data";
+    }
+  } catch (e) {
+    error.value = e.message || "An error occurred while loading athlete data";
+  }
 });
 
 const blocksStore = useBlocksStore();
@@ -258,16 +275,17 @@ async function handleFileUpload(event) {
   if (!file) return;
 
   if (!file.type.startsWith('image/')) {
-    alert('Please upload an image file');
+    error.value = 'Please upload an image file';
     return;
   }
 
   if (file.size > 5 * 1024 * 1024) {
-    alert('File size should be less than 5MB');
+    error.value = 'File size should be less than 5MB';
     return;
   }
 
   uploadingPhoto.value = true;
+  error.value = null;
 
   try {
     const formData = new FormData();
@@ -285,9 +303,9 @@ async function handleFileUpload(event) {
     }
 
     await athleteStore.fetchAthlete(userId);
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    alert('Failed to upload image. Please try again.');
+  } catch (e) {
+    error.value = e.message || 'Failed to upload image. Please try again.';
+    console.error('Error uploading file:', e);
   } finally {
     uploadingPhoto.value = false;
     // Clear the input
@@ -299,5 +317,20 @@ async function handleFileUpload(event) {
 <style scoped>
 .group:hover .group-hover\:opacity-100 {
   opacity: 1;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

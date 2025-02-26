@@ -13,6 +13,7 @@ export const useAthleteStore = defineStore('athlete', {
     async fetchAthletes() {
       const { authenticatedFetch } = useApi();
       this.loading = true;
+      this.error = null;
       
       try {
         const response = await authenticatedFetch('https://c1yi9fd6kc.execute-api.eu-north-1.amazonaws.com/dev/users');
@@ -21,7 +22,7 @@ export const useAthleteStore = defineStore('athlete', {
         const responseData = await response.json();
         // Parse the stringified body
         const users = JSON.parse(responseData.body);
-        
+        if(users.error) throw new Error(users.error);
         this.athletes = users.map(user => ({
           Userid: user.Userid,
           Name: user.Name,

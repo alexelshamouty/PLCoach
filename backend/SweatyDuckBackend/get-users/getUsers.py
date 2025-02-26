@@ -6,8 +6,10 @@ def handler(event, context):
     tableName = os.getenv('TABLE_NAME')
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(tableName)
-    groups = event['cognitoPoolClaims'].get('cognito:groups', [])
+    groups = event['cognitoPoolClaims'].get('groups', [])
     if 'coaches' not in groups:
+        print("Unauthorized user")
+        print(event)
         return {
             'statusCode': 403,
             'headers': {

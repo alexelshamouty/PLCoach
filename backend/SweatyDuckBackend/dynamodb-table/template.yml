@@ -2,13 +2,30 @@ AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
   UsersTable:
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Type: "AWS::DynamoDB::Table"
     Properties:
-      # We are using the parameter passed down from Serverless Compose, and the current stage.
-      # To construct the final table name.
-      TableName: ${param:tableNamePrefix}-${sls:stage}
+      TableName: ${param:userTableNamePrefix}-${sls:stage}
+      AttributeDefinitions:
+        - AttributeName: "Userid"
+          AttributeType: "S"
+        - AttributeName: "Timestamp"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Userid"
+          KeyType: "HASH"
+        - AttributeName: "Timestamp"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  BlocksTable:
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: ${param:blockTableNamePrefix}-${sls:stage}
       AttributeDefinitions:
         - AttributeName: "Userid"
           AttributeType: "S"
@@ -27,3 +44,8 @@ Outputs:
     Value: !Ref UsersTable
   TableArn:
     Value: !GetAtt UsersTable.Arn
+  BlockTableName:
+    Value: !Ref BlocksTable
+  BlockTableArn:
+    Value: !GetAtt BlocksTable.Arn
+

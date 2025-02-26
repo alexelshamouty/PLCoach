@@ -64,7 +64,7 @@ Resources:
           Origins:
             - Id: S3Origin
               OriginAccessControlId: !Ref DistributionOAC
-              DomainName: !Sub "${S3Bucket}.s3.amazonaws.com"
+              DomainName: !Sub "${S3Bucket}.s3.${AWS::Region}.amazonaws.com"
               S3OriginConfig: {}
           ViewerCertificate:
             CloudFrontDefaultCertificate: true

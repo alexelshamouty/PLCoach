@@ -20,10 +20,16 @@ stages:
       domain: "https://sweatyduckz.netlify.app/" # This is the value of the "domain" param in the prod stage
 
 services:
+
+############################################
+# Authentication and infrastructure
+############################################
   dynamodbTable:
     path: dynamodb-table
     params:
-      tableNamePrefix: users
+      userTableNamePrefix: users
+      blockTableNamePrefix: blocks
+
   users:
     path: users-confirm
     params:
@@ -34,28 +40,41 @@ services:
     params:
       userLambdaArn: ${users.UsersRegisterationLambdaFunctionQualifiedArn}
       userLambdaFunctionName: usersRegisteration-${sls:stage}-usersRegisteration
+
+
+############################################
+# Admin Logic
+############################################
   getUsers:
     path: get-users
     params:
       tableName: ${dynamodbTable.TableName}
       tableArn: ${dynamodbTable.TableArn}
       cognitoArn: ${cognito.UserPoolArn}
+
+############################################
+# User Logic
+############################################
   getUser:
     path: get-user
     params:
       tableName: ${dynamodbTable.TableName}
       tableArn: ${dynamodbTable.TableArn}
       cognitoArn: ${cognito.UserPoolArn}
+
+############################################
+# Handling Upload Logic
+############################################
   uploadPhoto:
     path: upload-photo
     params:
       tableArn: ${dynamodbTable.TableArn}
-      bucketName: sweatyDuckzCo
+      bucketName: sweatyducksco
       tableName: ${dynamodbTable.TableName}
       cognitoArn: ${cognito.UserPoolArn}
   cdn:
     path: cdn
     params:
-      cdnBucketName: sweatyDuckzCo
+      cdnBucketName: sweatyducksco
       uploadLambdaArn: ${uploadPhoto.UploadPhotoLambdaFunctionQualifiedArn}
       
