@@ -292,10 +292,9 @@ async function handleFileUpload(event) {
     formData.append('file', file);
     formData.append('userId', userId);
 
-    const response = await authenticatedFetch('https://your-api-endpoint/uploadPhoto', {
+    const response = await authenticatedFetch('https://o82i4pdcmg.execute-api.eu-north-1.amazonaws.com/dev/uploadPhoto', {
       method: 'POST',
       body: formData,
-      headers: {} // Remove all headers for FormData
     });
 
     if (!response.ok) {

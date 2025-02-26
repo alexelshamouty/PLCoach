@@ -19,7 +19,7 @@ functions:
     events:
       - http:
           path: /uploadPhoto
-          method: get
+          method: post
           timeout: 60
           cors: true
           integration: lambda
