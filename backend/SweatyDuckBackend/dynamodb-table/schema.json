@@ -1,0 +1,54 @@
+{
+    "Userid": {
+        "Type": "String",
+        "Key": "HASH"
+    },
+    "Timestamp": {
+        "Type": "String",
+        "Key": "RANGE"
+    },
+    "Block": {
+        "Type": "Map",
+        "Fields": {
+            "Weeks": {
+                "Type": "Map",
+                "Fields": {
+                    "Days": {
+                        "Type": "Map",
+                        "Fields": {
+                            "Exercises": {
+                                "Type": "List",
+                                "ElementType": {
+                                    "Type": "Map",
+                                    "Fields": {
+                                        "Name": {
+                                            "Type": "String"
+                                        },
+                                        "Reps": {
+                                            "Type": "Number"
+                                        },
+                                        "Sets": {
+                                            "Type": "Number"
+                                        },
+                                        "RPE": {
+                                            "Type": "Number"
+                                        },
+                                        "doneReps": {
+                                            "Type": "Number"
+                                        },
+                                        "doneSets": {
+                                            "Type": "Number"
+                                        },
+                                        "doneRPE": {
+                                            "Type": "Number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
