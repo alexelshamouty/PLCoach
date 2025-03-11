@@ -26,7 +26,8 @@
           <table class="w-full border-collapse border border-gray-700">
             <thead class="bg-gray-700">
               <tr>
-                <th class="px-4 py-3 border border-gray-600">Username</th>
+                <th class="px-4 py-3 border border-gray-600">Preferred Name</th>
+                <th class="px-4 py-3 border border-gray-600">Name</th>
                 <th class="px-4 py-3 border border-gray-600">Email</th>
                 <th class="px-4 py-3 border border-gray-600">Weight</th>
                 <th class="px-4 py-3 border border-gray-600">Gender</th>
@@ -38,12 +39,13 @@
                   class="hover:bg-gray-700 transition">
                 <td class="px-4 py-3 border border-gray-600">
                     <NuxtLink :to="`/admin/users/${athlete.Userid}`" class="text-blue-400 hover:text-blue-300 underline">
-                    {{ athlete.Name }}
+                    {{ athlete.username }}
                     </NuxtLink>
                 </td>
-                <td class="px-4 py-3 border border-gray-600">{{ athlete.Email }}</td>
-                <td class="px-4 py-3 border border-gray-600">{{ athlete.Weight }} kg</td>
-                <td class="px-4 py-3 border border-gray-600">{{ athlete.Gender }}</td>
+                <td class="px-4 py-3 border border-gray-600">{{ athlete.name }}</td>
+                <td class="px-4 py-3 border border-gray-600">{{ athlete.email }}</td>
+                <td class="px-4 py-3 border border-gray-600">{{ athlete.weight }} kg</td>
+                <td class="px-4 py-3 border border-gray-600">{{ athlete.gender }}</td>
                 <td class="px-4 py-3 border border-gray-600 flex space-x-4">
                 <!-- Direct Delete Button -->
                 <button @click="confirmDelete(athlete.id)" 
@@ -61,24 +63,14 @@
   
   <script setup>
   import { ref, onMounted } from 'vue';
+  import { useAthleteManagement } from '~/composables/manageAthletes';
   import { deleteAthletes } from '~/composables/deleteAthlete';
-  import { useAthleteStore } from '~/stores/athlete';
-  import { storeToRefs } from 'pinia';
 
-  const athleteStore = useAthleteStore();
-  const { athletes, error: storeError, loading } = storeToRefs(athleteStore);
+  const { athletes, error, loading, fetchAthletes } = useAthleteManagement();
   const { confirmDelete } = deleteAthletes(athletes);
-  const error = ref(null);
 
   onMounted(async () => {
-    try {
-      await athleteStore.fetchAthletes();
-      if (storeError.value) {
-        error.value = storeError.value;
-      }
-    } catch (e) {
-      error.value = e.message || 'Failed to load athletes';
-    }
+    await fetchAthletes();
   });
 
   </script>
