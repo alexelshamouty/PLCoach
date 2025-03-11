@@ -118,50 +118,50 @@
           </div>
         </div>
       </div>
-    </div>
-    <!-- Dialog -->
-    <div v-if="dialogOpen" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-      <div class="bg-gray-800 bg-opacity-90 p-6 rounded-2xl shadow-lg w-full max-w-2xl">
-        <div class="flex justify-center mb-4">
-          <h3 class="text-m font-semibold text-center px-4 py-2" :style="{ backgroundColor: getLabelColor(selectedExercise.label), color: 'white', borderRadius: '0.375rem' }">{{ selectedExercise.name }}</h3>
+      <!-- Dialog -->
+      <div v-if="dialogOpen" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+        <div class="bg-gray-800 bg-opacity-90 p-6 rounded-2xl shadow-lg w-full max-w-2xl">
+          <div class="flex justify-center mb-4">
+            <h3 class="text-m font-semibold text-center px-4 py-2" :style="{ backgroundColor: getLabelColor(selectedExercise.label), color: 'white', borderRadius: '0.375rem' }">{{ selectedExercise.name }}</h3>
+          </div>
+          <p class="mb-4 text-gray-300 text-center">{{ selectedExercise.comments }}</p>
+          <p class="mb-4 text-gray-300 text-center">Protocol: {{ selectedExercise.sets }} sets of {{ selectedExercise.reps }} reps at RPE {{ selectedExercise.rpe }}</p>
+          <form @submit.prevent="submitDialog">
+            <table class="w-full border-collapse text-sm">
+              <thead>
+                <tr class="bg-gray-700 text-gray-300">
+                  <th class="py-2 px-4 text-left">Set</th>
+                  <th class="py-2 px-4 text-center">Reps</th>
+                  <th class="py-2 px-4 text-center">RPE</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="set in selectedExercise.sets" :key="set" class="border-b border-gray-600">
+                  <td class="py-2 px-4 text-left">
+                    Set {{ set }}
+                  </td>
+                  <td class="py-2 px-4 text-center">
+                    <input type="text" v-model="selectedExercise.reps" class="w-full px-2 py-1 bg-gray-700 text-white rounded-md" />
+                  </td>
+                  <td class="py-2 px-4 text-center">
+                    <input type="text" v-model="selectedExercise.rpe" class="w-full px-2 py-1 bg-gray-700 text-white rounded-md" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="mt-4">
+              <textarea v-model="selectedExercise.comments" placeholder="Comments on this exercise" class="w-full px-2 py-1 bg-gray-700 text-white rounded-md"></textarea>
+            </div>
+            <div class="mt-4 flex justify-end space-x-2">
+              <button @click="closeDialog" type="button" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                Close
+              </button>
+              <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
+                Submit
+              </button>
+            </div>
+          </form>
         </div>
-        <p class="mb-4 text-gray-300 text-center">{{ selectedExercise.comments }}</p>
-        <p class="mb-4 text-gray-300 text-center">Protocol: {{ selectedExercise.sets }} sets of {{ selectedExercise.reps }} reps at RPE {{ selectedExercise.rpe }}</p>
-        <form @submit.prevent="submitDialog">
-          <table class="w-full border-collapse text-sm">
-            <thead>
-              <tr class="bg-gray-700 text-gray-300">
-                <th class="py-2 px-4 text-left">Set</th>
-                <th class="py-2 px-4 text-center">Reps</th>
-                <th class="py-2 px-4 text-center">RPE</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="set in selectedExercise.sets" :key="set" class="border-b border-gray-600">
-                <td class="py-2 px-4 text-left">
-                  Set {{ set }}
-                </td>
-                <td class="py-2 px-4 text-center">
-                  <input type="text" v-model="selectedExercise.reps" class="w-full px-2 py-1 bg-gray-700 text-white rounded-md" />
-                </td>
-                <td class="py-2 px-4 text-center">
-                  <input type="text" v-model="selectedExercise.rpe" class="w-full px-2 py-1 bg-gray-700 text-white rounded-md" />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="mt-4">
-            <textarea v-model="selectedExercise.comments" placeholder="Comments on this exercise" class="w-full px-2 py-1 bg-gray-700 text-white rounded-md"></textarea>
-          </div>
-          <div class="mt-4 flex justify-end space-x-2">
-            <button @click="closeDialog" type="button" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
-              Close
-            </button>
-            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
-              Submit
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   </div>
@@ -169,9 +169,9 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
-import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { useApi } from '~/composables/useApi';
+import { useAthleteManagement } from '~/composables/manageAthletes';
 import { useLabelsStore } from '~/stores/labels';
 import { useBlockInformation } from '~/composables/getBlockInformation';
 
@@ -284,8 +284,9 @@ function openFileDialog() {
   }
 }
 
+const { fetchAthlete } = useAthleteManagement();
+
 async function handleFileUpload(event) {
-  console.log('File upload triggered');
   const file = event.target.files[0];
   if (!file) return;
 
@@ -316,13 +317,15 @@ async function handleFileUpload(event) {
       throw new Error('Failed to upload image');
     }
 
-    await athleteStore.fetchAthlete(userId);
+    const updatedAthlete = await fetchAthlete(userId);
+    if (updatedAthlete) {
+      athlete.value = updatedAthlete;
+    }
   } catch (e) {
     error.value = e.message || 'Failed to upload image. Please try again.';
     console.error('Error uploading file:', e);
   } finally {
     uploadingPhoto.value = false;
-    // Clear the input
     event.target.value = '';
   }
 }

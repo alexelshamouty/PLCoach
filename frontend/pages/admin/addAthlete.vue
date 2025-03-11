@@ -52,7 +52,6 @@ import { ref } from "vue";
 import { useAuthStore } from '~/stores/auth';
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import *  as yup from 'yup';
-import { useAthleteStore } from '~/stores/athlete';
 
 definePageMeta({
   middleware: ['auth-admin'],}
@@ -60,8 +59,6 @@ definePageMeta({
 
 const authStore = useAuthStore();
 const {user, groups, admin, loading} = storeToRefs(authStore);
-const athleteStore = useAthleteStore();
-const {athletes} = storeToRefs(athleteStore);
 const formData = ref({name: "", email:""});
 const message = ref("");
 const success = ref(false);
@@ -76,11 +73,7 @@ const schema = computed(() => yup.object({
 async function inviteUser(values){
     message.value = "";
     try{
-      athleteStore.addAthlete(values.name,values.email,values.gender)
-        console.log("Am gonna call the API now")
-        console.log(values)
-        success.value = true
-        message.value = values?.name + " has been added. Email conformation has been sent to " + values?.email
+      console.log("NOTHING")
     }catch(error){
         console.error("Error invting user:",error)
         message.value = "Error inviting user"

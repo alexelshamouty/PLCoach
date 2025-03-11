@@ -5,7 +5,7 @@
       {{ errorMessage }}
     </div>
     <div class="w-full max-w-4xl p-6 rounded-lg shadow-md">
-      <h2 class="text-2xl font-semibold text-center mb-4">Athlete {{ username }} Program Management</h2>
+      <h2 class="text-2xl font-semibold text-center mb-4">{{ username }} aka {{ name }} Program Management</h2>
       <div class="bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
         <!-- First Dropdown -->
         <select v-model="selectedOption1" class="w-full md:w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
@@ -140,20 +140,19 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
-import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
-import { useAthleteStore } from '~/stores/athlete';
 import { useLabelsStore } from '~/stores/labels';
 import { useApi } from '~/composables/useApi';
 import { addBlock, addWeek, addDay, addExercise, deleteExercise } from '~/composables/updateProgram';
 import { useBlockInformation } from '~/composables/getBlockInformation';
+import { useAthleteManagement } from '~/composables/manageAthletes';
 
 const username = ref("");
+const name = ref("");
 const route = useRoute();
 const userId = route.params.id;
 const { getAllBlocks, getDaysByWeek } = useBlockInformation();
-const athleteStore = useAthleteStore();
-const { athletes } = storeToRefs(athleteStore);
+const { fetchAthlete } = useAthleteManagement();
 
 definePageMeta({ middleware: ['auth-admin'] });
 
@@ -165,9 +164,12 @@ const isLoading = ref(true);
 // Load blocks when page loads
 onMounted(async () => {
   try {
-    const athlete = athletes.value?.find(a => a.id === userId);
+    console.log("Fetching athlete and blocks... " + userId);
+    const athlete = await fetchAthlete(userId);
     if (athlete) {
-      username.value = athlete.username;
+      console.log(athlete)
+      username.value = athlete[0].username;
+      name.value = athlete[0].name;
     }
     
     const blocks = await getAllBlocks(userId);

@@ -1,12 +1,8 @@
 import { useApi } from './useApi';
-import { useTrainingStore } from '~/stores/training';
-import { useAthleteStore } from '~/stores/athlete';
 
 const BASE_URL = 'https://j1v6bnyoh2.execute-api.eu-north-1.amazonaws.com/dev/updateAddBlock';
 
 const getStores = () => ({
-  athleteStore: useAthleteStore(),
-  trainingStore: useTrainingStore(),
   api: useApi()
 });
 
@@ -113,7 +109,7 @@ export const addDay = async (userId, blockId, weekId, newDayId) => {
 };
 
 export const addExercise = async (userId, blockId, weekId, dayId, exercise) => {
-  const { trainingStore, api } = getStores();
+  const { api } = getStores();
   
   try {
     const response = await api.authenticatedFetch(
@@ -146,7 +142,6 @@ export const addExercise = async (userId, blockId, weekId, dayId, exercise) => {
       };
     }
 
-    trainingStore.addExercise(weekId, dayId, exercise);
     return { success: true };
   } catch (error) {
     console.error('Error adding exercise:', error);

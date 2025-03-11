@@ -28,5 +28,5 @@ def handler(event, context):
             'Access-Control-Allow-Credentials': 'true',
             'Content-Type': 'application/json'
          },
-        'body': json.dumps(items),
+        'body': items
     }

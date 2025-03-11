@@ -43,17 +43,18 @@ export const useAthleteManagement = () => {
     loading.value = true;
     error.value = null;
     try {
+        console.log("Fetching athlete with id: ", userId);
       const response = await authenticatedFetch(
         `${GET_USER_URL}?userId=${userId}`,
         { method: 'GET' }
       );
       const data = await response.json();
-
-      if (response.status !== 200 || !data || !data.user) {
+      console.log(data);
+      if (response.status !== 200 || !data || !data.body) {
         throw new Error(data.error || 'Failed to fetch athlete');
       }
 
-      return mapUser(data.user);
+      return data.body.map(mapUser);
     } catch (e) {
       error.value = e.message;
       console.error('Error fetching athlete:', e);
