@@ -16,20 +16,20 @@
       <div class="bg-gray-800 rounded-xl p-6 mb-6 shadow-lg">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-blue-400">{{ athlete?.Name }}</h1>
+            <h1 class="text-3xl font-bold text-blue-400">{{ athlete?.name }}</h1>
             <div class="mt-2 space-y-1">
                 <p class="text-gray-300">
                   <span class="font-semibold text-blue-400">Gender:</span> 
-                  <span class="ml-2 capitalize text-yellow-400">{{ athlete?.Gender }}</span>
+                  <span class="ml-2 capitalize text-yellow-400">{{ athlete?.gender }}</span>
                 </p>
                 <p class="text-gray-300">
                   <span class="font-semibold text-blue-400">Weight:</span> 
-                  <span class="ml-2 text-yellow-400">{{ athlete?.Weight }} kg</span>
+                  <span class="ml-2 text-yellow-400">{{ athlete?.weight }} kg</span>
                 </p>
                 <p class="text-gray-300">
                   <span class="font-semibold text-blue-400">Email:</span> 
-                  <span class="ml-2 text-yellow-400">{{ athlete?.Email }}</span>
-                </p>
+                  <span class="ml-2 text-yellow-400">{{ athlete?.email }}</span>
+                </p> 
             </div>
           </div>
           <!-- Updated Avatar Section -->
@@ -39,8 +39,8 @@
                     @click="openFileDialog"
                     :disabled="uploadingPhoto">
               <div class="relative w-16 h-16">
-                <img v-if="athlete?.photoUrl" 
-                     :src="athlete.photoUrl" 
+                <img v-if="athlete?.photo_url" 
+                     :src="athlete.photo_url" 
                      class="w-full h-full rounded-full object-cover"
                      alt="Profile photo" />
                 <img v-else src="https://d2cu7vju76n2na.cloudfront.net/powerfull-duck.webp" class="w-16 h-16 rounded-full object-cover" alt="Default profile photo" />
@@ -175,24 +175,32 @@ import { useAthleteManagement } from '~/composables/manageAthletes';
 import { useLabelsStore } from '~/stores/labels';
 import { useBlockInformation } from '~/composables/getBlockInformation';
 
-// Keep existing refs
-const error = ref(null);
-const fileInput = ref(null);
-const uploadingPhoto = ref(false);
-const { authenticatedFetch } = useApi();
-
+const athlete = ref(null);
+const username = ref("");
 const route = useRoute();
 const userId = route.params.id;
 const { getAllBlocks, getDaysByWeek } = useBlockInformation();
+const { fetchAthlete } = useAthleteManagement();
 
-// Add block management refs
+// Keep other refs
+const error = ref(null);
+const fileInput = ref(null);
+const uploadingPhoto = ref(false);
 const options1 = ref([]);
 const selectedOption1 = ref("");
 const isLoading = ref(true);
 
-// Load blocks when page loads
+// Update onMounted to load both athlete and blocks
 onMounted(async () => {
   try {
+    // Load athlete data
+    const athleteData = await fetchAthlete(userId);
+    if (athleteData && athleteData.length > 0) {
+      athlete.value = athleteData[0];
+      username.value = athlete.value.username;
+    }
+
+    // Load blocks (keep existing blocks loading logic)
     const blocks = await getAllBlocks(userId);
     if (!blocks.error) {
       options1.value = Object.entries(blocks).map(([name, weeks]) => ({
@@ -283,8 +291,6 @@ function openFileDialog() {
     fileInput.value?.click();
   }
 }
-
-const { fetchAthlete } = useAthleteManagement();
 
 async function handleFileUpload(event) {
   const file = event.target.files[0];
