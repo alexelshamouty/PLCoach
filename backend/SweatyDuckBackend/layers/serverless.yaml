@@ -1,0 +1,14 @@
+service: layers 
+
+provider:
+  name: aws
+  runtime: python3.11
+
+layers:
+  utils:
+    path: utils
+    name: utils-${sls:stage}
+    description: "A layer for common functions"
+    compatibleRuntimes:
+      - python3.11
+    retain: false

@@ -1,0 +1,40 @@
+service: updateAddBlock
+
+provider:
+  name: aws
+  runtime: python3.11
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "${param:tableArn}"
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "${param:blockTableArn}"
+
+functions:
+  updateAddBlock:
+    layers:
+      - ${param:utilsLayer}
+    handler: updateAddBlock.handler
+    name: updateAddBlock-${sls:stage}
+    memorySize: 128
+    timeout: 60
+    events:
+      - http:
+          path: /updateAddBlock
+          method: post
+          timeout: 60
+          cors: true
+          integration: lambda
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+            claims:
+              - email
+              - cognito:username
+    environment:
+      TABLE_NAME: ${param:tableName}
