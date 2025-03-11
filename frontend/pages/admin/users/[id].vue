@@ -1,5 +1,9 @@
 <template>
   <div class="bg-gray-900 min-h-screen text-white flex justify-center">
+    <!-- Add error alert -->
+    <div v-if="showError" class="fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50">
+      {{ errorMessage }}
+    </div>
     <div class="w-full max-w-4xl p-6 rounded-lg shadow-md">
       <h2 class="text-2xl font-semibold text-center mb-4">Athlete {{ username }} Program Management</h2>
       <div class="bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
@@ -247,6 +251,10 @@ const newExerciseReps = ref(0);
 const newExerciseRpe = ref(0);
 const newExerciseComments = ref("");
 
+// Add these refs near the top with other refs
+const errorMessage = ref("");
+const showError = ref(false);
+
 async function handleAddExercise(dayIndex) {
   const exercise = {
     name: newExerciseName.value,
@@ -258,13 +266,22 @@ async function handleAddExercise(dayIndex) {
   };
 
   try {
-    await addExercise(
+    const result = await addExercise(
       userId, 
       selectedOption1.value, 
       selectedOption2.value, 
       dayIndex, 
       exercise
     );
+    
+    if (result.error) {
+      errorMessage.value = result.error;
+      showError.value = true;
+      setTimeout(() => {
+        showError.value = false;
+      }, 3000);
+      return;
+    }
     
     // Reset form
     newExerciseName.value = "";
@@ -275,6 +292,11 @@ async function handleAddExercise(dayIndex) {
     newExerciseComments.value = "";
   } catch (error) {
     console.error('Error in handleAddExercise:', error);
+    errorMessage.value = error.message || 'An error occurred while adding the exercise';
+    showError.value = true;
+    setTimeout(() => {
+      showError.value = false;
+    }, 3000);
   }
 }
 
@@ -286,30 +308,79 @@ const newBlockLabel = ref("");
 const { authenticatedFetch } = useApi();
 
 async function handleAddBlock() {
+  if (!newBlockLabel.value) {
+    errorMessage.value = "Block name is required";
+    showError.value = true;
+    setTimeout(() => {
+      showError.value = false;
+    }, 3000);
+    return;
+  }
+
   try {
-    const updatedBlocks = await addBlock(userId, newBlockLabel.value, athlete.value);
-    options1.value = updatedBlocks;
+    const result = await addBlock(userId, newBlockLabel.value, athlete.value);
+    if (result.error) {
+      errorMessage.value = result.error;
+      showError.value = true;
+      setTimeout(() => {
+        showError.value = false;
+      }, 3000);
+      return;
+    }
+    
+    options1.value = result;
     newBlockLabel.value = "";
   } catch (error) {
     console.error('Error in handleAddBlock:', error);
+    errorMessage.value = error.message || 'An error occurred while adding the block';
+    showError.value = true;
+    setTimeout(() => {
+      showError.value = false;
+    }, 3000);
   }
 }
 
 async function handleAddWeek() {
   try {
-    await addWeek(userId, selectedOption1.value, newWeekTitle.value);
+    const result = await addWeek(userId, selectedOption1.value, newWeekTitle.value);
+    if (result.error) {
+      errorMessage.value = result.error;
+      showError.value = true;
+      setTimeout(() => {
+        showError.value = false;
+      }, 3000);
+      return;
+    }
     newWeekTitle.value = "";
   } catch (error) {
     console.error('Error in handleAddWeek:', error);
+    errorMessage.value = error.message || 'An error occurred while adding the week';
+    showError.value = true;
+    setTimeout(() => {
+      showError.value = false;
+    }, 3000);
   }
 }
 
 async function handleAddDay() {
   try {
-    await addDay(userId, selectedOption1.value, selectedOption2.value, newDayTitle.value);
+    const result = await addDay(userId, selectedOption1.value, selectedOption2.value, newDayTitle.value);
+    if (result.error) {
+      errorMessage.value = result.error;
+      showError.value = true;
+      setTimeout(() => {
+        showError.value = false;
+      }, 3000);
+      return;
+    }
     newDayTitle.value = "";
   } catch (error) {
     console.error('Error in handleAddDay:', error);
+    errorMessage.value = error.message || 'An error occurred while adding the day';
+    showError.value = true;
+    setTimeout(() => {
+      showError.value = false;
+    }, 3000);
   }
 }
 

@@ -92,7 +92,7 @@ services:
   updateAddBlock:
     path: addUpdateblock
     params:
-      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:1'
+      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:9'
       tableArn: ${dynamodbTable.TableArn}
       tableName: ${dynamodbTable.TableName}
       cognitoArn: ${cognito.UserPoolArn}

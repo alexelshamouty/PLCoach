@@ -1,7 +1,7 @@
 from boto3.dynamodb.conditions import Key
 from .response_utils import error_response
 
-async def get_block_by_name(table, user_id, block_name):
+def get_block_by_name(table, user_id, block_name):
     """
     Get a block by its name and user ID
     Returns (block, error_response)

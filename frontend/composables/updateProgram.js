@@ -4,7 +4,7 @@ import { useWeeksStore } from '~/stores/weeks';
 import { useTrainingStore } from '~/stores/training';
 import { useAthleteStore } from '~/stores/athlete';
 
-const BASE_URL = 'https://94rzvbb740.execute-api.eu-north-1.amazonaws.com/dev/updateAddBlock';
+const BASE_URL = 'https://j1v6bnyoh2.execute-api.eu-north-1.amazonaws.com/dev/updateAddBlock';
 
 const getStores = () => ({
   blocksStore: useBlocksStore(),
@@ -30,15 +30,17 @@ export const addBlock = async (userId, newBlockLabel, athlete) => {
       }
     );
 
-    if (!response.ok) {
-      throw new Error('Failed to add block');
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to add block'
+      };
     }
 
-    const data = await response.json();
     blocksStore.addBlock(newBlockLabel);
     const newBlock = blocksStore.blocks[blocksStore.blocks.length - 1];
     
-    // Add null check for athlete
     if (athlete && athlete.id) {
       athleteStore.addBlockToAthlete(athlete.id, newBlock);
       return blocksStore.getBlocksByIds(athlete.blocks?.map(block => block.id) || []);
@@ -47,7 +49,9 @@ export const addBlock = async (userId, newBlockLabel, athlete) => {
 
   } catch (error) {
     console.error('Error adding block:', error);
-    throw error;
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
   }
 };
 
@@ -68,15 +72,21 @@ export const addWeek = async (userId, blockId, newWeekId) => {
       }
     );
 
-    if (!response.ok) {
-      throw new Error('Failed to add week');
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to add week'
+      };
     }
 
-    const data = await response.json();
     weeksStore.addWeek(blockId, newWeekId);
+    return { success: true };
   } catch (error) {
     console.error('Error adding week:', error);
-    throw error;
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
   }
 };
 
@@ -98,15 +108,21 @@ export const addDay = async (userId, blockId, weekId, newDayId) => {
       }
     );
 
-    if (!response.ok) {
-      throw new Error('Failed to add day');
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to add day'
+      };
     }
 
-    const data = await response.json();
     trainingStore.addDay(weekId, newDayId);
+    return { success: true };
   } catch (error) {
     console.error('Error adding day:', error);
-    throw error;
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
   }
 };
 
@@ -136,14 +152,20 @@ export const addExercise = async (userId, blockId, weekId, dayId, exercise) => {
       }
     );
 
-    if (!response.ok) {
-      throw new Error('Failed to add exercise');
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to add exercise'
+      };
     }
 
-    const data = await response.json();
     trainingStore.addExercise(weekId, dayId, exercise);
+    return { success: true };
   } catch (error) {
     console.error('Error adding exercise:', error);
-    throw error;
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
   }
 };

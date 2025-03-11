@@ -29,12 +29,14 @@ functions:
           method: post
           timeout: 60
           cors: true
-          integration: lambda
+          integration: lambda-proxy
           authorizer:
             name: cognitoAuthorizer
             arn: ${param:cognitoArn}
-            claims:
-              - email
-              - cognito:username
+            # claims:
+            #   - email
+            #   - cognito:username
+            #   - 'cognito:groups'
     environment:
       TABLE_NAME: ${param:tableName}
+      BLOCK_TABLE_NAME: ${param:blockTableName}
