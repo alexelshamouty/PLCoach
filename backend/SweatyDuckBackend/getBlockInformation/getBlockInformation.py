@@ -17,10 +17,11 @@ def handler(event, context):
     table = dynamodb.Table(tableName)
     
     #TODO: This needs to allow the user to retreive their information too. But not now we need to finish the admin functionality
-    auth_response = authorize(event)
-    if auth_response:
-        logger.error("Authorization failed")
-        return auth_response
+    #TODO: Yes this is bad and we need to change it but first the functionality
+    auth_response_admin = authorize(event,['coaches','athletes'])
+    if auth_response_admin:
+        logger.error("Not an admin")
+        return auth_response_admin
 
     try:
         # Parse query parameters

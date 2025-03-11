@@ -97,11 +97,12 @@
                   <th class="py-2 px-4 text-center">Sets</th>
                   <th class="py-2 px-4 text-center">Reps</th>
                   <th class="py-2 px-4 text-center">RPE</th>
+                  <th class="py-2 px-4 text-center">Comments</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(exercise, i) in item.content" :key="i" class="border-b border-gray-700 hover:bg-gray-800">
-                  <td class="py-2 px-4 cursor-pointer" @click="openDialog(exercise)">{{ exercise.name }}</td>
+                  <td class="py-2 px-4">{{ exercise.name }}</td>
                   <td class="py-2 px-4">
                     <button :style="{ backgroundColor: getLabelColor(exercise.label) }" class="text-black px-4 py-2 rounded-full hover:opacity-75 transition">
                       {{ exercise.label }}
@@ -110,6 +111,7 @@
                   <td class="py-2 px-4 text-center">{{ exercise.sets }}</td>
                   <td class="py-2 px-4 text-center">{{ exercise.reps }}</td>
                   <td class="py-2 px-4 text-center font-semibold text-yellow-400">{{ exercise.rpe }}</td>
+                  <td class="py-2 px-4 text-center font-semibold text-yellow-400">{{ exercise.comments }}</td>
                 </tr>
               </tbody>
             </table>
@@ -169,57 +171,60 @@
 import { ref, computed, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
-import { useApi } from '~/composables/useApi';  // Add this import
-import { useAthleteStore } from '~/stores/athlete';
-import { useTrainingStore } from '~/stores/training';
+import { useApi } from '~/composables/useApi';
 import { useLabelsStore } from '~/stores/labels';
-import { useBlocksStore } from '~/stores/blocks';
-import { useWeeksStore } from '~/stores/weeks';
+import { useBlockInformation } from '~/composables/getBlockInformation';
 
-// Add error ref and api
+// Keep existing refs
 const error = ref(null);
 const fileInput = ref(null);
 const uploadingPhoto = ref(false);
 const { authenticatedFetch } = useApi();
 
-const athleteStore = useAthleteStore();
-const { athletes, currentAthlete } = storeToRefs(athleteStore);
 const route = useRoute();
 const userId = route.params.id;
+const { getAllBlocks, getDaysByWeek } = useBlockInformation();
 
-// Update the athlete computed property to use currentAthlete
-const athlete = computed(() => currentAthlete.value);
+// Add block management refs
+const options1 = ref([]);
+const selectedOption1 = ref("");
+const isLoading = ref(true);
 
-// Update the onMounted hook to fetch single athlete
+// Load blocks when page loads
 onMounted(async () => {
   try {
-    const result = await athleteStore.fetchAthlete(userId);
-    if (!result) {
-      error.value = "Failed to load athlete data";
+    const blocks = await getAllBlocks(userId);
+    if (!blocks.error) {
+      options1.value = Object.entries(blocks).map(([name, weeks]) => ({
+        id: name,
+        label: name,
+        weeks: weeks
+      }));
+      selectedOption1.value = options1.value.length ? options1.value[0].id : "";
     }
   } catch (e) {
-    error.value = e.message || "An error occurred while loading athlete data";
+    error.value = e.message || "An error occurred while loading data";
+  } finally {
+    isLoading.value = false;
   }
 });
 
-const blocksStore = useBlocksStore();
-const options1 = ref(blocksStore.getBlocksByIds(athlete.value?.blocks?.map(block => block.id) || []));
-const selectedOption1 = ref(options1.value.length ? options1.value[options1.value.length - 1].id : "");
-
-const weeksStore = useWeeksStore();
-const options2 = computed(() => weeksStore.getWeeksByBlockId(selectedOption1.value));
-
-const filteredOptions2 = ref(options2.value || []);
-watch(() => options2.value, (newVal) => {
-  filteredOptions2.value = newVal || [];
+// Replace weeksStore with direct computation
+const options2 = computed(() => {
+  const selectedBlock = options1.value.find(block => block.id === selectedOption1.value);
+  if (!selectedBlock) return [];
+  
+  return selectedBlock.weeks.slice().reverse().map(weekId => ({
+    id: weekId,
+    label: weekId
+  }));
 });
 
-const selectedOption2 = ref(
-  filteredOptions2.value.length ? filteredOptions2.value[filteredOptions2.value.length - 1].id : ""
-);
+const filteredOptions2 = computed(() => options2.value || []);
 
-const trainingStore = useTrainingStore();
-const items = computed(() => trainingStore.items);
+const selectedOption2 = computed(() => {
+  return filteredOptions2.value.length ? filteredOptions2.value[0].id : "";
+});
 
 const labelsStore = useLabelsStore();
 const labels = computed(() => labelsStore.labels);
@@ -228,21 +233,31 @@ function getLabelColor(label) {
   return labelsStore.getColorByLabel(label);
 }
 
-const filteredOptions3 = ref(items.value[selectedOption2.value] || []);
-watch(() => trainingStore.items[selectedOption2.value], (newItems) => {
-  filteredOptions3.value = newItems || [];
-}, { deep: true });
+// Update filteredOptions3 watch handler
+const filteredOptions3 = ref([]);
+watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
+  if (newBlock && newWeek) {
+    const response = await getDaysByWeek(userId, newBlock, newWeek);
+    if (!response.error) {
+      filteredOptions3.value = Object.entries(response).map(([dayId, dayData]) => ({
+        title: dayId,
+        content: dayData.Exercises || []
+      }));
+    }
+  } else {
+    filteredOptions3.value = [];
+  }
+}, { immediate: true });
 
-watch(() => selectedOption2.value, (newVal) => {
-  filteredOptions3.value = items.value[newVal] || [];
-});
-
+// Add activeIndex ref with other refs
 const activeIndex = ref(null);
 
+// Add toggle function before dialog handling
 const toggle = (index) => {
   activeIndex.value = activeIndex.value === index ? null : index;
 };
 
+// Keep existing dialog handling code
 const dialogOpen = ref(false);
 const selectedExercise = ref({});
 
