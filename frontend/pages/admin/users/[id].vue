@@ -33,7 +33,7 @@
             <h3 class="text-lg font-semibold">Add Block</h3>
             <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
               <input v-model="newBlockLabel" placeholder="Block Label" class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
-              <button @click="addBlock" class="w-full md:w-auto mt-2 md:mt-0 p-2 bg-purple-600 rounded-lg hover:bg-purple-700">
+              <button @click="handleAddBlock" class="w-full md:w-auto mt-2 md:mt-0 p-2 bg-purple-600 rounded-lg hover:bg-purple-700">
                 Add Block
               </button>
             </div>
@@ -43,7 +43,7 @@
             <h3 class="text-lg font-semibold">Add a New Week</h3>
             <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
               <input v-model="newWeekTitle" placeholder="Enter week number (e.g., Week 4)" class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
-              <button @click="addWeek" class="w-full md:w-auto mt-2 md:mt-0 p-2 bg-purple-600 rounded-lg hover:bg-purple-700">
+              <button @click="handleAddWeek" class="w-full md:w-auto mt-2 md:mt-0 p-2 bg-purple-600 rounded-lg hover:bg-purple-700">
                 Add Week
               </button>
             </div>
@@ -53,7 +53,7 @@
             <h3 class="text-lg font-semibold">Add a New Day</h3>
             <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
               <input v-model="newDayTitle" placeholder="Enter day (e.g., Wednesday)" class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
-              <button @click="addDay" class="w-full md:w-auto mt-2 md:mt-0 p-2 bg-blue-600 rounded-lg hover:bg-blue-700">
+              <button @click="handleAddDay" class="w-full md:w-auto mt-2 md:mt-0 p-2 bg-blue-600 rounded-lg hover:bg-blue-700">
                 Add Day
               </button>
             </div>
@@ -123,7 +123,7 @@
                 <input v-model.number="newExerciseRpe" placeholder="RPE (6-10)" type="number" class="w-full md:w-1/6 p-2 bg-gray-700 text-white rounded-lg outline-none" />
                 <input v-model="newExerciseComments" placeholder="Comments" class="w-full md:w-1/6 p-2 bg-gray-700 text-white rounded-lg outline-none" />
               </div>
-              <button @click="addExercise(index)" class="w-full mt-2 p-2 bg-green-600 rounded-lg hover:bg-green-700">
+              <button @click="handleAddExercise(index)" class="w-full mt-2 p-2 bg-green-600 rounded-lg hover:bg-green-700">
                 Add Exercise
               </button>
             </div>
@@ -143,23 +143,55 @@ import { useTrainingStore } from '~/stores/training';
 import { useLabelsStore } from '~/stores/labels';
 import { useBlocksStore } from '~/stores/blocks';
 import { useWeeksStore } from '~/stores/weeks';
+import { useApi } from '~/composables/useApi';
+import { addBlock, addWeek, addDay, addExercise } from '~/composables/updateProgram';
 
 const username = ref("");
 const athleteStore = useAthleteStore();
 const { athletes } = storeToRefs(athleteStore);
 const route = useRoute();
 const userId = route.params.id;
-const athlete = computed(() => athletes.value.find(a => a.id === parseInt(userId)));
-username.value = athlete.value?.username;
+const blocksStore = useBlocksStore();
+
+// Update athlete computed property with better null handling
+const athlete = computed(() => {
+  const found = athletes.value?.find(a => a.id === userId);
+  if (found) {
+    username.value = found.username;
+    return found;
+  }
+  return null;
+});
+
+const options1 = ref([]);
+const selectedOption1 = ref("");
+
+// Update the athlete watcher with safer checks
+watch(athlete, (newAthlete) => {
+  if (newAthlete?.blocks) {
+    const blocks = blocksStore.getBlocksByIds(newAthlete.blocks.map(block => block.id) || []);
+    options1.value = blocks;
+    selectedOption1.value = blocks.length ? blocks[blocks.length - 1].id : "";
+  } else {
+    options1.value = [];
+    selectedOption1.value = "";
+  }
+}, { immediate: true });
+
+// Remove the separate blocks watcher and update the options1 initialization
+watch(() => athlete.value?.blocks, (newBlocks) => {
+  if (newBlocks) {
+    options1.value = blocksStore.getBlocksByIds(newBlocks.map(block => block.id) || []);
+  } else {
+    options1.value = [];
+  }
+}, { deep: true });
+
 definePageMeta({ middleware: ['auth-admin'] });
 
 const messageOpen = ref(false);
 const allSets = ref(0);
 const labelColor = ref("");
-
-const blocksStore = useBlocksStore();
-const options1 = ref(blocksStore.getBlocksByIds(athlete.value?.blocks.map(block => block.id) || []));
-const selectedOption1 = ref(options1.value.length ? options1.value[options1.value.length - 1].id : "");
 
 const weeksStore = useWeeksStore();
 const options2 = computed(() => weeksStore.getWeeksByBlockId(selectedOption1.value));
@@ -215,7 +247,7 @@ const newExerciseReps = ref(0);
 const newExerciseRpe = ref(0);
 const newExerciseComments = ref("");
 
-function addExercise(dayIndex) {
+async function handleAddExercise(dayIndex) {
   const exercise = {
     name: newExerciseName.value,
     label: newExerciseLabel.value,
@@ -224,13 +256,26 @@ function addExercise(dayIndex) {
     rpe: newExerciseRpe.value,
     comments: newExerciseComments.value
   };
-  trainingStore.addExercise(selectedOption2.value, dayIndex, exercise);
-  newExerciseName.value = "";
-  newExerciseLabel.value = "";
-  newExerciseSets.value = 0;
-  newExerciseReps.value = 0;
-  newExerciseRpe.value = 0;
-  newExerciseComments.value = "";
+
+  try {
+    await addExercise(
+      userId, 
+      selectedOption1.value, 
+      selectedOption2.value, 
+      dayIndex, 
+      exercise
+    );
+    
+    // Reset form
+    newExerciseName.value = "";
+    newExerciseLabel.value = "";
+    newExerciseSets.value = 0;
+    newExerciseReps.value = 0;
+    newExerciseRpe.value = 0;
+    newExerciseComments.value = "";
+  } catch (error) {
+    console.error('Error in handleAddExercise:', error);
+  }
 }
 
 function deleteExercise(dayIndex, exerciseIndex) {
@@ -238,40 +283,42 @@ function deleteExercise(dayIndex, exerciseIndex) {
 }
 
 const newBlockLabel = ref("");
+const { authenticatedFetch } = useApi();
 
-function addBlock() {
-  blocksStore.addBlock(newBlockLabel.value);
-  const newBlock = blocksStore.blocks[blocksStore.blocks.length - 1];
-  athleteStore.addBlockToAthlete(athlete.value.id, newBlock);
-  options1.value = blocksStore.getBlocksByIds(athlete.value?.blocks.map(block => block.id) || []);
-  newBlockLabel.value = "";
+async function handleAddBlock() {
+  try {
+    const updatedBlocks = await addBlock(userId, newBlockLabel.value, athlete.value);
+    options1.value = updatedBlocks;
+    newBlockLabel.value = "";
+  } catch (error) {
+    console.error('Error in handleAddBlock:', error);
+  }
+}
+
+async function handleAddWeek() {
+  try {
+    await addWeek(userId, selectedOption1.value, newWeekTitle.value);
+    newWeekTitle.value = "";
+  } catch (error) {
+    console.error('Error in handleAddWeek:', error);
+  }
+}
+
+async function handleAddDay() {
+  try {
+    await addDay(userId, selectedOption1.value, selectedOption2.value, newDayTitle.value);
+    newDayTitle.value = "";
+  } catch (error) {
+    console.error('Error in handleAddDay:', error);
+  }
 }
 
 const newWeekTitle = ref("");
-
-function addWeek() {
-  weeksStore.addWeek(selectedOption1.value, newWeekTitle.value);
-  newWeekTitle.value = "";
-}
-
 const newDayTitle = ref("");
-
-function addDay() {
-  trainingStore.addDay(selectedOption2.value, newDayTitle.value);
-  newDayTitle.value = "";
-}
 
 const manageOpen = ref(false);
 
 function toggleManage() {
   manageOpen.value = !manageOpen.value;
 }
-
-watch(() => athlete.value.blocks, (newBlocks) => {
-  options1.value = blocksStore.getBlocksByIds(newBlocks.map(block => block.id));
-}, { deep: true });
-
-watch(() => selectedOption1.value, (newVal) => {
-  filteredOptions2.value = weeksStore.getWeeksByBlockId(newVal) || [];
-});
 </script>

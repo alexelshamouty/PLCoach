@@ -7,6 +7,9 @@
         "Type": "String",
         "Key": "RANGE"
     },
+    "BlockName": {
+        "Type": "String"
+    },
     "Block": {
         "Type": "Map",
         "Fields": {

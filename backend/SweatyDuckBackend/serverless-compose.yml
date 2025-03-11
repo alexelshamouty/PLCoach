@@ -19,6 +19,15 @@ stages:
     params:
       domain: "https://sweatyduckz.netlify.app/" # This is the value of the "domain" param in the prod stage
 
+layers:
+  utils:
+    path: utils
+    name: utils-${sls:stage}
+    description: "A layer for common functions"
+    compatibleRuntimes:
+      - python3.11
+    retain: false
+
 services:
 
 ############################################
@@ -29,7 +38,6 @@ services:
     params:
       userTableNamePrefix: users
       blockTableNamePrefix: blocks
-
   users:
     path: users-confirm
     params:
@@ -78,3 +86,15 @@ services:
       cdnBucketName: sweatyducksco
       uploadLambdaArn: ${uploadPhoto.UploadPhotoLambdaFunctionQualifiedArn}
       
+############################################
+# Handling Block Logic
+############################################
+  updateAddBlock:
+    path: addUpdateblock
+    params:
+      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:1'
+      tableArn: ${dynamodbTable.TableArn}
+      tableName: ${dynamodbTable.TableName}
+      cognitoArn: ${cognito.UserPoolArn}
+      blockTableArn: ${dynamodbTable.BlockTableArn}
+      blockTableName: ${dynamodbTable.BlockTableName}
