@@ -1,21 +1,17 @@
 import { useApi } from './useApi';
-import { useBlocksStore } from '~/stores/blocks';
-import { useWeeksStore } from '~/stores/weeks';
 import { useTrainingStore } from '~/stores/training';
 import { useAthleteStore } from '~/stores/athlete';
 
 const BASE_URL = 'https://j1v6bnyoh2.execute-api.eu-north-1.amazonaws.com/dev/updateAddBlock';
 
 const getStores = () => ({
-  blocksStore: useBlocksStore(),
   athleteStore: useAthleteStore(),
-  weeksStore: useWeeksStore(),
   trainingStore: useTrainingStore(),
   api: useApi()
 });
 
-export const addBlock = async (userId, newBlockLabel, athlete) => {
-  const { blocksStore, athleteStore, api } = getStores();
+export const addBlock = async (userId, newBlockLabel) => {
+  const { api } = getStores();
   
   try {
     const response = await api.authenticatedFetch(
@@ -38,15 +34,7 @@ export const addBlock = async (userId, newBlockLabel, athlete) => {
       };
     }
 
-    blocksStore.addBlock(newBlockLabel);
-    const newBlock = blocksStore.blocks[blocksStore.blocks.length - 1];
-    
-    if (athlete && athlete.id) {
-      athleteStore.addBlockToAthlete(athlete.id, newBlock);
-      return blocksStore.getBlocksByIds(athlete.blocks?.map(block => block.id) || []);
-    }
-    return [];
-
+    return { success: true };
   } catch (error) {
     console.error('Error adding block:', error);
     return {
@@ -56,7 +44,7 @@ export const addBlock = async (userId, newBlockLabel, athlete) => {
 };
 
 export const addWeek = async (userId, blockId, newWeekId) => {
-  const { weeksStore, api } = getStores();
+  const { api } = getStores();
   
   try {
     const response = await api.authenticatedFetch(
@@ -80,7 +68,6 @@ export const addWeek = async (userId, blockId, newWeekId) => {
       };
     }
 
-    weeksStore.addWeek(blockId, newWeekId);
     return { success: true };
   } catch (error) {
     console.error('Error adding week:', error);

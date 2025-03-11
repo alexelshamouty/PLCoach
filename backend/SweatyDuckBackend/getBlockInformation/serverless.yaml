@@ -1,0 +1,38 @@
+service: getBlockInformation
+
+provider:
+  name: aws
+  runtime: python3.11
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "${param:tableArn}"
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "${param:blockTableArn}"
+
+functions:
+  getBlockInformation:
+    layers:
+      - ${param:utilsLayer}
+    handler: getBlockInformation.handler
+    name: getBlockInformation-${sls:stage}
+    memorySize: 128
+    timeout: 60
+    events:
+      - http:
+          path: /getBlockInformation
+          method: get
+          timeout: 60
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+    environment:
+      TABLE_NAME: ${param:tableName}
+      BLOCK_TABLE_NAME: ${param:blockTableName}

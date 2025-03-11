@@ -98,3 +98,12 @@ services:
       cognitoArn: ${cognito.UserPoolArn}
       blockTableArn: ${dynamodbTable.BlockTableArn}
       blockTableName: ${dynamodbTable.BlockTableName}
+  getBlockInformation:
+    path: getBlockInformation
+    params:
+      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:9'
+      tableArn: ${dynamodbTable.TableArn}
+      tableName: ${dynamodbTable.TableName}
+      blockTableArn: ${dynamodbTable.BlockTableArn}
+      blockTableName: ${dynamodbTable.BlockTableName}
+      cognitoArn: ${cognito.UserPoolArn}

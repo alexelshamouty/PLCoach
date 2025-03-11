@@ -139,75 +139,81 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { useAthleteStore } from '~/stores/athlete';
 import { useTrainingStore } from '~/stores/training';
 import { useLabelsStore } from '~/stores/labels';
-import { useBlocksStore } from '~/stores/blocks';
-import { useWeeksStore } from '~/stores/weeks';
+// Remove weeksStore import
 import { useApi } from '~/composables/useApi';
 import { addBlock, addWeek, addDay, addExercise } from '~/composables/updateProgram';
+import { useBlockInformation } from '~/composables/getBlockInformation';
 
 const username = ref("");
-const athleteStore = useAthleteStore();
-const { athletes } = storeToRefs(athleteStore);
 const route = useRoute();
 const userId = route.params.id;
-const blocksStore = useBlocksStore();
-
-// Update athlete computed property with better null handling
-const athlete = computed(() => {
-  const found = athletes.value?.find(a => a.id === userId);
-  if (found) {
-    username.value = found.username;
-    return found;
-  }
-  return null;
-});
-
-const options1 = ref([]);
-const selectedOption1 = ref("");
-
-// Update the athlete watcher with safer checks
-watch(athlete, (newAthlete) => {
-  if (newAthlete?.blocks) {
-    const blocks = blocksStore.getBlocksByIds(newAthlete.blocks.map(block => block.id) || []);
-    options1.value = blocks;
-    selectedOption1.value = blocks.length ? blocks[blocks.length - 1].id : "";
-  } else {
-    options1.value = [];
-    selectedOption1.value = "";
-  }
-}, { immediate: true });
-
-// Remove the separate blocks watcher and update the options1 initialization
-watch(() => athlete.value?.blocks, (newBlocks) => {
-  if (newBlocks) {
-    options1.value = blocksStore.getBlocksByIds(newBlocks.map(block => block.id) || []);
-  } else {
-    options1.value = [];
-  }
-}, { deep: true });
+const { getAllBlocks } = useBlockInformation();
+const athleteStore = useAthleteStore();
+const { athletes } = storeToRefs(athleteStore);
 
 definePageMeta({ middleware: ['auth-admin'] });
+
+// Add these for blocks management
+const options1 = ref([]);
+const selectedOption1 = ref("");
+const isLoading = ref(true);
+
+// Load blocks when page loads
+onMounted(async () => {
+  try {
+    const athlete = athletes.value?.find(a => a.id === userId);
+    if (athlete) {
+      username.value = athlete.username;
+    }
+    
+    const blocks = await getAllBlocks(userId);
+    if (!blocks.error) {
+      options1.value = Object.entries(blocks).map(([name, weeks]) => ({
+        id: name,
+        label: name,
+        weeks: weeks
+      }));
+      selectedOption1.value = options1.value.length ? options1.value[0].id : "";
+    }
+  } catch (error) {
+    console.error('Error loading blocks:', error);
+    errorMessage.value = 'Failed to load blocks';
+    showError.value = true;
+    setTimeout(() => {
+      showError.value = false;
+    }, 3000);
+  } finally {
+    isLoading.value = false;
+  }
+});
 
 const messageOpen = ref(false);
 const allSets = ref(0);
 const labelColor = ref("");
 
-const weeksStore = useWeeksStore();
-const options2 = computed(() => weeksStore.getWeeksByBlockId(selectedOption1.value));
-
-const filteredOptions2 = ref(options2.value || []);
-watch(() => options2.value, (newVal) => {
-  filteredOptions2.value = newVal || [];
+// Replace weeksStore and options2 computed with this:
+const options2 = computed(() => {
+  const selectedBlock = options1.value.find(block => block.id === selectedOption1.value);
+  if (!selectedBlock) return [];
+  
+  return selectedBlock.weeks.map(weekId => ({
+    id: weekId,
+    label: weekId
+  }));
 });
 
-const selectedOption2 = ref(
-  filteredOptions2.value.length ? filteredOptions2.value[filteredOptions2.value.length - 1].id : ""
-);
+// Remove filteredOptions2 ref and watch, replace with this:
+const filteredOptions2 = computed(() => options2.value || []);
+
+const selectedOption2 = computed(() => {
+  return filteredOptions2.value.length ? filteredOptions2.value[0].id : "";
+});
 
 const trainingStore = useTrainingStore();
 const items = computed(() => trainingStore.items);
@@ -318,7 +324,7 @@ async function handleAddBlock() {
   }
 
   try {
-    const result = await addBlock(userId, newBlockLabel.value, athlete.value);
+    const result = await addBlock(userId, newBlockLabel.value);
     if (result.error) {
       errorMessage.value = result.error;
       showError.value = true;
@@ -328,7 +334,15 @@ async function handleAddBlock() {
       return;
     }
     
-    options1.value = result;
+    // Refresh blocks after adding
+    const blocks = await getAllBlocks(userId);
+    if (!blocks.error) {
+      options1.value = Object.entries(blocks).map(([name, weeks]) => ({
+        id: name,
+        label: name,
+        weeks: weeks
+      }));
+    }
     newBlockLabel.value = "";
   } catch (error) {
     console.error('Error in handleAddBlock:', error);

@@ -113,9 +113,10 @@ def handle_add_week(table, data):
                 'Userid': data['userId'],
                 'Timestamp': block['Timestamp']  # Use the actual Timestamp from the block
             },
-            UpdateExpression="SET Block.Weeks.#weekId = :weekData",
+            UpdateExpression="SET #b.Weeks.#weekId = :weekData",
             ExpressionAttributeNames={
-                '#weekId': data['newWeekId']
+                '#weekId': data['newWeekId'],
+                '#b': 'Block'
             },
             ExpressionAttributeValues={
                 ':weekData': {
@@ -169,9 +170,10 @@ def handle_add_day(table, data):
                 'Userid': data['userId'],
                 'Timestamp': block['Timestamp']
             },
-            UpdateExpression="SET Block.Weeks.#weekId.Days = list_append(if_not_exists(Block.Weeks.#weekId.Days, :empty_list), :new_day)",
+            UpdateExpression="SET #b.Weeks.#weekId.Days = list_append(if_not_exists(#b.Weeks.#weekId.Days, :empty_list), :new_day)",
             ExpressionAttributeNames={
-                '#weekId': data['weekId']
+                '#weekId': data['weekId'],
+                '#b': 'Block'
             },
             ExpressionAttributeValues={
                 ':empty_list': [],
@@ -225,10 +227,11 @@ def handle_add_exercise(table, data):
                 'Userid': data['userId'],
                 'Timestamp': block['Timestamp']
             },
-            UpdateExpression="SET Block.Weeks.#weekId.Days[#dayIndex].Exercises = list_append(if_not_exists(Block.Weeks.#weekId.Days[#dayIndex].Exercises, :empty_list), :new_exercise)",
+            UpdateExpression="SET #b.Weeks.#weekId.Days[#dayIndex].Exercises = list_append(if_not_exists(#b.Weeks.#weekId.Days[#dayIndex].Exercises, :empty_list), :new_exercise)",
             ExpressionAttributeNames={
                 '#weekId': data['weekId'],
-                '#dayIndex': str(days.index(day))
+                '#dayIndex': str(days.index(day)),
+                '#b': 'Block'
             },
             ExpressionAttributeValues={
                 ':empty_list': [],
