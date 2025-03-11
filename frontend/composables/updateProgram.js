@@ -78,7 +78,7 @@ export const addWeek = async (userId, blockId, newWeekId) => {
 };
 
 export const addDay = async (userId, blockId, weekId, newDayId) => {
-  const { trainingStore, api } = getStores();
+  const { api } = getStores();
   
   try {
     const response = await api.authenticatedFetch(
@@ -103,7 +103,6 @@ export const addDay = async (userId, blockId, weekId, newDayId) => {
       };
     }
 
-    trainingStore.addDay(weekId, newDayId);
     return { success: true };
   } catch (error) {
     console.error('Error adding day:', error);
@@ -151,6 +150,43 @@ export const addExercise = async (userId, blockId, weekId, dayId, exercise) => {
     return { success: true };
   } catch (error) {
     console.error('Error adding exercise:', error);
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
+  }
+};
+
+export const deleteExercise = async (userId, blockId, weekId, dayId, exerciseName, exerciseLabel) => {
+  const { api } = getStores();
+  
+  try {
+    const response = await api.authenticatedFetch(
+      BASE_URL,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'deleteExercise',
+          userId,
+          blockId,
+          weekId,
+          dayId,
+          exerciseName,
+          exerciseLabel
+        })
+      }
+    );
+
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to delete exercise'
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting exercise:', error);
     return {
       error: error.message || 'An unexpected error occurred'
     };

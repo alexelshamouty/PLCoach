@@ -104,7 +104,7 @@
                   <td class="py-2 px-4 text-center font-semibold text-yellow-400">{{ exercise.rpe }}</td>
                   <td class="py-2 px-4 text-center font-semibold text-yellow-400">{{ exercise.comments }}</td>
                   <td class="py-2 px-4 text-center">
-                    <button @click="deleteExercise(index, i)" class="text-red-600 hover:text-red-800 transition">
+                    <button @click="handleDeleteExercise(index, i)" class="text-red-600 hover:text-red-800 transition">
                       ✖️
                     </button>
                   </td>
@@ -127,7 +127,7 @@
                 <input v-model.number="newExerciseRpe" placeholder="RPE (6-10)" type="number" class="w-full md:w-1/6 p-2 bg-gray-700 text-white rounded-lg outline-none" />
                 <input v-model="newExerciseComments" placeholder="Comments" class="w-full md:w-1/6 p-2 bg-gray-700 text-white rounded-lg outline-none" />
               </div>
-              <button @click="handleAddExercise(index)" class="w-full mt-2 p-2 bg-green-600 rounded-lg hover:bg-green-700">
+              <button @click="handleAddExercise(item.title)" class="w-full mt-2 p-2 bg-green-600 rounded-lg hover:bg-green-700">
                 Add Exercise
               </button>
             </div>
@@ -143,17 +143,15 @@ import { ref, computed, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { useAthleteStore } from '~/stores/athlete';
-import { useTrainingStore } from '~/stores/training';
 import { useLabelsStore } from '~/stores/labels';
-// Remove weeksStore import
 import { useApi } from '~/composables/useApi';
-import { addBlock, addWeek, addDay, addExercise } from '~/composables/updateProgram';
+import { addBlock, addWeek, addDay, addExercise, deleteExercise } from '~/composables/updateProgram';
 import { useBlockInformation } from '~/composables/getBlockInformation';
 
 const username = ref("");
 const route = useRoute();
 const userId = route.params.id;
-const { getAllBlocks } = useBlockInformation();
+const { getAllBlocks, getDaysByWeek } = useBlockInformation();
 const athleteStore = useAthleteStore();
 const { athletes } = storeToRefs(athleteStore);
 
@@ -202,21 +200,18 @@ const options2 = computed(() => {
   const selectedBlock = options1.value.find(block => block.id === selectedOption1.value);
   if (!selectedBlock) return [];
   
-  return selectedBlock.weeks.map(weekId => ({
+  return selectedBlock.weeks.slice().reverse().map(weekId => ({
     id: weekId,
     label: weekId
   }));
 });
 
 // Remove filteredOptions2 ref and watch, replace with this:
-const filteredOptions2 = computed(() => options2.value || []);
+const filteredOptions2 = computed(() => options2.value);
 
 const selectedOption2 = computed(() => {
   return filteredOptions2.value.length ? filteredOptions2.value[0].id : "";
 });
-
-const trainingStore = useTrainingStore();
-const items = computed(() => trainingStore.items);
 
 const labelsStore = useLabelsStore();
 const labels = computed(() => labelsStore.labels);
@@ -234,14 +229,20 @@ function toggleMessage() {
   messageOpen.value = !messageOpen.value;
 }
 
-const filteredOptions3 = ref(items.value[selectedOption2.value] || []);
-watch(() => trainingStore.items[selectedOption2.value], (newItems) => {
-  filteredOptions3.value = newItems || [];
-}, { deep: true });
-
-watch(() => selectedOption2.value, (newVal) => {
-  filteredOptions3.value = items.value[newVal] || [];
-});
+const filteredOptions3 = ref([]);
+watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
+  if (newBlock && newWeek) {
+    const response = await getDaysByWeek(userId, newBlock, newWeek);
+    if (!response.error) {
+      filteredOptions3.value = Object.entries(response).map(([dayId, dayData]) => ({
+        title: dayId,
+        content: dayData.Exercises || []
+      }));
+    }
+  } else {
+    filteredOptions3.value = [];
+  }
+}, { immediate: true });
 
 const activeIndex = ref(null);
 
@@ -261,22 +262,23 @@ const newExerciseComments = ref("");
 const errorMessage = ref("");
 const showError = ref(false);
 
-async function handleAddExercise(dayIndex) {
+async function handleAddExercise(dayId) {
+  // Convert all values to strings as required by backend
   const exercise = {
-    name: newExerciseName.value,
-    label: newExerciseLabel.value,
-    sets: newExerciseSets.value,
-    reps: newExerciseReps.value,
-    rpe: newExerciseRpe.value,
-    comments: newExerciseComments.value
+    name: String(newExerciseName.value),
+    label: String(newExerciseLabel.value),
+    sets: String(newExerciseSets.value),
+    reps: String(newExerciseReps.value),
+    rpe: String(newExerciseRpe.value),
+    comments: String(newExerciseComments.value)
   };
 
   try {
     const result = await addExercise(
-      userId, 
-      selectedOption1.value, 
-      selectedOption2.value, 
-      dayIndex, 
+      userId,
+      selectedOption1.value,
+      selectedOption2.value,
+      dayId,
       exercise
     );
     
@@ -287,6 +289,15 @@ async function handleAddExercise(dayIndex) {
         showError.value = false;
       }, 3000);
       return;
+    }
+
+    // Refresh days after adding exercise
+    const days = await getDaysByWeek(userId, selectedOption1.value, selectedOption2.value);
+    if (!days.error) {
+      filteredOptions3.value = Object.entries(days).map(([dayId, dayData]) => ({
+        title: dayId,
+        content: dayData.Exercises || []
+      }));
     }
     
     // Reset form
@@ -306,8 +317,45 @@ async function handleAddExercise(dayIndex) {
   }
 }
 
-function deleteExercise(dayIndex, exerciseIndex) {
-  trainingStore.deleteExercise(selectedOption2.value, dayIndex, exerciseIndex);
+async function handleDeleteExercise(dayId, exerciseIndex) {
+  const day = filteredOptions3.value[dayId];
+  const exercise = day.content[exerciseIndex];
+
+  try {
+    const result = await deleteExercise(
+      userId,
+      selectedOption1.value,
+      selectedOption2.value,
+      day.title,
+      exercise.name,
+      exercise.label
+    );
+
+    if (result.error) {
+      errorMessage.value = result.error;
+      showError.value = true;
+      setTimeout(() => {
+        showError.value = false;
+      }, 3000);
+      return;
+    }
+
+    // Refresh days after deleting exercise
+    const days = await getDaysByWeek(userId, selectedOption1.value, selectedOption2.value);
+    if (!days.error) {
+      filteredOptions3.value = Object.entries(days).map(([dayId, dayData]) => ({
+        title: dayId,
+        content: dayData.Exercises || []
+      }));
+    }
+  } catch (error) {
+    console.error('Error in deleteExercise:', error);
+    errorMessage.value = error.message || 'An error occurred while deleting the exercise';
+    showError.value = true;
+    setTimeout(() => {
+      showError.value = false;
+    }, 3000);
+  }
 }
 
 const newBlockLabel = ref("");
@@ -342,6 +390,9 @@ async function handleAddBlock() {
         label: name,
         weeks: weeks
       }));
+      // Set the newly added block as selected
+      selectedOption1.value = newBlockLabel.value;
+      selectedOption2.value = ""; // Reset week selection
     }
     newBlockLabel.value = "";
   } catch (error) {
@@ -365,6 +416,20 @@ async function handleAddWeek() {
       }, 3000);
       return;
     }
+    
+    // Refresh blocks to get updated weeks
+    const blocks = await getAllBlocks(userId);
+    if (!blocks.error) {
+      options1.value = Object.entries(blocks).map(([name, weeks]) => ({
+        id: name,
+        label: name,
+        weeks: weeks
+      }));
+      // Keep same block selected
+      selectedOption1.value = selectedOption1.value;
+      // Set the newly added week as selected
+      selectedOption2.value = newWeekTitle.value;
+    }
     newWeekTitle.value = "";
   } catch (error) {
     console.error('Error in handleAddWeek:', error);
@@ -387,6 +452,16 @@ async function handleAddDay() {
       }, 3000);
       return;
     }
+
+    // Fetch updated days after adding new day
+    const days = await getDaysByWeek(userId, selectedOption1.value, selectedOption2.value);
+    if (!days.error) {
+      filteredOptions3.value = Object.entries(days).map(([dayId, dayData]) => ({
+        title: dayId,
+        content: dayData.Exercises || []
+      }));
+    }
+    
     newDayTitle.value = "";
   } catch (error) {
     console.error('Error in handleAddDay:', error);

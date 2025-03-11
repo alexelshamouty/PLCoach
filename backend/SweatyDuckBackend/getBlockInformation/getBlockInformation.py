@@ -34,7 +34,7 @@ def handler(event, context):
             logger.error("Missing action parameter")
             return error_response(400, "Missing action parameter")
 
-        if action not in ['getBlockByName', 'getAllBlocks']:
+        if action not in ['getBlockByName', 'getAllBlocks','getDaysByWeek']:
             logger.error("Invalid action: %s", action)
             return error_response(400, "Invalid action. Must be 'getBlockByName' or 'getAllBlocks'")
 
@@ -84,6 +84,39 @@ def handler(event, context):
                 
             return success_response({
                 'blocks': blocks_map
+            })
+        elif action == 'getDaysByWeek':
+            logger.info("Processing getDaysByWeek request for userId: %s", user_id)
+            
+            block_id = query_params.get('blockId')
+            if not block_id:
+                logger.error("Missing blockId parameter for getDaysByWeek")
+                return error_response(400, "Missing blockId parameter")
+                
+            week_id = query_params.get('weekId')
+            if not week_id:
+                logger.error("Missing weekId parameter for getDaysByWeek")
+                return error_response(400, "Missing weekId parameter")
+                
+            logger.info("Getting days for block: %s, week: %s", block_id, week_id)
+
+            # Get block information
+            block, error = get_block_by_name(table, user_id, block_id)
+            if error:
+                return error
+            if not block:
+                return error_response(404, f"Block not found: {block_id}")
+            
+            # Get week information
+            week = block.get('Block', {}).get('Weeks', {}).get(week_id)
+            if not week:
+                return error_response(404, f"Week not found: {week_id}")
+            
+            # Get days array
+            days = week.get('Days', [])
+            logger.info(f"Found days: {days}")
+            return success_response({
+                'days': days
             })
             
     except Exception as e:

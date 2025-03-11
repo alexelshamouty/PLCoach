@@ -24,7 +24,27 @@ export const useBlockInformation = () => {
     }
   };
 
+  const getDaysByWeek = async (userId, blockId, weekId) => {
+    try {
+      const response = await authenticatedFetch(
+        `${BASE_URL}?action=getDaysByWeek&userId=${userId}&blockId=${blockId}&weekId=${weekId}`,
+        { method: 'GET' }
+      );
+
+      const data = await response.json();
+      if (response.status !== 200) {
+        return { error: data.error || 'Failed to fetch days' };
+      }
+
+      return data.days;
+    } catch (error) {
+      console.error('Error fetching days:', error);
+      return { error: error.message || 'An unexpected error occurred' };
+    }
+  };
+
   return {
-    getAllBlocks
+    getAllBlocks,
+    getDaysByWeek
   };
 };
