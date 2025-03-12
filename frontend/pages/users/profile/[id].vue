@@ -102,7 +102,13 @@
               </thead>
               <tbody>
                 <tr v-for="(exercise, i) in item.content" :key="i" class="border-b border-gray-700 hover:bg-gray-800">
-                  <td class="py-2 px-4">{{ exercise.name }}</td>
+                  <td class="py-2 px-4">
+                    <button 
+                      @click="openDialog(exercise)"
+                      class="text-left hover:text-blue-400 transition-colors duration-200 cursor-pointer w-full">
+                      {{ exercise.name }}
+                    </button>
+                  </td>
                   <td class="py-2 px-4">
                     <button :style="{ backgroundColor: getLabelColor(exercise.label) }" class="text-black px-4 py-2 rounded-full hover:opacity-75 transition">
                       {{ exercise.label }}
@@ -121,9 +127,7 @@
       <!-- Dialog -->
       <div v-if="dialogOpen" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
         <div class="bg-gray-800 bg-opacity-90 p-6 rounded-2xl shadow-lg w-full max-w-2xl">
-          <div class="flex justify-center mb-4">
-            <h3 class="text-m font-semibold text-center px-4 py-2" :style="{ backgroundColor: getLabelColor(selectedExercise.label), color: 'white', borderRadius: '0.375rem' }">{{ selectedExercise.name }}</h3>
-          </div>
+          <p class="mb-4 text-gray-300 text-center">Comments from coach:</p>
           <p class="mb-4 text-gray-300 text-center">{{ selectedExercise.comments }}</p>
           <p class="mb-4 text-gray-300 text-center">Protocol: {{ selectedExercise.sets }} sets of {{ selectedExercise.reps }} reps at RPE {{ selectedExercise.rpe }}</p>
           <form @submit.prevent="submitDialog">
@@ -136,9 +140,9 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="set in selectedExercise.sets" :key="set" class="border-b border-gray-600">
+                <tr v-for="setNumber in exerciseSets" :key="setNumber" class="border-b border-gray-600">
                   <td class="py-2 px-4 text-left">
-                    Set {{ set }}
+                    Set {{ setNumber }}
                   </td>
                   <td class="py-2 px-4 text-center">
                     <input type="text" v-model="selectedExercise.reps" class="w-full px-2 py-1 bg-gray-700 text-white rounded-md" />
@@ -269,7 +273,9 @@ const toggle = (index) => {
 const dialogOpen = ref(false);
 const selectedExercise = ref({});
 
+
 function openDialog(exercise) {
+  console.log("Opening dialog for exercise:", exercise);
   selectedExercise.value = exercise;
   dialogOpen.value = true;
 }
@@ -283,6 +289,12 @@ function submitDialog() {
   console.log("Submitted changes:", selectedExercise.value);
   closeDialog();
 }
+
+// Add exerciseSets
+const exerciseSets = computed(() => {
+  const sets = parseInt(selectedExercise.value?.sets || 0);
+  return Array.from({ length: sets }, (_, i) => i + 1);
+});
 
 // File handling methods
 function openFileDialog() {
