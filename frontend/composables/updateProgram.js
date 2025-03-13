@@ -187,3 +187,41 @@ export const deleteExercise = async (userId, blockId, weekId, dayId, exerciseNam
     };
   }
 };
+
+export const updateExercise = async (userId, blockId, weekId, dayId, exerciseName, sets, comments) => {
+  const { api } = getStores();
+  
+  try {
+    const response = await api.authenticatedFetch(
+      BASE_URL,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'updateExercise',
+          userId,
+          blockId,
+          weekId,
+          dayId,
+          exerciseName,
+          sets,
+          comments
+        })
+      }
+    );
+
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to update exercise'
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating exercise:', error);
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
+  }
+};

@@ -128,8 +128,12 @@
       <div v-if="dialogOpen" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
         <div class="bg-gray-800 bg-opacity-90 p-6 rounded-2xl shadow-lg w-full max-w-2xl">
           <p class="mb-4 text-gray-300 text-center">Comments from coach:</p>
-          <p class="mb-4 text-gray-300 text-center">{{ selectedExercise.comments }}</p>
-          <p class="mb-4 text-gray-300 text-center">Protocol: {{ selectedExercise.sets }} sets of {{ selectedExercise.reps }} reps at RPE {{ selectedExercise.rpe }}</p>
+          <p class="mb-4 text-gray-300 text-center">{{ selectedExercise.originalExercise.comments }}</p>
+          <p class="mb-4 text-gray-300 text-center">
+            Protocol: {{ selectedExercise.originalExercise.sets }} sets of 
+            {{ selectedExercise.originalExercise.reps }} reps at RPE 
+            {{ selectedExercise.originalExercise.rpe }}
+          </p>
           <form @submit.prevent="submitDialog">
             <table class="w-full border-collapse text-sm">
               <thead>
@@ -140,21 +144,28 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="setNumber in exerciseSets" :key="setNumber" class="border-b border-gray-600">
-                  <td class="py-2 px-4 text-left">
-                    Set {{ setNumber }}
+                <tr v-for="(result, index) in selectedExercise.results" 
+                    :key="index" 
+                    class="border-b border-gray-600">
+                  <td class="py-2 px-4 text-left">Set {{ index + 1 }}</td>
+                  <td class="py-2 px-4 text-center">
+                    <input type="text" 
+                           v-model="result.reps" 
+                           class="w-full px-2 py-1 bg-gray-700 text-white rounded-md" />
                   </td>
                   <td class="py-2 px-4 text-center">
-                    <input type="text" v-model="selectedExercise.reps" class="w-full px-2 py-1 bg-gray-700 text-white rounded-md" />
-                  </td>
-                  <td class="py-2 px-4 text-center">
-                    <input type="text" v-model="selectedExercise.rpe" class="w-full px-2 py-1 bg-gray-700 text-white rounded-md" />
+                    <input type="text" 
+                           v-model="result.rpe" 
+                           class="w-full px-2 py-1 bg-gray-700 text-white rounded-md" />
                   </td>
                 </tr>
               </tbody>
             </table>
             <div class="mt-4">
-              <textarea v-model="selectedExercise.comments" placeholder="Comments on this exercise" class="w-full px-2 py-1 bg-gray-700 text-white rounded-md"></textarea>
+              <textarea v-model="selectedExercise.userComments" 
+                        placeholder="Comments on this exercise" 
+                        class="w-full px-2 py-1 bg-gray-700 text-white rounded-md">
+              </textarea>
             </div>
             <div class="mt-4 flex justify-end space-x-2">
               <button @click="closeDialog" type="button" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
@@ -178,6 +189,7 @@ import { useApi } from '~/composables/useApi';
 import { useAthleteManagement } from '~/composables/manageAthletes';
 import { useLabelsStore } from '~/stores/labels';
 import { useBlockInformation } from '~/composables/getBlockInformation';
+import { updateExercise } from '~/composables/updateProgram';
 
 const athlete = ref(null);
 const username = ref("");
@@ -271,12 +283,26 @@ const toggle = (index) => {
 
 // Keep existing dialog handling code
 const dialogOpen = ref(false);
-const selectedExercise = ref({});
+const selectedExercise = ref({
+  originalExercise: {},
+  results: [],
+  userComments: ""
+});
 
 
 function openDialog(exercise) {
-  console.log("Opening dialog for exercise:", exercise);
-  selectedExercise.value = exercise;
+  const sets = parseInt(exercise.sets || 0);
+  const existingResults = exercise.results?.sets || [];
+  const existingComments = exercise.results?.comments || '';
+
+  selectedExercise.value = {
+    originalExercise: exercise,
+    results: existingResults.length ? existingResults : Array.from({ length: sets }, () => ({
+      reps: exercise.reps,
+      rpe: exercise.rpe
+    })),
+    userComments: existingComments
+  };
   dialogOpen.value = true;
 }
 
@@ -284,17 +310,46 @@ function closeDialog() {
   dialogOpen.value = false;
 }
 
-function submitDialog() {
-  // Log the changes
-  console.log("Submitted changes:", selectedExercise.value);
-  closeDialog();
-}
+async function submitDialog() {
+  try {
+    const currentDay = filteredOptions3.value[activeIndex.value];
+    const mappedSets = selectedExercise.value.results.map((result, index) => ({
+      setNumber: String(index + 1),
+      reps: String(result.reps),
+      rpe: String(result.rpe)
+    }));
 
-// Add exerciseSets
-const exerciseSets = computed(() => {
-  const sets = parseInt(selectedExercise.value?.sets || 0);
-  return Array.from({ length: sets }, (_, i) => i + 1);
-});
+    console.log('Submitting exercise with parameters:', {
+      userId,
+      blockId: selectedOption1.value,
+      weekId: selectedOption2.value,
+      dayId: currentDay.title,
+      exerciseName: selectedExercise.value.originalExercise.name,
+      sets: mappedSets,
+      comments: selectedExercise.value.userComments?.trim() || ''  // Ensure comments are trimmed and defaulted to empty string
+    });
+
+    const result = await updateExercise(
+      userId,
+      selectedOption1.value,
+      selectedOption2.value,
+      currentDay.title,
+      selectedExercise.value.originalExercise.name,
+      mappedSets,
+      selectedExercise.value.userComments?.trim() || ''  // Ensure comments are trimmed and defaulted to empty string
+    );
+
+    if (result.error) {
+      error.value = result.error;
+      return;
+    }
+
+    closeDialog();
+  } catch (e) {
+    error.value = e.message || 'Failed to update exercise';
+    console.error('Error submitting exercise:', e);
+  }
+}
 
 // File handling methods
 function openFileDialog() {
