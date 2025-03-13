@@ -9,6 +9,9 @@ def handle_add_block(data, dbUtils, responseUtils):
     logger.info("Adding new block with name: %s for user: %s", data.get('blockName'), data.get('user_id'))
     try:
         # Check if block already exists using injected method
+        #This is not uniform. We are using user_id here but userId elsewhere
+        #TODO FIX THIS
+        # Needs fix in the UI as well
         block, error = dbUtils.get_block_by_name(data['user_id'], data['blockName'])
         
         if block:
@@ -18,7 +21,7 @@ def handle_add_block(data, dbUtils, responseUtils):
         # Create new block with current timestamp
         current_time = datetime.datetime.now().isoformat()
         
-        responseUtils.table.put_item(
+        dbUtils.table.put_item(
             Item={
                 'Userid': data['user_id'],
                 'Timestamp': current_time,

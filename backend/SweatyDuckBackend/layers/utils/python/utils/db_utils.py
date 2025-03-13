@@ -24,9 +24,9 @@ class DBUtils:
             )
             
             if not response['Items']:
-                return None, error_response(404, f'Block with name {block_name} not found')
+                return None, self.responseUtils.error_response(404, f'Block with name {block_name} not found')
                 
             return response['Items'][0], None
             
         except Exception as e:
-            return None, error_response(500, f'Error querying block: {str(e)}')
+            return None, self.responseUtils.error_response(500, f'Error querying block: {str(e)}')
