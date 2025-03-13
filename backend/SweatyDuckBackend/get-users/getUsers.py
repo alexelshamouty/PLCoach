@@ -1,12 +1,20 @@
 import boto3
 import os
 import json
+import logging 
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 def handler(event, context):
     tableName = os.getenv('TABLE_NAME')
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(tableName)
     groups = event['cognitoPoolClaims'].get('groups', [])
+    # Handle warmup event
+    if event.get("source") == "serverless-plugin-warmup":
+        logger.info("WarmUp event")
+        return {}
     if 'coaches' not in groups:
         print("Unauthorized user")
         print(event)

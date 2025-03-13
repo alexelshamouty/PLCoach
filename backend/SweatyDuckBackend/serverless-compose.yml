@@ -73,18 +73,10 @@ services:
 ############################################
 # Handling Upload Logic
 ############################################
-  uploadPhoto:
-    path: upload-photo
-    params:
-      tableArn: ${dynamodbTable.TableArn}
-      bucketName: sweatyducksco
-      tableName: ${dynamodbTable.TableName}
-      cognitoArn: ${cognito.UserPoolArn}
   cdn:
     path: cdn
     params:
       cdnBucketName: sweatyducksco
-      uploadLambdaArn: ${uploadPhoto.UploadPhotoLambdaFunctionQualifiedArn}
       
 ############################################
 # Handling Block Logic
@@ -98,6 +90,7 @@ services:
       cognitoArn: ${cognito.UserPoolArn}
       blockTableArn: ${dynamodbTable.BlockTableArn}
       blockTableName: ${dynamodbTable.BlockTableName}
+      
   getBlockInformation:
     path: getBlockInformation
     params:

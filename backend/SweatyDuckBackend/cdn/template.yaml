@@ -28,16 +28,6 @@ Resources:
           Statement:
             - Effect: Allow
               Action:
-                - 's3:*'
-              Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
-              Principal:
-                Service: 'lambda.amazonaws.com'
-              Condition:
-                StringEquals:
-                  #Allow only the lambda function to access the bucket
-                  AWS:SourceArn: ${param:uploadLambdaArn}
-            - Effect: Allow
-              Action:
                 - 's3:GetObject'
               Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
               Principal:

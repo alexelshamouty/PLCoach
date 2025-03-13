@@ -12,6 +12,11 @@ def handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(tableName)
 
+    # Handle warmup event
+    if event.get("source") == "serverless-plugin-warmup":
+        logger.info("WarmUp event")
+        return {}
+
     # Get userId from query parameters
     # TODO: We need to move to lambda-proxy 
     query_params = event.get('query', {})

@@ -16,6 +16,11 @@ def handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(tableName)
     
+    # Handle warmup event
+    if event.get("source") == "serverless-plugin-warmup":
+        logger.info("WarmUp event")
+        return {}
+
     auth_response = authorize(event)
     if auth_response:
         logger.error("Authorization failed")

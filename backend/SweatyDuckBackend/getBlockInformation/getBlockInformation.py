@@ -16,6 +16,11 @@ def handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(tableName)
     
+    # Handle warmup event
+    if event.get("source") == "serverless-plugin-warmup":
+        logger.info("WarmUp event")
+        return {}
+    
     #TODO: This needs to allow the user to retreive their information too. But not now we need to finish the admin functionality
     #TODO: Yes this is bad and we need to change it but first the functionality
     auth_response_admin = authorize(event,['coaches','athletes'])

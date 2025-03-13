@@ -1,5 +1,18 @@
 service: getUser
 
+custom:
+  warmup:
+    officeHoursWarmer:
+      enabled: true
+      events:
+        - schedule: cron(0/5 8-21 ? * MON-SUN *)
+      concurrency: 3
+      verbose: true
+      logRetentionInDays: 3
+      folderName: .warmup
+      cleanFolder: true
+      prewarm: true
+
 provider:
   name: aws
   runtime: python3.11
@@ -16,7 +29,9 @@ functions:
     name: getUser-${sls:stage}
     memorySize: 128
     timeout: 60
-    reservedConcurrency: 2
+    warmup:
+      officeHoursWarmer:
+        enabled: true
     events:
       - http:
           path: /getUser
@@ -32,3 +47,6 @@ functions:
               - cognito:username
     environment:
       TABLE_NAME: ${param:tableName}
+  
+plugins:
+  - serverless-plugin-warmup
