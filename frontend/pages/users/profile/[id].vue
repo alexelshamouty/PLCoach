@@ -161,12 +161,14 @@
                 </tr>
               </tbody>
             </table>
-            <div class="mt-4">
-              <textarea v-model="selectedExercise.userComments" 
-                        placeholder="Comments on this exercise" 
-                        class="w-full px-2 py-1 bg-gray-700 text-white rounded-md">
-              </textarea>
-            </div>
+              <!-- Update the textarea to remove extra whitespace -->
+              <div class="mt-4">
+                <textarea 
+                  v-model.trim="selectedExercise.userComments" 
+                  placeholder="Comments on this exercise" 
+                  class="w-full px-2 py-1 bg-gray-700 text-white rounded-md"
+                ></textarea>
+              </div>
             <div class="mt-4 flex justify-end space-x-2">
               <button @click="closeDialog" type="button" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
                 Close
@@ -326,7 +328,7 @@ async function submitDialog() {
       dayId: currentDay.title,
       exerciseName: selectedExercise.value.originalExercise.name,
       sets: mappedSets,
-      comments: selectedExercise.value.userComments?.trim() || ''  // Ensure comments are trimmed and defaulted to empty string
+      comments: selectedExercise.value.userComments  // Ensure comments are trimmed and defaulted to empty string
     });
 
     const result = await updateExercise(
@@ -336,12 +338,21 @@ async function submitDialog() {
       currentDay.title,
       selectedExercise.value.originalExercise.name,
       mappedSets,
-      selectedExercise.value.userComments?.trim() || ''  // Ensure comments are trimmed and defaulted to empty string
+      selectedExercise.value.userComments  // Ensure comments are trimmed and defaulted to empty string
     );
 
     if (result.error) {
       error.value = result.error;
       return;
+    }
+
+    // Refresh data after successful submission
+    const response = await getDaysByWeek(userId, selectedOption1.value, selectedOption2.value);
+    if (!response.error) {
+      filteredOptions3.value = Object.entries(response).map(([dayId, dayData]) => ({
+        title: dayId,
+        content: dayData.Exercises || []
+      }));
     }
 
     closeDialog();
