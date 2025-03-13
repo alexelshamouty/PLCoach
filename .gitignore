@@ -5,3 +5,4 @@ dynamodb
 .serverless
 user-json.json
 node_modules
+.vscode
