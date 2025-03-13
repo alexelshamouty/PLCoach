@@ -6,3 +6,4 @@ dynamodb
 user-json.json
 node_modules
 .vscode
+__pycache__

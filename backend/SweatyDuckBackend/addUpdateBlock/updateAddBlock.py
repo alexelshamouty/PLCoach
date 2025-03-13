@@ -4,13 +4,15 @@ import logging
 
 from utils.response_utils import ResponseUtils
 from utils.db_utils import DBUtils
-from .handlers import (handle_add_block, handle_add_week, handle_add_day, 
+from handlers import (handle_add_block, handle_add_week, handle_add_day, 
                       handle_add_exercise, handle_delete_exercise, handle_update_exercise)
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 # We are going to move to Magnum and FastAPi. All of this will be replaced by FastAPI
+tableName = os.getenv('BLOCK_TABLE_NAME')
+
 def handler(event, context):
     # Handle warmup event
     databaseUtils = DBUtils(tableName)
@@ -20,8 +22,6 @@ def handler(event, context):
         logger.info('Handling warmup request')
         return responseUtils.success_response({'message': 'Warmup request handled successfully'})
     logger.info("Handler started with event: %s", event)
-    tableName = os.getenv('BLOCK_TABLE_NAME')
-
 
     auth_response = responseUtils.authorize(event)
     if auth_response:

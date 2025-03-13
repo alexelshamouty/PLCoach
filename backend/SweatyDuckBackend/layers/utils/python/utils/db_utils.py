@@ -1,11 +1,11 @@
 from boto3.dynamodb.conditions import Key
-from .response_utils import error_response
 import boto3
-
+from .response_utils import ResponseUtils
 class DBUtils:
     def __init__(self, tableName):
         dynamodb = boto3.resource('dynamodb')
         self.table = dynamodb.Table(tableName)
+        self.responseUtils = ResponseUtils(None)
 
     def get_block_by_name(self, user_id, block_name):
         """
