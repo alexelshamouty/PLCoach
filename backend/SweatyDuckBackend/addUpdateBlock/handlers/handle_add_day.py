@@ -5,10 +5,10 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def handle_add_day(table, data, get_block_by_name, error_response, success_response):
+def handle_add_day(data, dbUtils, responseUtils):
     logger.info("Adding new day %s to week %s in block %s", data.get('newDayId'), data.get('weekId'), data.get('blockId'))
     try:
-        block, error = get_block_by_name(table, data['userId'], data['blockId'])
+        block, error = dbUtils.get_block_by_name(data['userId'], data['blockId'])
         if error:
             logger.error("Error retrieving block: %s", error)
             return error
@@ -17,17 +17,17 @@ def handle_add_day(table, data, get_block_by_name, error_response, success_respo
         
         if not week:
             logger.error("Week %s not found in block %s", data['weekId'], data['blockId'])
-            return error_response(404, 'Week not found')
+            return responseUtils.error_response(404, 'Week not found')
             
         days = week.get('Days', {})
         
         # Check if day already exists in the map
         if data['newDayId'] in days:
             logger.error("Day %s already exists in week %s", data['newDayId'], data['weekId'])
-            return error_response(400, f'Day {data["newDayId"]} already exists in this week')
+            return responseUtils.error_response(400, f'Day {data["newDayId"]} already exists in this week')
 
         # Add new day to the map
-        table.update_item(
+        dbUtils.table.update_item(
             Key={
                 'Userid': data['userId'],
                 'Timestamp': block['Timestamp']
@@ -47,7 +47,7 @@ def handle_add_day(table, data, get_block_by_name, error_response, success_respo
         )
         
         logger.info("Successfully added day %s", data['newDayId'])
-        return success_response({
+        return responseUtils.success_response({
             'message': 'Day added',
             'data': {
                 'blockName': data['blockId'],
@@ -58,4 +58,4 @@ def handle_add_day(table, data, get_block_by_name, error_response, success_respo
         })
     except Exception as e:
         logger.error("Error adding day: %s", str(e))
-        return error_response(500, str(e))
+        return responseUtils.error_response(500, str(e))

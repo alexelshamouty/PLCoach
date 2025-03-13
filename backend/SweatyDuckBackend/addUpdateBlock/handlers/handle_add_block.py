@@ -5,20 +5,20 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def handle_add_block(table, data, get_block_by_name, error_response, success_response):
+def handle_add_block(data, dbUtils, responseUtils):
     logger.info("Adding new block with name: %s for user: %s", data.get('blockName'), data.get('user_id'))
     try:
         # Check if block already exists using injected method
-        block, error = get_block_by_name(table, data['user_id'], data['blockName'])
+        block, error = dbUtils.get_block_by_name(data['user_id'], data['blockName'])
         
         if block:
             logger.warning("Block already exists: %s", data['blockName'])
-            return error_response(400, f'Block with name {data["blockName"]} already exists')
+            return responseUtils.error_response(400, f'Block with name {data["blockName"]} already exists')
 
         # Create new block with current timestamp
         current_time = datetime.datetime.now().isoformat()
         
-        table.put_item(
+        responseUtils.table.put_item(
             Item={
                 'Userid': data['user_id'],
                 'Timestamp': current_time,
@@ -30,7 +30,7 @@ def handle_add_block(table, data, get_block_by_name, error_response, success_res
         )
         
         logger.info("Successfully added block: %s", data['blockName'])
-        return success_response({
+        return responseUtils.success_response({
             'message': 'Block added',
             'data': {
                 'userId': data['user_id'],
@@ -40,4 +40,4 @@ def handle_add_block(table, data, get_block_by_name, error_response, success_res
         })
     except Exception as e:
         logger.error("Error adding block: %s", str(e))
-        return error_response(500, str(e))
+        return responseUtils.error_response(500, str(e))

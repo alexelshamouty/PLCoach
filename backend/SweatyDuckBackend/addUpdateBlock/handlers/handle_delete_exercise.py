@@ -1,4 +1,3 @@
-
 import boto3
 import datetime
 import logging
@@ -7,7 +6,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-def handle_delete_exercise(table, data , get_block_by_name, error_response, success_response):
+def handle_delete_exercise(data, dbUtils, responseUtils):
     logger.info("Deleting exercise from day %s in week %s of block %s", data.get('dayId'), data.get('weekId'), data.get('blockId'))
     try:
         # Validate required fields
@@ -23,12 +22,12 @@ def handle_delete_exercise(table, data , get_block_by_name, error_response, succ
         for field, field_type in required_fields.items():
             if field not in data:
                 logger.error("Missing required field: %s", field)
-                return error_response(400, f"Missing required field: {field}")
+                return responseUtils.error_response(400, f"Missing required field: {field}")
             if not isinstance(data[field], field_type):
                 logger.error("Invalid type for field %s, expected %s", field, field_type)
-                return error_response(400, f"Invalid type for field {field}")
+                return responseUtils.error_response(400, f"Invalid type for field {field}")
 
-        block, error = get_block_by_name(table, data['userId'], data['blockId'])
+        block, error = dbUtils.get_block_by_name(data['userId'], data['blockId'])
         if error:
             logger.error("Error retrieving block: %s", error)
             return error
@@ -36,12 +35,12 @@ def handle_delete_exercise(table, data , get_block_by_name, error_response, succ
         week = block.get('Block', {}).get('Weeks', {}).get(data['weekId'])
         if not week:
             logger.error("Week %s not found in block %s", data['weekId'], data['blockId'])
-            return error_response(404, 'Week not found')
+            return responseUtils.error_response(404, f"Week {data['weekId']} not found in block {data['blockId']}")
             
         days = week.get('Days', {})
         if data['dayId'] not in days:
             logger.error("Day %s not found in week %s", data['dayId'], data['weekId'])
-            return error_response(404, 'Day not found')
+            return responseUtils.error_response(404, f"Day {data['dayId']} not found in week {data['weekId']}")
         
         # Find and remove the exercise
         exercises = days[data['dayId']].get('Exercises', [])
@@ -51,10 +50,10 @@ def handle_delete_exercise(table, data , get_block_by_name, error_response, succ
         
         if exercise_index == -1:
             logger.error("Exercise not found: %s with label %s", data['exerciseName'], data['exerciseLabel'])
-            return error_response(404, 'Exercise not found')
+            return responseUtils.error_response(404, 'Exercise not found')
 
         # Update with new exercises list excluding the removed exercise
-        table.update_item(
+        dbUtils.table.update_item(
             Key={
                 'Userid': data['userId'],
                 'Timestamp': block['Timestamp']
@@ -71,7 +70,7 @@ def handle_delete_exercise(table, data , get_block_by_name, error_response, succ
         )
         
         logger.info("Successfully deleted exercise from day %s", data['dayId'])
-        return success_response({
+        return responseUtils.success_response({
             'message': 'Exercise deleted',
             'data': {
                 'blockName': data['blockId'],
@@ -83,4 +82,4 @@ def handle_delete_exercise(table, data , get_block_by_name, error_response, succ
         })
     except Exception as e:
         logger.error("Error deleting exercise: %s", str(e))
-        return error_response(500, str(e))
+        return responseUtils.error_response(500, f"Internal server error: {str(e)}")
