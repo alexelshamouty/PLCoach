@@ -23,6 +23,7 @@ functions:
     name: updateAddBlock-${sls:stage}
     memorySize: 128
     timeout: 60
+    reservedConcurrency: 2
     events:
       - http:
           path: /updateAddBlock
@@ -33,10 +34,6 @@ functions:
           authorizer:
             name: cognitoAuthorizer
             arn: ${param:cognitoArn}
-            # claims:
-            #   - email
-            #   - cognito:username
-            #   - 'cognito:groups'
     environment:
       TABLE_NAME: ${param:tableName}
       BLOCK_TABLE_NAME: ${param:blockTableName}

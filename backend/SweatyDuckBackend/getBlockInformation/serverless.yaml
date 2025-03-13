@@ -23,6 +23,7 @@ functions:
     name: getBlockInformation-${sls:stage}
     memorySize: 128
     timeout: 60
+    reservedConcurrency: 2
     events:
       - http:
           path: /getBlockInformation

@@ -16,6 +16,7 @@ functions:
     name: uploadPhoto-${sls:stage}
     memorySize: 128
     timeout: 60
+    reservedConcurrency: 2
     events:
       - http:
           path: /uploadPhoto
@@ -31,4 +32,3 @@ functions:
               - cognito:username
     environment:
       TABLE_NAME: ${param:tableName}
-      # BUCKET_NAME: ${param:bucketName}
