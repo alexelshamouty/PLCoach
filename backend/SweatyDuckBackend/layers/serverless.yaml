@@ -10,5 +10,6 @@ layers:
     name: utils-${sls:stage}
     description: "A layer for common functions"
     compatibleRuntimes:
-      - python3.11
+      #- python3.11
+      - python3.8
     retain: false

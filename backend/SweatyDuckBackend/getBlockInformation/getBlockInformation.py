@@ -20,7 +20,7 @@ def handler(event, context):
     if event.get("source") == "serverless-plugin-warmup":
         logger.info("WarmUp event")
         return {}
-    
+    logger.info(f"Handler started with event: {event}")
     #TODO: This needs to allow the user to retreive their information too. But not now we need to finish the admin functionality
     #TODO: Yes this is bad and we need to change it but first the functionality
     auth_response_admin = authorize(event,['coaches','athletes'])

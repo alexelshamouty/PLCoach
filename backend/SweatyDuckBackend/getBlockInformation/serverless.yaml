@@ -1,4 +1,5 @@
 service: getBlockInformation
+app: sweaty-duck-backend
 
 custom:
   warmup:
@@ -12,10 +13,14 @@ custom:
       folderName: .warmup
       cleanFolder: true
       prewarm: true
-      
+stages:
+  dev:
+    observability: true # Turn on observability in the dev stage
+    
 provider:
   name: aws
-  runtime: python3.11
+  #runtime: python3.11
+  runtime: python3.8
   iam:
     role:
       statements:
