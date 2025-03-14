@@ -1,4 +1,5 @@
 service: getUser
+app: sweaty-duck-backend
 
 custom:
   warmup:

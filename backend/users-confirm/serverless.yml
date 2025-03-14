@@ -1,5 +1,6 @@
 service: usersRegisteration
-    
+app: sweaty-duck-backend
+
 provider:
   name: aws
   runtime: python3.8
