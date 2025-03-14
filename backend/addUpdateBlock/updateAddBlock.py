@@ -18,8 +18,8 @@ def handler(event, context):
     databaseUtils = DBUtils(tableName)
     responseUtils = ResponseUtils(logger)
 
-    if event.get('serverless-plugin-warmup'):
-        logger.info('Handling warmup request')
+    if event.get("source") == "serverless-plugin-warmup":
+        logger.info("WarmUp event")
         return responseUtils.success_response({'message': 'Warmup request handled successfully'})
     
     logger.info("Handler started with event: %s", event)

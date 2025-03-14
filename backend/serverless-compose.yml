@@ -11,6 +11,7 @@ app: sweaty-duck-backend
 # In this case, Compose will auto-determine the correct order to deploy each Service.
 
 # Example stage-specific parameters you might need in your services.
+
 stages:
   default:
     params:
@@ -18,7 +19,9 @@ stages:
   prod:
     params:
       domain: "https://sweatyduckz.netlify.app/" # This is the value of the "domain" param in the prod stage
-
+  dev:
+    observability: true # Turn on observability in the dev stage
+    
 layers:
   utils:
     path: utils
@@ -91,7 +94,6 @@ services:
       blockTableArn: ${dynamodbTable.BlockTableArn}
       blockTableName: ${dynamodbTable.BlockTableName}
   
-  #Need to upgrade layer!
   getBlockInformation:
     path: getBlockInformation
     params:

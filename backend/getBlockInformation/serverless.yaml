@@ -13,6 +13,7 @@ custom:
       folderName: .warmup
       cleanFolder: true
       prewarm: true
+      
 stages:
   dev:
     observability: true # Turn on observability in the dev stage

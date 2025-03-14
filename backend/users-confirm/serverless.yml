@@ -1,8 +1,8 @@
 service: usersRegisteration
-
+    
 provider:
   name: aws
-  runtime: python3.11
+  runtime: python3.8
   iam:
     role:
       statements:

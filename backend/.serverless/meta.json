@@ -1,8 +1,349 @@
 {
-  "unknown": {
-    "versionFramework": "4.6.4",
-    "command": [],
-    "options": {},
+  "/Users/alex_elshamouty/Development/plcoach/backend/SweatyDuckBackend/serverless-compose.yml": {
+    "versionFramework": "4.8.0",
+    "servicePath": "/Users/alex_elshamouty/Development/plcoach/backend/SweatyDuckBackend/serverless-compose.yml",
+    "serviceConfigFileName": "serverless-compose.yml",
+    "service": {
+      "org": "alexelshamouty",
+      "app": "sweaty-duck-backend",
+      "stages": {
+        "default": {
+          "params": {
+            "domain": "https://sweatyduckz.netlify.app/"
+          }
+        },
+        "prod": {
+          "params": {
+            "domain": "https://sweatyduckz.netlify.app/"
+          }
+        }
+      },
+      "layers": {
+        "utils": {
+          "path": "utils",
+          "name": "utils-dev",
+          "description": "A layer for common functions",
+          "compatibleRuntimes": [
+            "python3.11"
+          ],
+          "retain": false
+        }
+      },
+      "services": {
+        "dynamodbTable": {
+          "path": "dynamodb-table",
+          "params": {
+            "userTableNamePrefix": "users",
+            "blockTableNamePrefix": "blocks"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "userTableNamePrefix": "users",
+            "blockTableNamePrefix": "blocks"
+          }
+        },
+        "users": {
+          "path": "users-confirm",
+          "params": {
+            "tableName": "${dynamodbTable.TableName}",
+            "tableArn": "${dynamodbTable.TableArn}"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "tableName": "users-dev",
+            "tableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev"
+          }
+        },
+        "cognito": {
+          "path": "cognito",
+          "params": {
+            "userLambdaArn": "${users.UsersRegisterationLambdaFunctionQualifiedArn}",
+            "userLambdaFunctionName": "usersRegisteration-dev-usersRegisteration"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "userLambdaArn": "users.UsersRegisterationLambdaFunctionQualifiedArn",
+            "userLambdaFunctionName": "usersRegisteration-dev-usersRegisteration"
+          }
+        },
+        "getUsers": {
+          "path": "get-users",
+          "params": {
+            "tableName": "${dynamodbTable.TableName}",
+            "tableArn": "${dynamodbTable.TableArn}",
+            "cognitoArn": "${cognito.UserPoolArn}"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "tableName": "users-dev",
+            "tableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev",
+            "cognitoArn": "arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC"
+          }
+        },
+        "getUser": {
+          "path": "get-user",
+          "params": {
+            "tableName": "${dynamodbTable.TableName}",
+            "tableArn": "${dynamodbTable.TableArn}",
+            "cognitoArn": "${cognito.UserPoolArn}"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "tableName": "users-dev",
+            "tableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev",
+            "cognitoArn": "arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC"
+          }
+        },
+        "cdn": {
+          "path": "cdn",
+          "params": {
+            "cdnBucketName": "sweatyducksco"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "cdnBucketName": "sweatyducksco"
+          }
+        },
+        "updateAddBlock": {
+          "path": "addUpdateblock",
+          "params": {
+            "utilsLayer": "arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13",
+            "tableArn": "${dynamodbTable.TableArn}",
+            "tableName": "${dynamodbTable.TableName}",
+            "cognitoArn": "${cognito.UserPoolArn}",
+            "blockTableArn": "${dynamodbTable.BlockTableArn}",
+            "blockTableName": "${dynamodbTable.BlockTableName}"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "utilsLayer": "arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13",
+            "tableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev",
+            "tableName": "users-dev",
+            "cognitoArn": "arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC",
+            "blockTableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/blocks-dev",
+            "blockTableName": "blocks-dev"
+          }
+        },
+        "getBlockInformation": {
+          "path": "getBlockInformation",
+          "params": {
+            "utilsLayer": "arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13",
+            "tableArn": "${dynamodbTable.TableArn}",
+            "tableName": "${dynamodbTable.TableName}",
+            "blockTableArn": "${dynamodbTable.BlockTableArn}",
+            "blockTableName": "${dynamodbTable.BlockTableName}",
+            "cognitoArn": "${cognito.UserPoolArn}"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "utilsLayer": "arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13",
+            "tableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev",
+            "tableName": "users-dev",
+            "blockTableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/blocks-dev",
+            "blockTableName": "blocks-dev",
+            "cognitoArn": "arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC"
+          }
+        }
+      }
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "# \"org\" ensures this Service is used with the correct Serverless Framework Access Key.\norg: alexelshamouty\napp: sweaty-duck-backend\n# Serverless Framework can deploy multiple types of templates:\n#   1) Traditional Serverless Framework templates\n#   2) AWS Cloudformation Templates\n#   3) AWS SAM Templates.\n# This is useful if your organization is using these different templates and wants one tool to standardize around.\n# Here, we use Serverless Framework Compose (serverless.com/framework/docs/guides/compose) to deploy three different template types in a single deploy command.\n# Deployments happen in parallel by default. You can also share outputs from one Service to another, across template types.\n# In this case, Compose will auto-determine the correct order to deploy each Service.\n\n# Example stage-specific parameters you might need in your services.\nstages:\n  default:\n    params:\n      domain: \"https://sweatyduckz.netlify.app/\" # This is the value of the \"domain\" param in the dev stage\n  prod:\n    params:\n      domain: \"https://sweatyduckz.netlify.app/\" # This is the value of the \"domain\" param in the prod stage\n\nlayers:\n  utils:\n    path: utils\n    name: utils-${sls:stage}\n    description: \"A layer for common functions\"\n    compatibleRuntimes:\n      - python3.11\n    retain: false\n\nservices:\n\n############################################\n# Authentication and infrastructure\n############################################\n  dynamodbTable:\n    path: dynamodb-table\n    params:\n      userTableNamePrefix: users\n      blockTableNamePrefix: blocks\n  users:\n    path: users-confirm\n    params:\n      tableName: ${dynamodbTable.TableName}\n      tableArn: ${dynamodbTable.TableArn}\n  cognito:\n    path: cognito\n    params:\n      userLambdaArn: ${users.UsersRegisterationLambdaFunctionQualifiedArn}\n      userLambdaFunctionName: usersRegisteration-${sls:stage}-usersRegisteration\n\n\n############################################\n# Admin Logic\n############################################\n  getUsers:\n    path: get-users\n    params:\n      tableName: ${dynamodbTable.TableName}\n      tableArn: ${dynamodbTable.TableArn}\n      cognitoArn: ${cognito.UserPoolArn}\n\n############################################\n# User Logic\n############################################\n  getUser:\n    path: get-user\n    params:\n      tableName: ${dynamodbTable.TableName}\n      tableArn: ${dynamodbTable.TableArn}\n      cognitoArn: ${cognito.UserPoolArn}\n\n############################################\n# Handling Upload Logic\n############################################\n  cdn:\n    path: cdn\n    params:\n      cdnBucketName: sweatyducksco\n      \n############################################\n# Handling Block Logic\n############################################\n  updateAddBlock:\n    path: addUpdateblock\n    params:\n      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13'\n      tableArn: ${dynamodbTable.TableArn}\n      tableName: ${dynamodbTable.TableName}\n      cognitoArn: ${cognito.UserPoolArn}\n      blockTableArn: ${dynamodbTable.BlockTableArn}\n      blockTableName: ${dynamodbTable.BlockTableName}\n  \n  #Need to upgrade layer!\n  getBlockInformation:\n    path: getBlockInformation\n    params:\n      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13'\n      tableArn: ${dynamodbTable.TableArn}\n      tableName: ${dynamodbTable.TableName}\n      blockTableArn: ${dynamodbTable.BlockTableArn}\n      blockTableName: ${dynamodbTable.BlockTableName}\n      cognitoArn: ${cognito.UserPoolArn}\n",
+    "command": [
+      "deploy"
+    ],
+    "options": {
+      "aws-profile": "wetbox",
+      "region": "eu-north-1"
+    },
+    "orgId": "3fa90d45-7de8-4e87-830c-0fee975e4d97",
+    "orgName": "alexelshamouty",
+    "userId": "QGrl7k09drzj3sZCyc",
+    "userName": "alexelshamouty",
+    "serviceProviderAwsCfStackId": null,
+    "serviceProviderAwsCfStackCreated": null,
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": null,
+    "serviceProviderAwsCfStackOutputs": null
+  },
+  "/Users/alex_elshamouty/Development/plcoach/backend/serverless-compose.yml": {
+    "versionFramework": "4.8.0",
+    "servicePath": "/Users/alex_elshamouty/Development/plcoach/backend/serverless-compose.yml",
+    "serviceConfigFileName": "serverless-compose.yml",
+    "service": {
+      "org": "alexelshamouty",
+      "app": "sweaty-duck-backend",
+      "stages": {
+        "default": {
+          "params": {
+            "domain": "https://sweatyduckz.netlify.app/"
+          }
+        },
+        "prod": {
+          "params": {
+            "domain": "https://sweatyduckz.netlify.app/"
+          }
+        },
+        "dev": {
+          "observability": true
+        }
+      },
+      "layers": {
+        "utils": {
+          "path": "utils",
+          "name": "utils-dev",
+          "description": "A layer for common functions",
+          "compatibleRuntimes": [
+            "python3.11"
+          ],
+          "retain": false
+        }
+      },
+      "services": {
+        "dynamodbTable": {
+          "path": "dynamodb-table",
+          "params": {
+            "userTableNamePrefix": "users",
+            "blockTableNamePrefix": "blocks"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "userTableNamePrefix": "users",
+            "blockTableNamePrefix": "blocks"
+          }
+        },
+        "users": {
+          "path": "users-confirm",
+          "params": {
+            "tableName": "${dynamodbTable.TableName}",
+            "tableArn": "${dynamodbTable.TableArn}"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "tableName": "users-dev",
+            "tableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev"
+          }
+        },
+        "cognito": {
+          "path": "cognito",
+          "params": {
+            "userLambdaArn": "${users.UsersRegisterationLambdaFunctionQualifiedArn}",
+            "userLambdaFunctionName": "usersRegisteration-dev-usersRegisteration"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "userLambdaArn": "users.UsersRegisterationLambdaFunctionQualifiedArn",
+            "userLambdaFunctionName": "usersRegisteration-dev-usersRegisteration"
+          }
+        },
+        "getUsers": {
+          "path": "get-users",
+          "params": {
+            "tableName": "${dynamodbTable.TableName}",
+            "tableArn": "${dynamodbTable.TableArn}",
+            "cognitoArn": "${cognito.UserPoolArn}"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "tableName": "users-dev",
+            "tableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev",
+            "cognitoArn": "arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC"
+          }
+        },
+        "getUser": {
+          "path": "get-user",
+          "params": {
+            "tableName": "${dynamodbTable.TableName}",
+            "tableArn": "${dynamodbTable.TableArn}",
+            "cognitoArn": "${cognito.UserPoolArn}"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "tableName": "users-dev",
+            "tableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev",
+            "cognitoArn": "arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC"
+          }
+        },
+        "cdn": {
+          "path": "cdn",
+          "params": {
+            "cdnBucketName": "sweatyducksco"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "cdnBucketName": "sweatyducksco"
+          }
+        },
+        "updateAddBlock": {
+          "path": "addUpdateblock",
+          "params": {
+            "utilsLayer": "arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13",
+            "tableArn": "${dynamodbTable.TableArn}",
+            "tableName": "${dynamodbTable.TableName}",
+            "cognitoArn": "${cognito.UserPoolArn}",
+            "blockTableArn": "${dynamodbTable.BlockTableArn}",
+            "blockTableName": "${dynamodbTable.BlockTableName}"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "utilsLayer": "arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13",
+            "tableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev",
+            "tableName": "users-dev",
+            "cognitoArn": "arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC",
+            "blockTableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/blocks-dev",
+            "blockTableName": "blocks-dev"
+          }
+        },
+        "getBlockInformation": {
+          "path": "getBlockInformation",
+          "params": {
+            "utilsLayer": "arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13",
+            "tableArn": "${dynamodbTable.TableArn}",
+            "tableName": "${dynamodbTable.TableName}",
+            "blockTableArn": "${dynamodbTable.BlockTableArn}",
+            "blockTableName": "${dynamodbTable.BlockTableName}",
+            "cognitoArn": "${cognito.UserPoolArn}"
+          },
+          "component": "serverless-framework",
+          "parsedParams": {
+            "utilsLayer": "arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13",
+            "tableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev",
+            "tableName": "users-dev",
+            "blockTableArn": "arn:aws:dynamodb:eu-north-1:034362059781:table/blocks-dev",
+            "blockTableName": "blocks-dev",
+            "cognitoArn": "arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC"
+          }
+        }
+      }
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "# \"org\" ensures this Service is used with the correct Serverless Framework Access Key.\norg: alexelshamouty\napp: sweaty-duck-backend\n# Serverless Framework can deploy multiple types of templates:\n#   1) Traditional Serverless Framework templates\n#   2) AWS Cloudformation Templates\n#   3) AWS SAM Templates.\n# This is useful if your organization is using these different templates and wants one tool to standardize around.\n# Here, we use Serverless Framework Compose (serverless.com/framework/docs/guides/compose) to deploy three different template types in a single deploy command.\n# Deployments happen in parallel by default. You can also share outputs from one Service to another, across template types.\n# In this case, Compose will auto-determine the correct order to deploy each Service.\n\n# Example stage-specific parameters you might need in your services.\n\nstages:\n  default:\n    params:\n      domain: \"https://sweatyduckz.netlify.app/\" # This is the value of the \"domain\" param in the dev stage\n  prod:\n    params:\n      domain: \"https://sweatyduckz.netlify.app/\" # This is the value of the \"domain\" param in the prod stage\n  dev:\n    observability: true # Turn on observability in the dev stage\n    \nlayers:\n  utils:\n    path: utils\n    name: utils-${sls:stage}\n    description: \"A layer for common functions\"\n    compatibleRuntimes:\n      - python3.11\n    retain: false\n\nservices:\n\n############################################\n# Authentication and infrastructure\n############################################\n  dynamodbTable:\n    path: dynamodb-table\n    params:\n      userTableNamePrefix: users\n      blockTableNamePrefix: blocks\n  users:\n    path: users-confirm\n    params:\n      tableName: ${dynamodbTable.TableName}\n      tableArn: ${dynamodbTable.TableArn}\n  cognito:\n    path: cognito\n    params:\n      userLambdaArn: ${users.UsersRegisterationLambdaFunctionQualifiedArn}\n      userLambdaFunctionName: usersRegisteration-${sls:stage}-usersRegisteration\n\n\n############################################\n# Admin Logic\n############################################\n  getUsers:\n    path: get-users\n    params:\n      tableName: ${dynamodbTable.TableName}\n      tableArn: ${dynamodbTable.TableArn}\n      cognitoArn: ${cognito.UserPoolArn}\n\n############################################\n# User Logic\n############################################\n  getUser:\n    path: get-user\n    params:\n      tableName: ${dynamodbTable.TableName}\n      tableArn: ${dynamodbTable.TableArn}\n      cognitoArn: ${cognito.UserPoolArn}\n\n############################################\n# Handling Upload Logic\n############################################\n  cdn:\n    path: cdn\n    params:\n      cdnBucketName: sweatyducksco\n      \n############################################\n# Handling Block Logic\n############################################\n  updateAddBlock:\n    path: addUpdateblock\n    params:\n      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13'\n      tableArn: ${dynamodbTable.TableArn}\n      tableName: ${dynamodbTable.TableName}\n      cognitoArn: ${cognito.UserPoolArn}\n      blockTableArn: ${dynamodbTable.BlockTableArn}\n      blockTableName: ${dynamodbTable.BlockTableName}\n  \n  #Need to upgrade layer!\n  getBlockInformation:\n    path: getBlockInformation\n    params:\n      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13'\n      tableArn: ${dynamodbTable.TableArn}\n      tableName: ${dynamodbTable.TableName}\n      blockTableArn: ${dynamodbTable.BlockTableArn}\n      blockTableName: ${dynamodbTable.BlockTableName}\n      cognitoArn: ${cognito.UserPoolArn}\n",
+    "command": [
+      "deploy"
+    ],
+    "options": {
+      "aws-profile": "wetbox",
+      "region": "eu-north-1"
+    },
+    "orgId": "3fa90d45-7de8-4e87-830c-0fee975e4d97",
+    "orgName": "alexelshamouty",
+    "userId": "QGrl7k09drzj3sZCyc",
+    "userName": "alexelshamouty",
     "serviceProviderAwsCfStackId": null,
     "serviceProviderAwsCfStackCreated": null,
     "serviceProviderAwsCfStackUpdated": null,
