@@ -84,7 +84,7 @@ services:
   updateAddBlock:
     path: addUpdateblock
     params:
-      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:11'
+      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13'
       tableArn: ${dynamodbTable.TableArn}
       tableName: ${dynamodbTable.TableName}
       cognitoArn: ${cognito.UserPoolArn}
@@ -95,7 +95,7 @@ services:
   getBlockInformation:
     path: getBlockInformation
     params:
-      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:9'
+      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13'
       tableArn: ${dynamodbTable.TableArn}
       tableName: ${dynamodbTable.TableName}
       blockTableArn: ${dynamodbTable.BlockTableArn}

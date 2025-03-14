@@ -1,10 +1,20 @@
 <template>
   <div class="bg-gray-900 min-h-screen text-white flex justify-center">
-    <!-- Add error alert -->
+    <!-- Loading Overlay -->
+    <div v-if="isLoading" class="fixed inset-0 bg-gray-900 bg-opacity-90 z-50 flex items-center justify-center">
+      <div class="flex flex-col items-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-400 mb-4"></div>
+        <p class="text-blue-400 text-lg">Loading user data...</p>
+      </div>
+    </div>
+
+    <!-- Error Alert -->
     <div v-if="showError" class="fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50">
       {{ errorMessage }}
     </div>
-    <div class="w-full max-w-4xl p-6 rounded-lg shadow-md">
+
+    <!-- Main Content -->
+    <div v-if="!isLoading" class="w-full max-w-4xl p-6 rounded-lg shadow-md">
       <h2 class="text-2xl font-semibold text-center mb-4">{{ username }} aka {{ name }} Program Management</h2>
       <div class="bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
         <!-- First Dropdown -->
@@ -138,6 +148,21 @@
   </div>
 </template>
 
+<style scoped>
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>
+
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
@@ -159,10 +184,11 @@ definePageMeta({ middleware: ['auth-admin'] });
 // Add these for blocks management
 const options1 = ref([]);
 const selectedOption1 = ref("");
-const isLoading = ref(true);
+const isLoading = ref(false);
 
 // Load blocks when page loads
 onMounted(async () => {
+  isLoading.value = true;
   try {
     console.log("Fetching athlete and blocks... " + userId);
     const athlete = await fetchAthlete(userId);
