@@ -12,6 +12,7 @@ export const useAthleteManagement = () => {
 
   const mapUser = (userData) => ({
     id: userData.Userid,
+    timeStamp: userData.Timestamp,
     username: userData.Preferred_username,
     name: userData.Name,
     email: userData.Email,

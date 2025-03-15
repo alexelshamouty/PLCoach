@@ -9,6 +9,7 @@
             <th class="px-4 py-3 border border-gray-600">Email</th>
             <th class="px-4 py-3 border border-gray-600">Weight</th>
             <th class="px-4 py-3 border border-gray-600">Gender</th>
+            <th class="px-4 py-3 border border-gray-600">Active Since</th>
             <th class="px-4 py-3 border border-gray-600">Actions</th>
           </tr>
         </thead>
@@ -24,6 +25,9 @@
             <td class="px-4 py-3 border border-gray-600">{{ athlete.email }}</td>
             <td class="px-4 py-3 border border-gray-600">{{ athlete.weight }} kg</td>
             <td class="px-4 py-3 border border-gray-600">{{ athlete.gender }}</td>
+            <td class="px-4 py-3 border border-gray-600">
+              {{ getDaysSince(athlete.timeStamp) }} days ago
+            </td>
             <td class="px-4 py-3 border border-gray-600 flex space-x-4">
               <button @click="$emit('delete', athlete.id)" 
                       class="text-red-400 hover:text-red-300 underline">
@@ -38,6 +42,8 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
+
 defineProps({
   athletes: {
     type: Array,
@@ -46,6 +52,13 @@ defineProps({
 });
 
 defineEmits(['delete']);
+
+const getDaysSince = (timestamp) => {
+  const now = new Date();
+  const created = new Date(timestamp);
+  const diffTime = Math.abs(now - created);
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
 </script>
 
 <style scoped>
