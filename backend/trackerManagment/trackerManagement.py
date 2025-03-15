@@ -16,6 +16,7 @@ def read_root(request: Request):
     if(aws_event_source == "serverless-plugin-warmup"):
         logger.info("WarmUp event received")
         return {}
+    return {"Hello": "World"}
 
 @app.get("/trackerManagement")
 def read_trackerManagment():

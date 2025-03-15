@@ -42,7 +42,11 @@ functions:
         enabled: true
     events:
       - http:
-          path: /createTrackerTempalte
+        path: /trackerManagement
+        method: GET
+        
+      - http:
+          path: /createTrackerTemplate
           method: POST
           timeout: 60
           cors: true
@@ -60,7 +64,7 @@ functions:
           name: cognitoAuthorizer
           arn: ${param:cognitoArn}
       - http:
-        path: /`TrackerforUser
+        path: /TrackerforUser
         method: GET
         timeout: 60
         cors: true
