@@ -84,58 +84,91 @@
             </span>
           </button>
           <div v-if="activeIndex === index" class="p-4 text-gray-300">
-            <table class="w-full border-collapse text-sm">
-              <thead>
-                <tr class="bg-gray-800 text-gray-300">
-                  <th class="py-2 px-4 text-left">Exercise</th>
-                  <th class="py-2 px-4 text-left">Label</th>
-                  <th class="py-2 px-4 text-center">Sets</th>
-                  <th class="py-2 px-4 text-center">Reps</th>
-                  <th class="py-2 px-4 text-center">RPE</th>
-                  <th class="py-2 px-4 text-center">Comments</th>
-                  <th class="py-2 px-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <div v-if="messageOpen">
-                <div @click="toggleMessage()" v-if="allSets" class="mt-6 p-4 bg-yellow-500 text-black text-center rounded-lg shadow-lg animate-bounce">
-                  <p class="text-lg font-semibold" :style="{ color: labelColor }">{{ allSets }}</p>
-                </div>
-              </div>
-              <tbody>
-                <tr v-for="(exercise, i) in item.content" :key="i" class="border-b border-gray-700 hover:bg-gray-800">
-                  <td class="py-2 px-4">{{ exercise.name }}</td>
-                  <td class="py-2 px-4">
-                    <button @click="countSetsPerWeek(exercise.label)" :style="{ backgroundColor: getLabelColor(exercise.label) }" class="text-black px-4 py-2 rounded-full hover:opacity-75 transition">
-                      {{ exercise.label }}
-                    </button>
-                  </td>
-                  <td class="py-2 px-4 text-center">{{ exercise.sets }}</td>
-                  <td class="py-2 px-4 text-center">{{ exercise.reps }}</td>
-                  <td class="py-2 px-4 text-center font-semibold text-yellow-400">{{ exercise.rpe }}</td>
-                  <td class="py-2 px-4 text-center font-semibold text-yellow-400">{{ exercise.comments }}</td>
-                  <td class="py-2 px-4 text-center">
-                    <button @click="handleDeleteExercise(index, i)" class="text-red-600 hover:text-red-800 transition">
-                      ✖️
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="overflow-x-auto relative">
+              <table class="min-w-full border-collapse text-sm">
+                <thead class="bg-gray-800 text-gray-300">
+                  <tr>
+                    <th class="py-2 px-2 md:px-4 text-left whitespace-nowrap">Exercise</th>
+                    <th class="py-2 px-2 md:px-4 text-left whitespace-nowrap">Label</th>
+                    <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">Sets</th>
+                    <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">Reps</th>
+                    <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">RPE</th>
+                    <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">Comments</th>
+                    <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(exercise, i) in item.content" :key="i" class="border-b border-gray-700 hover:bg-gray-800">
+                    <td class="py-2 px-2 md:px-4 whitespace-nowrap">{{ exercise.name }}</td>
+                    <td class="py-2 px-2 md:px-4">
+                      <button @click="countSetsPerWeek(exercise.label)" 
+                             :style="{ backgroundColor: getLabelColor(exercise.label) }" 
+                             class="text-black px-2 md:px-4 py-1 md:py-2 rounded-full hover:opacity-75 transition text-xs md:text-sm">
+                        {{ exercise.label }}
+                      </button>
+                    </td>
+                    <td class="py-2 px-2 md:px-4 text-center">{{ exercise.sets }}</td>
+                    <td class="py-2 px-2 md:px-4 text-center">{{ exercise.reps }}</td>
+                    <td class="py-2 px-2 md:px-4 text-center font-semibold text-yellow-400">{{ exercise.rpe }}</td>
+                    <td class="py-2 px-2 md:px-4 text-center font-semibold text-yellow-400 max-w-[100px] md:max-w-none truncate">{{ exercise.comments }}</td>
+                    <td class="py-2 px-2 md:px-4 text-center">
+                      <button @click="handleDeleteExercise(index, i)" class="text-red-600 hover:text-red-800 transition">
+                        ✖️
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <!-- Add training -->
             <div class="mt-4 bg-gray-800 p-4 rounded-lg">
               <h3 class="text-lg font-semibold">Add Exercise</h3>
               <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-2">
-                <input v-model="newExerciseName" placeholder="Exercise Name" class="w-full md:w-1/6 p-2 bg-gray-700 text-white rounded-lg outline-none" />
-                <select v-model="newExerciseLabel" class="w-full md:w-1/6 p-2 bg-gray-700 text-white rounded-lg outline-none">
-                  <option value="" disabled>Select Label</option>
-                  <option v-for="(color, label) in labels" :key="label" :value="label">
-                    {{ label }}
-                  </option>
-                </select>
-                <input v-model.number="newExerciseSets" placeholder="Sets" type="number" class="w-full md:w-1/6 p-2 bg-gray-700 text-white rounded-lg outline-none" />
-                <input v-model.number="newExerciseReps" placeholder="Reps" type="number" class="w-full md:w-1/6 p-2 bg-gray-700 text-white rounded-lg outline-none" />
-                <input v-model.number="newExerciseRpe" placeholder="RPE (6-10)" type="number" class="w-full md:w-1/6 p-2 bg-gray-700 text-white rounded-lg outline-none" />
-                <input v-model="newExerciseComments" placeholder="Comments" class="w-full md:w-1/6 p-2 bg-gray-700 text-white rounded-lg outline-none" />
+                <div class="flex flex-col w-full md:w-1/6">
+                  <label class="text-sm text-gray-300 mb-1">Exercise Name</label>
+                  <input v-model="newExerciseName" 
+                         placeholder="e.g. Bench Press" 
+                         class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
+                </div>
+                <div class="flex flex-col w-full md:w-1/6">
+                  <label class="text-sm text-gray-300 mb-1">Movement Type</label>
+                  <select v-model="newExerciseLabel" 
+                          class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none">
+                    <option value="" disabled>Select Label</option>
+                    <option v-for="(color, label) in labels" :key="label" :value="label">
+                      {{ label }}
+                    </option>
+                  </select>
+                </div>
+                <div class="flex flex-col w-full md:w-1/6">
+                  <label class="text-sm text-gray-300 mb-1">Sets</label>
+                  <input v-model.number="newExerciseSets" 
+                         type="number" 
+                         placeholder="e.g. 3" 
+                         class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
+                </div>
+                <div class="flex flex-col w-full md:w-1/6">
+                  <label class="text-sm text-gray-300 mb-1">Reps</label>
+                  <input v-model.number="newExerciseReps" 
+                         type="number" 
+                         placeholder="e.g. 8" 
+                         class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
+                </div>
+                <div class="flex flex-col w-full md:w-1/6">
+                  <label class="text-sm text-gray-300 mb-1">RPE</label>
+                  <input v-model.number="newExerciseRpe" 
+                         type="number" 
+                         min="6" 
+                         max="10" 
+                         placeholder="6-10" 
+                         class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
+                </div>
+                <div class="flex flex-col w-full md:w-1/6">
+                  <label class="text-sm text-gray-300 mb-1">Comments</label>
+                  <input v-model="newExerciseComments" 
+                         placeholder="Additional notes" 
+                         class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
+                </div>
               </div>
               <button @click="handleAddExercise(item.title)" class="w-full mt-2 p-2 bg-green-600 rounded-lg hover:bg-green-700">
                 Add Exercise
