@@ -1,24 +1,8 @@
 <template>
   <div class="bg-gray-900 min-h-screen text-white flex justify-center">
-    <!-- Loading Overlay -->
-    <div v-if="isLoading" class="fixed inset-0 bg-gray-900 bg-opacity-90 z-50 flex items-center justify-center">
-      <div class="flex flex-col items-center">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-400 mb-4"></div>
-        <p class="text-blue-400 text-lg">Loading profile...</p>
-      </div>
-    </div>
-
-    <!-- Error Alert -->
-    <div v-if="error" class="fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-fade-in">
-      <div class="flex items-center space-x-2">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>{{ error }}</span>
-        <button @click="error = null" class="ml-4 hover:text-gray-200">×</button>
-      </div>
-    </div>
-
+    <LoadingOverlay :show="isLoading" />
+    <ErrorAlert :message="error" @clear="error = null" />
+    
     <!-- Main Content -->
     <div v-if="!isLoading" class="w-full max-w-4xl p-6 rounded-lg shadow-md">
       <!-- New User Info Card -->
@@ -105,6 +89,8 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
+import LoadingOverlay from '~/components/shared/LoadingOverlay.vue';
+import ErrorAlert from '~/components/shared/ErrorAlert.vue';
 import { useRoute } from "vue-router";
 import { useApi } from '~/composables/useApi';
 import { useAthleteManagement } from '~/composables/manageAthletes';
@@ -311,19 +297,6 @@ async function handleFileUpload(event) {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
   }
 }
 </style>

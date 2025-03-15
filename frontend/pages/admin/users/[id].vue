@@ -1,17 +1,10 @@
 <template>
   <div class="bg-gray-900 min-h-screen text-white flex justify-center">
     <!-- Loading Overlay -->
-    <div v-if="isLoading" class="fixed inset-0 bg-gray-900 bg-opacity-90 z-50 flex items-center justify-center">
-      <div class="flex flex-col items-center">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-400 mb-4"></div>
-        <p class="text-blue-400 text-lg">Loading user data...</p>
-      </div>
-    </div>
-
+    <LoadingOverlay :show="isLoading" />
+    
     <!-- Error Alert -->
-    <div v-if="showError" class="fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50">
-      {{ errorMessage }}
-    </div>
+    <ErrorAlert :message="errorMessage" @clear="errorMessage = null" />
 
     <!-- Main Content -->
     <div v-if="!isLoading" class="w-full max-w-4xl p-6 rounded-lg shadow-md">
@@ -51,6 +44,8 @@
 import UserManagement from '~/components/admin/UserManagement.vue';
 import TrainingDisplay from '~/components/admin/TrainingDisplay.vue';
 import { ref, computed, watch, onMounted } from "vue";
+import LoadingOverlay from '~/components/shared/LoadingOverlay.vue';
+import ErrorAlert from '~/components/shared/ErrorAlert.vue';
 import { useRoute } from "vue-router";
 import { useLabelsStore } from '~/stores/labels';
 import { useApi } from '~/composables/useApi';
@@ -96,10 +91,6 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error loading blocks:', error);
     errorMessage.value = 'Failed to load blocks';
-    showError.value = true;
-    setTimeout(() => {
-      showError.value = false;
-    }, 3000);
   } finally {
     isLoading.value = false;
   }
@@ -172,9 +163,9 @@ const newExerciseReps = ref(0);
 const newExerciseRpe = ref(0);
 const newExerciseComments = ref("");
 
-// Add these refs near the top with other refs
-const errorMessage = ref("");
-const showError = ref(false);
+// Replace error handling refs
+const errorMessage = ref(null);
+// Remove showError ref since ErrorAlert handles visibility
 
 async function handleAddExercise(exerciseData) {
   const { dayId, ...exercise } = exerciseData;
@@ -197,8 +188,6 @@ async function handleAddExercise(exerciseData) {
     
     if (result.error) {
       errorMessage.value = result.error;
-      showError.value = true;
-      setTimeout(() => { showError.value = false; }, 3000);
       return;
     }
 
@@ -213,8 +202,6 @@ async function handleAddExercise(exerciseData) {
   } catch (error) {
     console.error('Error in handleAddExercise:', error);
     errorMessage.value = error.message || 'An error occurred while adding the exercise';
-    showError.value = true;
-    setTimeout(() => { showError.value = false; }, 3000);
   }
 }
 
@@ -222,10 +209,6 @@ async function handleDeleteExercise(dayIndex, exerciseIndex) {
   const day = filteredOptions3.value[dayIndex];
   if (!day || !day.content[exerciseIndex]) {
     errorMessage.value = "Exercise not found";
-    showError.value = true;
-    setTimeout(() => {
-      showError.value = false;
-    }, 3000);
     return;
   }
 
@@ -243,10 +226,6 @@ async function handleDeleteExercise(dayIndex, exerciseIndex) {
 
     if (result.error) {
       errorMessage.value = result.error;
-      showError.value = true;
-      setTimeout(() => {
-        showError.value = false;
-      }, 3000);
       return;
     }
 
@@ -261,10 +240,6 @@ async function handleDeleteExercise(dayIndex, exerciseIndex) {
   } catch (error) {
     console.error('Error in deleteExercise:', error);
     errorMessage.value = error.message || 'An error occurred while deleting the exercise';
-    showError.value = true;
-    setTimeout(() => {
-      showError.value = false;
-    }, 3000);
   }
 }
 
@@ -274,10 +249,6 @@ const { authenticatedFetch } = useApi();
 async function handleAddBlock(blockLabel) {
   if (!blockLabel) {
     errorMessage.value = "Block name is required";
-    showError.value = true;
-    setTimeout(() => {
-      showError.value = false;
-    }, 3000);
     return;
   }
 
@@ -285,10 +256,6 @@ async function handleAddBlock(blockLabel) {
     const result = await addBlock(userId, blockLabel);
     if (result.error) {
       errorMessage.value = result.error;
-      showError.value = true;
-      setTimeout(() => {
-        showError.value = false;
-      }, 3000);
       return;
     }
     
@@ -307,10 +274,6 @@ async function handleAddBlock(blockLabel) {
   } catch (error) {
     console.error('Error in handleAddBlock:', error);
     errorMessage.value = error.message || 'An error occurred while adding the block';
-    showError.value = true;
-    setTimeout(() => {
-      showError.value = false;
-    }, 3000);
   }
 }
 
@@ -319,10 +282,6 @@ async function handleAddWeek(weekTitle) {
     const result = await addWeek(userId, selectedOption1.value, weekTitle);
     if (result.error) {
       errorMessage.value = result.error;
-      showError.value = true;
-      setTimeout(() => {
-        showError.value = false;
-      }, 3000);
       return;
     }
     
@@ -342,10 +301,6 @@ async function handleAddWeek(weekTitle) {
   } catch (error) {
     console.error('Error in handleAddWeek:', error);
     errorMessage.value = error.message || 'An error occurred while adding the week';
-    showError.value = true;
-    setTimeout(() => {
-      showError.value = false;
-    }, 3000);
   }
 }
 
@@ -354,10 +309,6 @@ async function handleAddDay(dayTitle) {
     const result = await addDay(userId, selectedOption1.value, selectedOption2.value, dayTitle);
     if (result.error) {
       errorMessage.value = result.error;
-      showError.value = true;
-      setTimeout(() => {
-        showError.value = false;
-      }, 3000);
       return;
     }
 
@@ -372,10 +323,6 @@ async function handleAddDay(dayTitle) {
   } catch (error) {
     console.error('Error in handleAddDay:', error);
     errorMessage.value = error.message || 'An error occurred while adding the day';
-    showError.value = true;
-    setTimeout(() => {
-      showError.value = false;
-    }, 3000);
   }
 }
 
