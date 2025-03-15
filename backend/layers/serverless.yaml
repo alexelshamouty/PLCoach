@@ -13,3 +13,19 @@ layers:
       #- python3.11
       - python3.8
     retain: false
+  magnum:
+    path: magnum
+    name: magnum-${sls:stage}
+    description: "Magnum for FastAPI for lambda"
+    compatibleRuntimes:
+      #- python3.11
+      - python3.8
+    retain: false
+  fastapi:
+    path: fastapi
+    name: fastapi-${sls:stage}
+    description: "FastAPI for lambda"
+    compatibleRuntimes:
+      #- python3.11
+      - python3.8
+    retain: false

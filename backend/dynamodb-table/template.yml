@@ -1,6 +1,23 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
+  TemplateTable:
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: ${param:templateTableName}-${sls:stage}
+      AttributeDefinitions:
+        - AttributeName: "TemplateName"
+          AttributeType: "S"
+        - AttributeName: "TemplateType" #We are going to be using the template type to distinguis between user filled values and templates.
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "TemplateName"
+          KeyType: "HASH"
+        - AttributeName: "TemplateType"
+          KeyType: "HASH"
+      BillingMode: PAY_PER_REQUEST
   UsersTable:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
@@ -48,4 +65,8 @@ Outputs:
     Value: !Ref BlocksTable
   BlockTableArn:
     Value: !GetAtt BlocksTable.Arn
+  TemplateTableName:
+    Value: !Ref TemplateTable
+  TemplateTableArn:
+    Value: !GetAtt TemplateTable.Arn
 
