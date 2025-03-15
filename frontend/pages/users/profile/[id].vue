@@ -76,6 +76,7 @@
       <TrainingSchedule 
         :days="filteredOptions3"
         @exercise-click="openDialog"
+        @day-finished="dayFinished"
       />
       <!-- Dialog -->
       <ExerciseDialog
@@ -98,6 +99,23 @@ import { useBlockInformation } from '~/composables/getBlockInformation';
 import { updateExercise } from '~/composables/updateProgram';
 import TrainingSchedule from '~/components/TrainingSchedule.vue';
 import ExerciseDialog from '~/components/ExerciseDialog.vue';
+
+async function dayFinished({ index, dayId }) {
+  /*
+  #TODO
+  #Now we need to start thinking about our leaderboard! How do we want to structure this? Per block? Per week? Number of finished workouts?
+  */
+  try {
+    console.log(`Day ${dayId} finished at index ${index}`, {
+      userId,
+      weekId: selectedOption2.value,
+      blockId: selectedOption1.value
+    });
+    // TODO: Implement the API call to mark the day as finished
+  } catch (e) {
+    error.value = e.message || "Failed to mark day as finished";
+  }
+}
 
 const athlete = ref(null);
 const username = ref("");

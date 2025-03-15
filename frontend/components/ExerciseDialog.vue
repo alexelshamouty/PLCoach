@@ -9,7 +9,7 @@
       
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <div class="overflow-x-auto">
-          <table class="w-full border-collapse text-sm">
+          <table class="hidden md:table w-full border-collapse text-sm">
             <thead>
               <tr class="bg-gray-700 text-gray-300">
                 <th class="py-2 px-2 sm:px-4 text-left whitespace-nowrap">Set</th>
@@ -41,6 +41,35 @@
               </tr>
             </tbody>
           </table>
+
+          <!-- Mobile view -->
+          <div class="md:hidden space-y-4">
+            <div v-for="(result, index) in localResults" 
+                 :key="index" 
+                 class="bg-gray-700 p-4 rounded-lg space-y-3">
+              <div class="font-semibold text-center mb-2">Set {{ index + 1 }}</div>
+              <div class="space-y-3">
+                <div class="flex flex-col">
+                  <label class="text-gray-400 mb-1">Reps:</label>
+                  <input type="text" 
+                         v-model="result.reps" 
+                         class="w-full px-2 py-1 bg-gray-600 text-white rounded-md" />
+                </div>
+                <div class="flex flex-col">
+                  <label class="text-gray-400 mb-1">Weight (kg):</label>
+                  <input type="number" 
+                         v-model="result.weight" 
+                         class="w-full px-2 py-1 bg-gray-600 text-white rounded-md" />
+                </div>
+                <div class="flex flex-col">
+                  <label class="text-gray-400 mb-1">RPE:</label>
+                  <input type="text" 
+                         v-model="result.rpe" 
+                         class="w-full px-2 py-1 bg-gray-600 text-white rounded-md" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div class="mt-4">

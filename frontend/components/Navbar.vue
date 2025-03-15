@@ -50,18 +50,53 @@
         v-if="user" 
         :to="`/users/profile/${user.userId}`" 
         class="block text-white py-2 hover:bg-gray-700 rounded px-2"
+        @click="toggleMenu"
       >
         Profile
       </NuxtLink>
-      <NuxtLink to="/contact" class="block text-white py-2 hover:bg-gray-700 rounded px-2">Contact</NuxtLink>
+      <NuxtLink 
+        to="/contact" 
+        class="block text-white py-2 hover:bg-gray-700 rounded px-2"
+        @click="toggleMenu"
+      >
+        Contact
+      </NuxtLink>
 
       <!-- Admin section -->
-      <NuxtLink v-if="admin" to="/admin/adminDashboard" class="block text-white py-2 hover:bg-gray-700 rounded px-2">Admin</NuxtLink>
+      <NuxtLink 
+        v-if="admin" 
+        to="/admin/adminDashboard" 
+        class="block text-white py-2 hover:bg-gray-700 rounded px-2"
+        @click="toggleMenu"
+      >
+        Admin
+      </NuxtLink>
 
       <!-- User stuff -->
-      <NuxtLink v-if="user?.username" class="block text-white py-2 hover:bg-gray-700 rounded px-2" to="/logout">Logout</NuxtLink>
-      <NuxtLink v-if="!user?.username" class="block text-white py-2 hover:bg-gray-700 rounded px-2" to="/login">Login</NuxtLink>
-      <NuxtLink v-if="!user?.username" class="block text-white py-2 hover:bg-gray-700 rounded px-2" to="/signup">Signup</NuxtLink>
+      <NuxtLink 
+        v-if="user?.username" 
+        class="block text-white py-2 hover:bg-gray-700 rounded px-2" 
+        to="/logout"
+        @click="toggleMenu"
+      >
+        Logout
+      </NuxtLink>
+      <NuxtLink 
+        v-if="!user?.username" 
+        class="block text-white py-2 hover:bg-gray-700 rounded px-2" 
+        to="/login"
+        @click="toggleMenu"
+      >
+        Login
+      </NuxtLink>
+      <NuxtLink 
+        v-if="!user?.username" 
+        class="block text-white py-2 hover:bg-gray-700 rounded px-2" 
+        to="/signup"
+        @click="toggleMenu"
+      >
+        Signup
+      </NuxtLink>
     </div>
   </div>
 </template>
