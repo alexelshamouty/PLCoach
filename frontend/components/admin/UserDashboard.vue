@@ -16,9 +16,9 @@
       </div>
       
       <div class="bg-gray-700 p-4 rounded-lg">
-        <h3 class="text-lg font-medium text-gray-300 mb-2">Completion Rate</h3>
+        <h3 class="text-lg font-medium text-gray-300 mb-2">Current Weight</h3>
         <p class="text-2xl font-bold text-blue-400">
-          {{ completionRate }}%
+          {{ athleteWeight }} kg
         </p>
       </div>
     </div>
@@ -35,7 +35,7 @@ const props = defineProps({
     type: Number,
     default: 0
   },
-  completionRate: {
+  athleteWeight: {
     type: Number,
     default: 0
   }

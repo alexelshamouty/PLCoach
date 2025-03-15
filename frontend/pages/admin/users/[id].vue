@@ -67,6 +67,8 @@
           :exercises="filteredOptions3"
           :getDaysByWeek="getDaysByWeek"
           :userId="userId"
+          :weight="Number(weight)"
+          :time-stamp="timeStamp"
         />
       </div>
     </div>
@@ -89,6 +91,8 @@ import { useTabs } from '~/composables/useTabs';
 
 const username = ref("");
 const name = ref("");
+const weight = ref(0);
+const timeStamp = ref("");
 const route = useRoute();
 const userId = route.params.id;
 const { getAllBlocks, getDaysByWeek } = useBlockInformation();
@@ -108,9 +112,10 @@ onMounted(async () => {
     console.log("Fetching athlete and blocks... " + userId);
     const athlete = await fetchAthlete(userId);
     if (athlete) {
-      console.log(athlete)
       username.value = athlete[0].username;
       name.value = athlete[0].name;
+      weight.value = athlete[0].weight;
+      timeStamp.value = athlete[0].timeStamp;
     }
     
     const blocks = await getAllBlocks(userId);

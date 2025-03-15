@@ -3,8 +3,8 @@
     <div class="bg-gray-700 p-4 rounded-lg">
       <UserDashboard
         :completed-workouts="totalBlocks"
-        :active-since="30"
-        :completion-rate="85"
+        :active-since="activeSinceDays"
+        :athlete-weight="props.weight"
       />
       
       <div class="space-y-4">
@@ -104,7 +104,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import UserDashboard from './UserDashboard.vue';
+import UserDashboard from './UserDashboard.vue';  // Add this import at the top
 
 const props = defineProps({
   blocks: {
@@ -130,7 +130,23 @@ const props = defineProps({
   userId: {
     type: String,
     required: true
+  },
+  weight: {
+    type: Number,
+    required: true
+  },
+  timeStamp: {
+    type: String,
+    required: true
   }
+});
+
+// Update to use timeStamp prop directly
+const activeSinceDays = computed(() => {
+  const now = new Date();
+  const created = new Date(props.timeStamp);
+  const diffTime = Math.abs(now - created);
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 });
 
 const openBlocks = ref([]);
