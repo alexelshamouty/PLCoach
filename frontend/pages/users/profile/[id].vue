@@ -108,10 +108,10 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from '~/composables/useApi';
 import { useAthleteManagement } from '~/composables/manageAthletes';
-import { useLabelsStore } from '~/stores/labels';
 import { useBlockInformation } from '~/composables/getBlockInformation';
 import { updateExercise } from '~/composables/updateProgram';
 import TrainingSchedule from '~/components/TrainingSchedule.vue';
+import ExerciseDialog from '~/components/ExerciseDialog.vue';
 
 const athlete = ref(null);
 const username = ref("");
@@ -128,18 +128,15 @@ const options1 = ref([]);
 const selectedOption1 = ref("");
 const isLoading = ref(true);
 
-// Update onMounted to properly handle loading state
 onMounted(async () => {
   isLoading.value = true;
   try {
-    // Load athlete data
     const athleteData = await fetchAthlete(userId);
     if (athleteData && athleteData.length > 0) {
       athlete.value = athleteData[0];
       username.value = athlete.value.username;
     }
 
-    // Load blocks
     const blocks = await getAllBlocks(userId);
     if (!blocks.error) {
       options1.value = Object.entries(blocks).map(([name, weeks]) => ({
@@ -156,7 +153,6 @@ onMounted(async () => {
   }
 });
 
-// Replace weeksStore with direct computation
 const options2 = computed(() => {
   const selectedBlock = options1.value.find(block => block.id === selectedOption1.value);
   if (!selectedBlock) return [];
@@ -173,10 +169,6 @@ const selectedOption2 = computed(() => {
   return filteredOptions2.value.length ? filteredOptions2.value[0].id : "";
 });
 
-const labelsStore = useLabelsStore();
-const labels = computed(() => labelsStore.labels);
-
-// Update filteredOptions3 watch handler
 const filteredOptions3 = ref([]);
 watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
   if (newBlock && newWeek) {
@@ -192,14 +184,12 @@ watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
   }
 }, { immediate: true });
 
-// Update the dialog handling code
 const dialogOpen = ref(false);
 const selectedExercise = ref({
   originalExercise: {},
   dayIndex: null
 });
 
-// Update openDialog to work with the new component
 function openDialog(exercise, dayIndex) {
   selectedExercise.value = {
     originalExercise: exercise,
@@ -209,7 +199,7 @@ function openDialog(exercise, dayIndex) {
 }
 
 async function handleExerciseUpdate({ sets, comments }) {
-  const currentDay = filteredOptions3.value[activeIndex.value];
+  const currentDay = filteredOptions3.value[selectedExercise.value.dayIndex];
   const exercise = selectedExercise.value.originalExercise;
   
   // Optimistically update the UI
@@ -222,7 +212,6 @@ async function handleExerciseUpdate({ sets, comments }) {
   };
   
   // Update local state immediately
-  const dayIndex = selectedExercise.value.dayIndex;
   const exerciseIndex = currentDay.content.findIndex(e => e.name === exercise.name);
   
   if (exerciseIndex !== -1) {
@@ -253,7 +242,6 @@ async function handleExerciseUpdate({ sets, comments }) {
   }
 }
 
-// File handling methods
 function openFileDialog() {
   console.log('Opening file dialog');
   if (!uploadingPhoto.value) {
