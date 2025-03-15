@@ -111,7 +111,7 @@ services:
 ############################################
 # Handling Templating Logic
 ############################################
-  tracketManagement:
+  trackerManagment:
     path: trackerManagment
     params:
       tableArn: ${dynamodbTable.TableArn}
