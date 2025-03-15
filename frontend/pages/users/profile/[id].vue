@@ -89,115 +89,16 @@
         </select>
       </div>
       <!-- Training -->
-      <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md mt-4">
-        <div v-for="(item, index) in filteredOptions3" :key="index" class="border-b border-gray-600">
-          <button @click="toggle(index)" class="w-full flex justify-between items-center p-4 focus:outline-none">
-            <span class="font-semibold">{{ item.title }}</span>
-            <span :class="{'rotate-180': activeIndex === index}" class="transition-transform duration-300">
-              ⬇️
-            </span>
-          </button>
-          <div v-if="activeIndex === index" class="p-4 text-gray-300">
-            <table class="w-full border-collapse text-sm">
-              <thead>
-                <tr class="bg-gray-800 text-gray-300">
-                  <th class="py-2 px-4 text-left">Exercise</th>
-                  <th class="py-2 px-4 text-left">Label</th>
-                  <th class="py-2 px-4 text-center">Sets</th>
-                  <th class="py-2 px-4 text-center">Reps</th>
-                  <th class="py-2 px-4 text-center">RPE</th>
-                  <th class="py-2 px-4 text-center">Comments</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(exercise, i) in item.content" :key="i" class="border-b border-gray-700 hover:bg-gray-800">
-                  <td class="py-2 px-4">
-                    <button 
-                      @click="openDialog(exercise)"
-                      class="text-left hover:text-blue-400 transition-colors duration-200 cursor-pointer w-full">
-                      {{ exercise.name }}
-                    </button>
-                  </td>
-                  <td class="py-2 px-4">
-                    <button :style="{ backgroundColor: getLabelColor(exercise.label) }" class="text-black px-4 py-2 rounded-full hover:opacity-75 transition">
-                      {{ exercise.label }}
-                    </button>
-                  </td>
-                  <td class="py-2 px-4 text-center">{{ exercise.sets }}</td>
-                  <td class="py-2 px-4 text-center">{{ exercise.reps }}</td>
-                  <td class="py-2 px-4 text-center font-semibold text-yellow-400">{{ exercise.rpe }}</td>
-                  <td class="py-2 px-4 text-center font-semibold text-yellow-400">{{ exercise.comments }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      <TrainingSchedule 
+        :days="filteredOptions3"
+        @exercise-click="openDialog"
+      />
       <!-- Dialog -->
-      <div v-if="dialogOpen" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-        <div class="bg-gray-800 bg-opacity-90 p-4 sm:p-6 rounded-2xl shadow-lg w-full max-w-2xl mx-auto overflow-y-auto max-h-[90vh]">
-          <p class="mb-4 text-gray-300 text-center text-sm sm:text-base">Comments from coach:</p>
-          <p class="mb-4 text-gray-300 text-center text-sm sm:text-base">{{ selectedExercise.originalExercise.comments }}</p>
-          <p class="mb-4 text-gray-300 text-center text-sm sm:text-base">
-            Protocol: {{ selectedExercise.originalExercise.sets }} sets of 
-            {{ selectedExercise.originalExercise.reps }} reps at RPE 
-            {{ selectedExercise.originalExercise.rpe }}
-          </p>
-          <form @submit.prevent="submitDialog" class="space-y-4">
-            <div class="overflow-x-auto">
-              <table class="w-full border-collapse text-sm">
-                <thead>
-                  <tr class="bg-gray-700 text-gray-300">
-                    <th class="py-2 px-2 sm:px-4 text-left whitespace-nowrap">Set</th>
-                    <th class="py-2 px-2 sm:px-4 text-center whitespace-nowrap">Reps</th>
-                    <th class="py-2 px-2 sm:px-4 text-center whitespace-nowrap">Weight (kg)</th>
-                    <th class="py-2 px-2 sm:px-4 text-center whitespace-nowrap">RPE</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(result, index) in selectedExercise.results" 
-                      :key="index" 
-                      class="border-b border-gray-600">
-                    <td class="py-2 px-2 sm:px-4 text-left whitespace-nowrap">Set {{ index + 1 }}</td>
-                    <td class="py-2 px-2 sm:px-4 text-center">
-                      <input type="text" 
-                             v-model="result.reps" 
-                             class="w-16 sm:w-20 px-2 py-1 bg-gray-700 text-white rounded-md text-center" />
-                    </td>
-                    <td class="py-2 px-2 sm:px-4 text-center">
-                      <input type="number" 
-                             v-model="result.weight" 
-                             class="w-16 sm:w-20 px-2 py-1 bg-gray-700 text-white rounded-md text-center" />
-                    </td>
-                    <td class="py-2 px-2 sm:px-4 text-center">
-                      <input type="text" 
-                             v-model="result.rpe" 
-                             class="w-16 sm:w-20 px-2 py-1 bg-gray-700 text-white rounded-md text-center" />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="mt-4">
-              <textarea 
-                v-model.trim="selectedExercise.userComments" 
-                placeholder="Comments on this exercise" 
-                class="w-full px-3 py-2 bg-gray-700 text-white rounded-md min-h-[80px] resize-y"
-              ></textarea>
-            </div>
-            <div class="mt-4 flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
-              <button @click="closeDialog" 
-                      type="button" 
-                      class="w-full sm:w-auto bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition">
-                Close
-              </button>
-              <button type="submit" class="w-full sm:w-auto bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition">
-                Submit
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <ExerciseDialog
+        v-model="dialogOpen"
+        :exercise="selectedExercise.originalExercise"
+        @submit="handleExerciseUpdate"
+      />
     </div>
   </div>
 </template>
@@ -210,6 +111,7 @@ import { useAthleteManagement } from '~/composables/manageAthletes';
 import { useLabelsStore } from '~/stores/labels';
 import { useBlockInformation } from '~/composables/getBlockInformation';
 import { updateExercise } from '~/composables/updateProgram';
+import TrainingSchedule from '~/components/TrainingSchedule.vue';
 
 const athlete = ref(null);
 const username = ref("");
@@ -274,10 +176,6 @@ const selectedOption2 = computed(() => {
 const labelsStore = useLabelsStore();
 const labels = computed(() => labelsStore.labels);
 
-function getLabelColor(label) {
-  return labelsStore.getColorByLabel(label);
-}
-
 // Update filteredOptions3 watch handler
 const filteredOptions3 = ref([]);
 watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
@@ -294,92 +192,64 @@ watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
   }
 }, { immediate: true });
 
-// Add activeIndex ref with other refs
-const activeIndex = ref(null);
-
-// Add toggle function before dialog handling
-const toggle = (index) => {
-  activeIndex.value = activeIndex.value === index ? null : index;
-};
-
-// Keep existing dialog handling code
+// Update the dialog handling code
 const dialogOpen = ref(false);
 const selectedExercise = ref({
   originalExercise: {},
-  results: [],
-  userComments: ""
+  dayIndex: null
 });
 
-
-function openDialog(exercise) {
-  const sets = parseInt(exercise.sets || 0);
-  const existingResults = exercise.results?.sets || [];
-  const existingComments = exercise.results?.comments || '';
-
+// Update openDialog to work with the new component
+function openDialog(exercise, dayIndex) {
   selectedExercise.value = {
     originalExercise: exercise,
-    results: existingResults.length ? existingResults : Array.from({ length: sets }, () => ({
-      reps: exercise.reps,
-      rpe: exercise.rpe,
-      weight: ''
-    })),
-    userComments: existingComments
+    dayIndex
   };
   dialogOpen.value = true;
 }
 
-function closeDialog() {
-  dialogOpen.value = false;
-}
+async function handleExerciseUpdate({ sets, comments }) {
+  const currentDay = filteredOptions3.value[activeIndex.value];
+  const exercise = selectedExercise.value.originalExercise;
+  
+  // Optimistically update the UI
+  const updatedExercise = {
+    ...exercise,
+    results: {
+      sets,
+      comments
+    }
+  };
+  
+  // Update local state immediately
+  const dayIndex = selectedExercise.value.dayIndex;
+  const exerciseIndex = currentDay.content.findIndex(e => e.name === exercise.name);
+  
+  if (exerciseIndex !== -1) {
+    currentDay.content[exerciseIndex] = updatedExercise;
+  }
 
-async function submitDialog() {
   try {
-    const currentDay = filteredOptions3.value[activeIndex.value];
-    const mappedSets = selectedExercise.value.results.map((result, index) => ({
-      setNumber: String(index + 1),
-      reps: String(result.reps),
-      weight: String(result.weight),
-      rpe: String(result.rpe)
-    }));
-
-    console.log('Submitting exercise with parameters:', {
-      userId,
-      blockId: selectedOption1.value,
-      weekId: selectedOption2.value,
-      dayId: currentDay.title,
-      exerciseName: selectedExercise.value.originalExercise.name,
-      sets: mappedSets,
-      comments: selectedExercise.value.userComments  // Ensure comments are trimmed and defaulted to empty string
-    });
-
     const result = await updateExercise(
       userId,
       selectedOption1.value,
       selectedOption2.value,
       currentDay.title,
-      selectedExercise.value.originalExercise.name,
-      mappedSets,
-      selectedExercise.value.userComments  // Ensure comments are trimmed and defaulted to empty string
+      exercise.name,
+      sets,
+      comments
     );
 
     if (result.error) {
-      error.value = result.error;
-      return;
+      throw new Error(result.error);
     }
-
-    // Refresh data after successful submission
-    const response = await getDaysByWeek(userId, selectedOption1.value, selectedOption2.value);
-    if (!response.error) {
-      filteredOptions3.value = Object.entries(response).map(([dayId, dayData]) => ({
-        title: dayId,
-        content: dayData.Exercises || []
-      }));
-    }
-
-    closeDialog();
   } catch (e) {
+    // Revert the optimistic update on error
+    if (exerciseIndex !== -1) {
+      currentDay.content[exerciseIndex] = exercise;
+    }
     error.value = e.message || 'Failed to update exercise';
-    console.error('Error submitting exercise:', e);
+    console.error('Error updating exercise:', e);
   }
 }
 
