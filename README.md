@@ -19,19 +19,19 @@ Athletes benefit from:
 
 <div align="center">
 
-### Dashboard View
+### Home Page View
 <img src="screenshots/dashboard.png" alt="Dashboard View" width="600"/>
 
-### Program Management
+### Athletes Managment
 <img src="screenshots/program-management.png" alt="Program Management" width="600"/>
 
-### Exercise Details
+### Program Managment
 <img src="screenshots/exercise-details.png" alt="Exercise Details" width="600"/>
 
-### Progress Tracking
+### User Profile &  Progress Tracking - Athlete View
 <img src="screenshots/progress-tracking.png" alt="Progress Tracking" width="600"/>
 
-### User Profile
+### Progress Tracking - Athlete View
 <img src="screenshots/user-profile.png" alt="User Profile" width="600"/>
 
 ### Analytics Dashboard
