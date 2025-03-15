@@ -65,6 +65,8 @@
           :selectedBlock="selectedOption1"
           :selectedWeek="selectedOption2"
           :exercises="filteredOptions3"
+          :getDaysByWeek="getDaysByWeek"
+          :userId="userId"
         />
       </div>
     </div>

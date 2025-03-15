@@ -1,9 +1,13 @@
 <template>
   <div class="space-y-4">
-    <!-- Changed the outer div background to match parent -->
     <div class="bg-gray-700 p-4 rounded-lg">
+      <UserDashboard
+        :completed-workouts="totalBlocks"
+        :active-since="30"
+        :completion-rate="85"
+      />
+      
       <div class="space-y-4">
-        <!-- Changed block background styling -->
         <div v-for="block in blocks" :key="block.id" class="bg-gray-800 rounded-lg">
           <!-- Block Header with hover effect matching parent -->
           <button 
@@ -48,22 +52,41 @@
                       <tr>
                         <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Day</th>
                         <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Exercise</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Sets</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Set</th>
                         <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Reps</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Weight</th>
                         <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">RPE</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Comments</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-600">
-                      <template v-if="isCurrentBlockAndWeek(block.id, week)">
-                        <template v-for="day in exercises" :key="day.title">
-                          <tr v-for="exercise in day.content" 
-                              :key="`${day.title}-${exercise.name}`" 
-                              class="hover:bg-gray-600">
+                      <template v-for="day in getWeekExercises(block.id, week)" :key="day.title">
+                        <template v-for="exercise in day.content" :key="`${day.title}-${exercise.name}`">
+                          <!-- Show a row for each set in results if they exist -->
+                          <template v-if="exercise.results?.sets?.length">
+                            <tr v-for="(set, setIndex) in exercise.results.sets" 
+                                :key="`${day.title}-${exercise.name}-${setIndex}`"
+                                class="hover:bg-gray-600">
+                              <td class="px-4 py-2">{{ setIndex === 0 ? day.title : '' }}</td>
+                              <td class="px-4 py-2">{{ setIndex === 0 ? exercise.name : '' }}</td>
+                              <td class="px-4 py-2">{{ set.setNumber }}</td>
+                              <td class="px-4 py-2">{{ set.reps }}</td>
+                              <td class="px-4 py-2">{{ set.weight || '-' }}</td>
+                              <td class="px-4 py-2">{{ set.rpe }}</td>
+                              <td class="px-4 py-2">
+                                {{ setIndex === 0 ? (exercise.results?.comments || '-') : '' }}
+                              </td>
+                            </tr>
+                          </template>
+                          <!-- Show single row for exercises without results -->
+                          <tr v-else class="hover:bg-gray-600">
                             <td class="px-4 py-2">{{ day.title }}</td>
                             <td class="px-4 py-2">{{ exercise.name }}</td>
-                            <td class="px-4 py-2">{{ exercise.sets }}</td>
+                            <td class="px-4 py-2">-</td>
                             <td class="px-4 py-2">{{ exercise.reps }}</td>
+                            <td class="px-4 py-2">-</td>
                             <td class="px-4 py-2">{{ exercise.rpe }}</td>
+                            <td class="px-4 py-2">{{ exercise.comments || '-' }}</td>
                           </tr>
                         </template>
                       </template>
@@ -80,7 +103,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import UserDashboard from './UserDashboard.vue';
 
 const props = defineProps({
   blocks: {
@@ -98,11 +122,24 @@ const props = defineProps({
   exercises: {
     type: Array,
     required: true
+  },
+  getDaysByWeek: {
+    type: Function,
+    required: true
+  },
+  userId: {
+    type: String,
+    required: true
   }
 });
 
 const openBlocks = ref([]);
 const openWeeks = ref([]);
+const weekData = ref({});
+
+const totalBlocks = computed(() => {
+  return props.blocks?.length || 0;
+});
 
 const toggleBlock = (blockId) => {
   const index = openBlocks.value.indexOf(blockId);
@@ -113,13 +150,31 @@ const toggleBlock = (blockId) => {
   }
 };
 
-const toggleWeek = (weekKey) => {
+const toggleWeek = async (weekKey) => {
+  const [blockId, week] = weekKey.split('-');
   const index = openWeeks.value.indexOf(weekKey);
   if (index === -1) {
     openWeeks.value.push(weekKey);
+    // Fetch days data when week is opened
+    const response = await props.getDaysByWeek(props.userId, blockId, week);
+    if (!response.error) {
+      weekData.value[weekKey] = Object.entries(response).map(
+        ([dayId, dayData]) => ({
+          title: dayId,
+          content: dayData.Exercises || []
+        })
+      );
+    }
   } else {
     openWeeks.value.splice(index, 1);
+    // Clear data when week is closed
+    delete weekData.value[weekKey];
   }
+};
+
+const getWeekExercises = (blockId, week) => {
+  const weekKey = `${blockId}-${week}`;
+  return weekData.value[weekKey] || [];
 };
 
 const isCurrentBlockAndWeek = (blockId, week) => {
