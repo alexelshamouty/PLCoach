@@ -1,41 +1,72 @@
 <template>
   <div class="bg-gray-900 min-h-screen text-white flex justify-center">
-    <!-- Loading Overlay -->
     <LoadingOverlay :show="isLoading" />
-    
-    <!-- Error Alert -->
     <ErrorAlert :message="errorMessage" @clear="errorMessage = null" />
 
-    <!-- Main Content -->
     <div v-if="!isLoading" class="w-full max-w-4xl p-6 rounded-lg shadow-md">
       <h2 class="text-2xl font-semibold text-center mb-4">{{ username }} aka {{ name }} Program Management</h2>
-      <div class="bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-        <!-- First Dropdown -->
-        <select v-model="selectedOption1" class="w-full md:w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="" disabled>Select Block</option>
-          <option v-for="option in options1" :key="option.id" :value="option.id">
-            {{ option.label }}
-          </option>
-        </select>
-
-        <!-- Second Dropdown -->
-        <select v-model="selectedOption2" class="w-full md:w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="" disabled>Select Week</option>
-          <option v-for="option in filteredOptions2" :key="option.id" :value="option.id">
-            {{ option.label }}
-          </option>
-        </select>
+      
+      <!-- Tabs Navigation -->
+      <div class="flex border-b-2 border-gray-700 mb-6">
+        <button 
+          v-for="tab in tabs" 
+          :key="tab.id"
+          @click="setActiveTab(tab.id)"
+          :class="[
+            'px-6 py-3 font-semibold text-lg transition-all duration-200 relative',
+            activeTab === tab.id 
+              ? 'text-blue-400 border-b-2 border-blue-400 -mb-0.5' 
+              : 'text-gray-300 hover:text-blue-300 hover:bg-gray-800'
+          ]"
+        >
+          <span class="relative z-10">{{ tab.name }}</span>
+          <div 
+            v-if="activeTab === tab.id" 
+            class="absolute bottom-0 left-0 w-full h-1 bg-blue-400 transform"
+          ></div>
+        </button>
       </div>
-      <UserManagement 
-        @add-block="handleAddBlock" 
-        @add-week="handleAddWeek" 
-        @add-day="handleAddDay"
-      />
-      <TrainingDisplay 
-        :items="filteredOptions3"
-        @delete-exercise="handleDeleteExercise"
-        @exercise-added="handleAddExercise"
-      />
+
+      <!-- Programs Tab -->
+      <div v-if="activeTab === 'programs'" class="space-y-4">
+        <div class="bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+          <!-- First Dropdown -->
+          <select v-model="selectedOption1" class="w-full md:w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="" disabled>Select Block</option>
+            <option v-for="option in options1" :key="option.id" :value="option.id">
+              {{ option.label }}
+            </option>
+          </select>
+
+          <!-- Second Dropdown -->
+          <select v-model="selectedOption2" class="w-full md:w-1/2 p-2 bg-gray-600 text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="" disabled>Select Week</option>
+            <option v-for="option in filteredOptions2" :key="option.id" :value="option.id">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+        <UserManagement 
+          @add-block="handleAddBlock" 
+          @add-week="handleAddWeek"
+          @add-day="handleAddDay"
+        />
+        <TrainingDisplay 
+          :items="filteredOptions3"
+          @delete-exercise="handleDeleteExercise"
+          @exercise-added="handleAddExercise"
+        />
+      </div>
+
+      <!-- Activity Tab -->
+      <div v-if="activeTab === 'activity'" class="space-y-4">
+        <ActivityDisplay 
+          :blocks="options1"
+          :selectedBlock="selectedOption1"
+          :selectedWeek="selectedOption2"
+          :exercises="filteredOptions3"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -43,6 +74,7 @@
 <script setup>
 import UserManagement from '~/components/admin/UserManagement.vue';
 import TrainingDisplay from '~/components/admin/TrainingDisplay.vue';
+import ActivityDisplay from '~/components/admin/ActivityDisplay.vue';
 import { ref, computed, watch, onMounted } from "vue";
 import LoadingOverlay from '~/components/shared/LoadingOverlay.vue';
 import ErrorAlert from '~/components/shared/ErrorAlert.vue';
@@ -51,6 +83,7 @@ import { useApi } from '~/composables/useApi';
 import { addBlock, addWeek, addDay, addExercise, deleteExercise } from '~/composables/updateProgram';
 import { useBlockInformation } from '~/composables/getBlockInformation';
 import { useAthleteManagement } from '~/composables/manageAthletes';
+import { useTabs } from '~/composables/useTabs';
 
 const username = ref("");
 const name = ref("");
@@ -288,4 +321,6 @@ async function handleAddDay(dayTitle) {
     errorMessage.value = error.message || 'An error occurred while adding the day';
   }
 }
+
+const { tabs, activeTab, setActiveTab } = useTabs();
 </script>
