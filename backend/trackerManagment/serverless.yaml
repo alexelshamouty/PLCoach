@@ -1,9 +1,5 @@
-# "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: alexelshamouty
-app: sweaty-duck-backend
 
-
-service: getUser
+service: trackerManagment
 app: sweaty-duck-backend
 
 custom:
@@ -29,9 +25,14 @@ provider:
           Action:
             - dynamodb:*
           Resource: "${param:trackerTableArn}"
+          
 
 functions:
-  getUsers:
+  trackerManagment:
+    layers: 
+      - ${param:fastapiLayer}
+      - ${param:magnumLayer}
+      - ${param:utilsLayer}
     handler: trackerManagment.handler
     name: trackerManagment-${sls:stage}
     memorySize: 128
@@ -59,7 +60,7 @@ functions:
           name: cognitoAuthorizer
           arn: ${param:cognitoArn}
       - http:
-        path: /getTrackerforUser
+        path: /`TrackerforUser
         method: GET
         timeout: 60
         cors: true

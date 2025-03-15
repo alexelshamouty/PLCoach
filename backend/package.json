@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "serverless-plugin-lambda-dead-letter": "^1.2.1"
+    "serverless-plugin-lambda-dead-letter": "^1.2.1",
+    "serverless-plugin-warmup": "^8.3.0"
   }
 }

@@ -112,10 +112,10 @@ services:
 # Handling Templating Logic
 ############################################
   tracketManagement:
-    path: tracketManagement
+    path: trackerManagment
     params:
       tableArn: ${dynamodbTable.TableArn}
       tableName: ${dynamodbTable.TableName}
-      templateTableArn: ${dynamodbTable.TemplateTableArn}
-      templateTableName: ${dynamodbTable.TemplateTableName}
+      trackerTableArn: ${dynamodbTable.TemplateTableArn}
+      trackerTableName: ${dynamodbTable.TemplateTableName}
       cognitoArn: ${cognito.UserPoolArn}
