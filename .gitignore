@@ -8,3 +8,8 @@ node_modules
 .vscode
 __pycache__
 test_events
+.venv
+.python-version
+backend/layers/magnum/*
+backend/layers/fastapi/*
+backend/layers/include
