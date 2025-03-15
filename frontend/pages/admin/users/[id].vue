@@ -47,7 +47,6 @@ import { ref, computed, watch, onMounted } from "vue";
 import LoadingOverlay from '~/components/shared/LoadingOverlay.vue';
 import ErrorAlert from '~/components/shared/ErrorAlert.vue';
 import { useRoute } from "vue-router";
-import { useLabelsStore } from '~/stores/labels';
 import { useApi } from '~/composables/useApi';
 import { addBlock, addWeek, addDay, addExercise, deleteExercise } from '~/composables/updateProgram';
 import { useBlockInformation } from '~/composables/getBlockInformation';
@@ -96,11 +95,6 @@ onMounted(async () => {
   }
 });
 
-const messageOpen = ref(false);
-const allSets = ref(0);
-const labelColor = ref("");
-
-// Replace weeksStore and options2 computed with this:
 const options2 = computed(() => {
   const selectedBlock = options1.value.find(block => block.id === selectedOption1.value);
   if (!selectedBlock) return [];
@@ -111,28 +105,11 @@ const options2 = computed(() => {
   }));
 });
 
-// Remove filteredOptions2 ref and watch, replace with this:
 const filteredOptions2 = computed(() => options2.value);
 
 const selectedOption2 = computed(() => {
   return filteredOptions2.value.length ? filteredOptions2.value[0].id : "";
 });
-
-const labelsStore = useLabelsStore();
-const labels = computed(() => labelsStore.labels);
-
-function countSetsPerWeek(label) {
-  trainingStore.countSetsPerWeek(label, selectedOption1.value, selectedOption2.value, allSets, messageOpen);
-  labelColor.value = labelsStore.getColorByLabel(label);
-}
-
-function getLabelColor(label) {
-  return labelsStore.getColorByLabel(label);
-}
-
-function toggleMessage() {
-  messageOpen.value = !messageOpen.value;
-}
 
 const filteredOptions3 = ref([]);
 watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
@@ -149,24 +126,10 @@ watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
   }
 }, { immediate: true });
 
-const activeIndex = ref(null);
-
-const toggle = (index) => {
-  activeIndex.value = activeIndex.value === index ? null : index;
-  messageOpen.value = false;
-};
-
-const newExerciseName = ref("");
-const newExerciseLabel = ref("");
-const newExerciseSets = ref(0);
-const newExerciseReps = ref(0);
-const newExerciseRpe = ref(0);
-const newExerciseComments = ref("");
+const errorMessage = ref(null);
 
 // Replace error handling refs
-const errorMessage = ref(null);
 // Remove showError ref since ErrorAlert handles visibility
-
 async function handleAddExercise(exerciseData) {
   const { dayId, ...exercise } = exerciseData;
   
@@ -325,25 +288,4 @@ async function handleAddDay(dayTitle) {
     errorMessage.value = error.message || 'An error occurred while adding the day';
   }
 }
-
-const manageOpen = ref(false);
-
-function toggleManage() {
-  manageOpen.value = !manageOpen.value;
-}
 </script>
-
-<style scoped>
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-</style>
