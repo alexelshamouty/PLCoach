@@ -2,7 +2,7 @@
   <div v-if=loading> 
   </div>
   <div v-else>
-    <nav class="bg-gray-800 px-6 py-4 flex items-center justify-between">
+    <nav class="bg-gray-800 px-6 py-4 flex items-center justify-between relative z-40">
       <!-- Mobile Menu Button -->
       <button @click="toggleMenu" class="text-white text-2xl">
         ☰
@@ -28,8 +28,15 @@
       </div>
     </nav>
   
+    <!-- Backdrop overlay -->
+    <div v-if="menuOpen" 
+         class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity duration-300"
+         @click="toggleMenu">
+    </div>
+
     <!-- Mobile Menu (Dropdown) -->
-    <div @click="toggleMenu" v-if="menuOpen" class="absolute left-0 w-64 h-full bg-gray-800 p-4 shadow-lg transition-transform duration-300 ease-in-out">
+    <div v-if="menuOpen" 
+         class="fixed left-0 top-0 w-64 h-full bg-gray-800 p-4 shadow-lg z-50 transition-transform duration-300 ease-in-out">
       <!-- Added profile image -->
       <div class="flex justify-center mb-4">
         <img 
@@ -57,21 +64,36 @@
       <NuxtLink v-if="!user?.username" class="block text-white py-2 hover:bg-gray-700 rounded px-2" to="/signup">Signup</NuxtLink>
     </div>
   </div>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue';
-  import { useAuthStore } from '~/stores/auth';
-  import { storeToRefs } from 'pinia';
+</template>
 
-  const authStore = useAuthStore();
-  const {user, groups, admin, loading} = storeToRefs(authStore);
+<script setup>
+import { ref, onUnmounted } from 'vue';
+import { useAuthStore } from '~/stores/auth';
+import { storeToRefs } from 'pinia';
 
-  const menuOpen = ref(false);
-  const toggleMenu = () => {
-    menuOpen.value = !menuOpen.value;
-  };
+const authStore = useAuthStore();
+const {user, groups, admin, loading} = storeToRefs(authStore);
 
-  watch(() => authStore.user, (newUser) => {
-  });
-  </script>
+const menuOpen = ref(false);
+const toggleMenu = () => {
+  menuOpen.value = !menuOpen.value;
+  // Prevent body scroll when menu is open
+  if (menuOpen.value) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = 'auto';
+  }
+};
+
+// Cleanup on component unmount
+onUnmounted(() => {
+  document.body.style.overflow = 'auto';
+});
+</script>
+
+<style scoped>
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+</style>

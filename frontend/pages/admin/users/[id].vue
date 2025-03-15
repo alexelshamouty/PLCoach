@@ -7,24 +7,26 @@
       <h2 class="text-2xl font-semibold text-center mb-4">{{ username }} aka {{ name }} Program Management</h2>
       
       <!-- Tabs Navigation -->
-      <div class="flex border-b-2 border-gray-700 mb-6">
-        <button 
-          v-for="tab in tabs" 
-          :key="tab.id"
-          @click="setActiveTab(tab.id)"
-          :class="[
-            'px-6 py-3 font-semibold text-lg transition-all duration-200 relative',
-            activeTab === tab.id 
-              ? 'text-blue-400 border-b-2 border-blue-400 -mb-0.5' 
-              : 'text-gray-300 hover:text-blue-300 hover:bg-gray-800'
-          ]"
-        >
-          <span class="relative z-10">{{ tab.name }}</span>
-          <div 
-            v-if="activeTab === tab.id" 
-            class="absolute bottom-0 left-0 w-full h-1 bg-blue-400 transform"
-          ></div>
-        </button>
+      <div class="flex border-b-2 border-gray-700 mb-6 overflow-hidden">
+        <div class="flex overflow-x-auto no-scrollbar">
+          <button 
+            v-for="tab in tabs" 
+            :key="tab.id"
+            @click="setActiveTab(tab.id)"
+            :class="[
+              'px-4 py-2 font-medium text-base sm:text-lg flex-shrink-0 transition-all duration-200 relative',
+              activeTab === tab.id 
+                ? 'text-blue-400 border-b-2 border-blue-400 -mb-0.5' 
+                : 'text-gray-300 hover:text-blue-300 hover:bg-gray-800'
+            ]"
+          >
+            <span class="relative z-10">{{ tab.name }}</span>
+            <div 
+              v-if="activeTab === tab.id" 
+              class="absolute bottom-0 left-0 w-full h-1 bg-blue-400 transform"
+            ></div>
+          </button>
+        </div>
       </div>
 
       <!-- Programs Tab -->
@@ -331,3 +333,13 @@ async function handleAddDay(dayTitle) {
 
 const { tabs, activeTab, setActiveTab } = useTabs();
 </script>
+
+<style scoped>
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+</style>
