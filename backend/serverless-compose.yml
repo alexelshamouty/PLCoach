@@ -17,8 +17,14 @@ stages:
     params:
       domain: "https://sweatyduckz.netlify.app/" # This is the value of the "domain" param in the dev stage
       fastapiLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:fastapi-dev:1'
-      magnumLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:magnum-dev:1'
+      magnumLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:magnum-dev:2'
       utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13'
+      tableName: users-dev
+      tableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev
+      blockTableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/blocks-dev
+      blockTableName: blocks-dev
+      cognitoArn: arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC
+      trackerTableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/templates-dev
   prod:
     params:
       domain: "https://sweatyduckz.netlify.app/" # This is the value of the "domain" param in the prod stage
@@ -39,22 +45,8 @@ services:
 ############################################
 # Authentication and infrastructure
 ############################################
-  dynamodbTable:
-    path: dynamodb-table
-    params:
-      userTableNamePrefix: users
-      blockTableNamePrefix: blocks
-      templateTableName: templates
   users:
     path: users-confirm
-    params:
-      tableName: ${dynamodbTable.TableName}
-      tableArn: ${dynamodbTable.TableArn}
-  cognito:
-    path: cognito
-    params:
-      userLambdaArn: ${users.UsersRegisterationLambdaFunctionQualifiedArn}
-      userLambdaFunctionName: usersRegisteration-${sls:stage}-usersRegisteration
 
 
 ############################################
@@ -62,20 +54,12 @@ services:
 ############################################
   getUsers:
     path: get-users
-    params:
-      tableName: ${dynamodbTable.TableName}
-      tableArn: ${dynamodbTable.TableArn}
-      cognitoArn: ${cognito.UserPoolArn}
 
 ############################################
 # User Logic
 ############################################
   getUser:
     path: get-user
-    params:
-      tableName: ${dynamodbTable.TableName}
-      tableArn: ${dynamodbTable.TableArn}
-      cognitoArn: ${cognito.UserPoolArn}
 
 ############################################
 # Handling Upload Logic
@@ -90,32 +74,11 @@ services:
 ############################################
   updateAddBlock:
     path: addUpdateblock
-    params:
-      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13'
-      tableArn: ${dynamodbTable.TableArn}
-      tableName: ${dynamodbTable.TableName}
-      cognitoArn: ${cognito.UserPoolArn}
-      blockTableArn: ${dynamodbTable.BlockTableArn}
-      blockTableName: ${dynamodbTable.BlockTableName}
   
   getBlockInformation:
     path: getBlockInformation
-    params:
-      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:13'
-      tableArn: ${dynamodbTable.TableArn}
-      tableName: ${dynamodbTable.TableName}
-      blockTableArn: ${dynamodbTable.BlockTableArn}
-      blockTableName: ${dynamodbTable.BlockTableName}
-      cognitoArn: ${cognito.UserPoolArn}
-
 ############################################
 # Handling Templating Logic
 ############################################
   trackerManagement:
     path: trackerManagement
-    params:
-      tableArn: ${dynamodbTable.TableArn}
-      tableName: ${dynamodbTable.TableName}
-      trackerTableArn: ${dynamodbTable.TemplateTableArn}
-      trackerTableName: ${dynamodbTable.TemplateTableName}
-      cognitoArn: ${cognito.UserPoolArn}

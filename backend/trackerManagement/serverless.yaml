@@ -28,13 +28,13 @@ provider:
           
 
 functions:
-  trackerManagment:
+  trackerManagement:
     layers: 
       - ${param:fastapiLayer}
       - ${param:magnumLayer}
       - ${param:utilsLayer}
-    handler: trackerManagment.handler
-    name: trackerManagment-${sls:stage}
+    handler: trackerManagement.handler
+    name: trackerManagement-${sls:stage}
     memorySize: 128
     timeout: 60
     warmup:
