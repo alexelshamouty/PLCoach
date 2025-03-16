@@ -31,7 +31,7 @@ functions:
   trackerManagement:
     layers: 
       - ${param:fastapiLayer}
-      - ${param:magnumLayer}
+      - ${param:mangumLayer}
       - ${param:utilsLayer}
     handler: trackerManagement.handler
     name: trackerManagement-${sls:stage}
@@ -41,10 +41,6 @@ functions:
       officeHoursWarmer:
         enabled: true
     events:
-      - http:
-        path: /trackerManagement
-        method: GET
-        
       - http:
           path: /createTrackerTemplate
           method: POST
@@ -64,7 +60,7 @@ functions:
           name: cognitoAuthorizer
           arn: ${param:cognitoArn}
       - http:
-        path: /TrackerforUser
+        path: /getTrackerForUser
         method: GET
         timeout: 60
         cors: true

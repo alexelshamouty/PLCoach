@@ -13,5 +13,7 @@ test_events
 backend/layers/magnum/*
 backend/layers/fastapi/*
 backend/layers/include
+backend/layers/mangum
+backend/include
 .serverless
 backend/.serverless

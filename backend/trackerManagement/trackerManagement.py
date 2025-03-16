@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException, Request
-from magnum import Magnum
+from mangum import Mangum
 from utils.response_utils import ResponseUtils
 from utils.db_utils import DBUtils
 import logging 
-
+from typing import List
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -16,10 +16,10 @@ def read_root(request: Request):
     if(aws_event_source == "serverless-plugin-warmup"):
         logger.info("WarmUp event received")
         return {}
-    return {"Hello": "World"}
+    
+@app.post("/createTrackerTemplate")
+def read_trackerManagment(newTracker: List):
+    logging.info("Request received {newTracker}")
+    return {"It went well": "itWentWell"}
 
-@app.get("/trackerManagement")
-def read_trackerManagment():
-    return {"Hello": "World"}
-
-handler = Magnum(app)
+handler = Mangum(app)
