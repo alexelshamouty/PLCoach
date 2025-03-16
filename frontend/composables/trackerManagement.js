@@ -1,6 +1,8 @@
 import { useApi } from './useApi';
 
-const BASE_URL = 'https://hehvg40uyl.execute-api.eu-north-1.amazonaws.com/dev';
+const CREATE_URL = 'https://hehvg40uyl.execute-api.eu-north-1.amazonaws.com/dev';
+const GET_URL = 'https://cjmc559rhg.execute-api.eu-north-1.amazonaws.com/dev';
+const UPDATE_URL = 'https://lh6jm1r61f.execute-api.eu-north-1.amazonaws.com/dev';
 
 const getStores = () => ({
   api: useApi()
@@ -11,7 +13,7 @@ export const createTemplate = async (templateData) => {
   
   try {
     const response = await api.authenticatedFetch(
-      `${BASE_URL}/createTracker`,
+      `${CREATE_URL}/createTracker`,
       {
         method: 'POST',
         body: JSON.stringify(templateData)
@@ -36,11 +38,11 @@ export const createTemplate = async (templateData) => {
 };
 
 export const updateTemplate = async (templateData) => {
-  const { api } = getStores();
+  const { api } = getStores();       
   
   try {
     const response = await api.authenticatedFetch(
-      `${BASE_URL}/updateTracker`,
+      `${UPDATE_URL}/updateTracker`,
       {
         method: 'POST',
         body: JSON.stringify(templateData)
@@ -69,7 +71,7 @@ export const getTrackers = async () => {
   
   try {
     const response = await api.authenticatedFetch(
-      `${BASE_URL}/getTrackers`,
+      `${GET_URL}/getTrackers`,
       {
         method: 'GET'
       }
@@ -85,7 +87,7 @@ export const getTrackers = async () => {
 
     // Transform the data to match our frontend structure
     const templates = data.map(item => ({
-      name: item.tableName,
+      templateName: item.tableName,
       metrics: item.metrics
     }));
 

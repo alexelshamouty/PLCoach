@@ -108,7 +108,7 @@ const props = defineProps({
   template: {
     type: Object,
     default: () => ({
-      name: '',
+      templateName: '',
       metrics: []
     })
   }
@@ -128,7 +128,7 @@ const newMetric = ref({
 const error = ref('');
 
 watch(() => props.template, (newTemplate) => {
-  templateName.value = newTemplate.name;
+  templateName.value = newTemplate.templateName;
   metrics.value = [...(newTemplate.metrics || [])];
 }, { immediate: true });
 
@@ -166,7 +166,7 @@ function handleSave() {
   }
 
   emits('save', {
-    name: templateName.value,
+    templateName: templateName.value,
     metrics: metrics.value
   });
 }

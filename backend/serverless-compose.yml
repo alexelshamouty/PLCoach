@@ -16,17 +16,15 @@ stages:
   default:
     params:
       domain: "https://sweatyduckz.netlify.app/" # This is the value of the "domain" param in the dev stage
-      #fastapiLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:fastapi-dev:1'
       fastapiLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:fastapim:2'
-      #mangumLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:mangum-dev:3'
       mangumLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:mangumm:4'
-      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:15'
+      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:18'
       tableName: users-dev
       tableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev
       blockTableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/blocks-dev
       blockTableName: blocks-dev
       cognitoArn: arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC
-      trackerTableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/templates-dev
+      trackerTableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/template-dev
       trackerTableName: template-dev
   prod:
     params:

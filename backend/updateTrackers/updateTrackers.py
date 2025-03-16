@@ -27,10 +27,10 @@ app.add_middleware(
 userTable = os.environ['TABLE_NAME']
 templateTableName = os.environ['TEMPLATE_TABLE_NAME']
 
-@app.post("/createTracker")
+@app.post("/updateTracker")
 def create_tracker(newTracker: dict):
     templateTable = DBUtils(templateTableName)
-    response = templateTable.save_template(newTracker)
+    response = templateTable.update_template(newTracker)
     if response:
         logger.error(f"Error saving template: {response}")
         raise HTTPException(status_code=500, detail=response)

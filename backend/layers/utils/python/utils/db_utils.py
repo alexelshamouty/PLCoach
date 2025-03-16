@@ -1,6 +1,11 @@
 from boto3.dynamodb.conditions import Key
 import boto3
 from .response_utils import ResponseUtils
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 class DBUtils:
     def __init__(self, tableName):
         dynamodb = boto3.resource('dynamodb')
@@ -38,16 +43,19 @@ class DBUtils:
         """
         try:
             item = {
-                "templateName": template["templateName"],
+                "TemplateName": template["templateName"],
                 "metrics": template["metrics"]
             }
+            logger.info(f"Saving a new template {item}")
+            template_exists, error = self.get_template_by_name(item["templateName"])
             
-            template_exists = self.get_template_by_name(item["templateName"])
-            
-            if template_exists:
-                return self.responseUtils.error_response(400, f'Template with name {item["templateName"]} already exists')
-            
-            self.table.put_item(Item=item)
+            if error:
+                return error
+
+            if template_exists: # If the template already exists, update it
+                return self.responseUtils.error_response(409, f'Template with name {item["TemplateName"]} already exists')
+                        
+            self.table.put_item(Item=item)  # Changed from template to item
             return None
         except Exception as e:
             return self.responseUtils.error_response(500, f'Error saving template: {str(e)}')
@@ -59,10 +67,10 @@ class DBUtils:
         """
         try:
             item = {
-                "templateName": template["templateName"],
+                "TemplateName": template["templateName"],
                 "metrics": template["metrics"]
             }
-            self.table.put_item(Item=template)
+            self.table.put_item(Item=item)  # Changed from template to item
             return None
         except Exception as e:
             return self.responseUtils.error_response(500, f'Error updating template: {str(e)}')
@@ -92,10 +100,10 @@ class DBUtils:
                 KeyConditionExpression=Key('TemplateName').eq(template_name)
             )
             
-            if not response['Items']:
-                return None, self.responseUtils.error_response(404, f'Template with name {template_name} not found')
+            if len(response['Items']) == 0:
+                return None
                 
-            return response['Items'][0], None
+            return response['Items'][0]
             
         except Exception as e:
             return None, self.responseUtils.error_response(500, f'Error querying template: {str(e)}')

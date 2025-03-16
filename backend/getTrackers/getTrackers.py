@@ -27,15 +27,15 @@ app.add_middleware(
 userTable = os.environ['TABLE_NAME']
 templateTableName = os.environ['TEMPLATE_TABLE_NAME']
 
-@app.post("/createTracker")
-def create_tracker(newTracker: dict):
+@app.get("/getTrackers")
+def create_tracker():
     templateTable = DBUtils(templateTableName)
-    response = templateTable.save_template(newTracker)
-    if response:
-        logger.error(f"Error saving template: {response}")
+    response, error = templateTable.get_templates()
+    if error:
+        logger.error(f"Error getting templates: {response}")
         raise HTTPException(status_code=500, detail=response)
-    logger.info(f"New template is saved {newTracker}")
-    return {"It went well": "itWentWell"}
+    logger.info(f"Templates are retrieved {response}")
+    return response
 
 def handler(event, context):
     # Handle warmup event

@@ -16,12 +16,12 @@
     <div v-else class="mb-6">
       <h2 class="text-xl font-bold mb-4">Current Tracker Templates</h2>
       <div class="space-y-6">
-        <div v-for="template in trackerTemplates" :key="template.name" class="bg-gray-800 rounded-lg p-4">
+        <div v-for="template in trackerTemplates" :key="template.templateName" class="bg-gray-800 rounded-lg p-4">
           <h3 
             @click="editTemplate(template)" 
             class="text-lg font-semibold mb-3 cursor-pointer hover:text-blue-400 transition-colors"
           >
-            {{ template.name }}
+            {{ template.templateName }}
           </h3>
           <table class="w-full bg-gray-700 rounded-lg overflow-hidden">
             <thead>
@@ -73,7 +73,7 @@ const isEditing = ref(false);
 const loading = ref(true);
 const error = ref('');
 const selectedTemplate = ref({
-  name: '',
+  templateName: '',
   metrics: []
 });
 
@@ -102,7 +102,7 @@ onMounted(() => {
 function openNewDialog() {
   isEditing.value = false;
   selectedTemplate.value = {
-    name: '',
+    templateName: '',
     metrics: []
   };
   showDialog.value = true;
