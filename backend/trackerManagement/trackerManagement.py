@@ -1,25 +1,83 @@
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from utils.response_utils import ResponseUtils
 from utils.db_utils import DBUtils
 import logging 
 from typing import List
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+import os
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+            
 app = FastAPI()
 
-@app.get("/")
-def read_root(request: Request):
-    aws_event = request.scope.get("aws.event")
-    aws_event_source = aws_event.get("source")
-    if(aws_event_source == "serverless-plugin-warmup"):
-        logger.info("WarmUp event received")
-        return {}
-    
-@app.post("/createTrackerTemplate")
-def read_trackerManagment(newTracker: List):
-    logging.info("Request received {newTracker}")
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+userTable = os.environ['TABLE_NAME']
+templateTableName = os.environ['TEMPLATE_TABLE_NAME']
+
+@app.post("/createTracker")
+def create_tracker(newTracker: dict):
+    templateTable = DBUtils(templateTableName)
+    response = templateTable.save_template(newTracker)
+    if response:
+        logger.error(f"Error saving template: {response}")
+        raise HTTPException(status_code=500, detail=response)
+    logger.info(f"New template is saved {newTracker}")
     return {"It went well": "itWentWell"}
 
-handler = Mangum(app)
+@app.get("/getTracker/{userID}/{trackerName}")
+def get_tracker(userID:str, trackerName: str):
+    templateTable = DBUtils(templateTableName)
+    response, error = templateTable.get_template_by_name(trackerName)
+    if error:
+        logger.error(f"Error getting template: {error}")
+        raise HTTPException(status_code=500, detail=error)
+    logger.info(f"Got template: {response}")
+    return response
+
+@app.get("/getTrackers/")
+def get_trackers():
+    templateTable = DBUtils(templateTableName)
+    response, error = templateTable.get_templates()
+    if error:
+        logger.error(f"Error getting templates: {error}")
+        raise HTTPException(status_code=500, detail=error)
+    logger.info(f"Got templates: {response}")
+    return response
+
+@app.post("/updateTracker")
+def update_tracker(updatedTracker: dict):
+    templateTable = DBUtils(templateTableName)
+    response = templateTable.update_template(updatedTracker)
+    if response:
+        logger.error(f"Error updating template: {response}")
+        raise HTTPException(status_code=500, detail=response)
+    logger.info(f"Updated template: {updatedTracker}")
+    return {"It went well": "itWentWell"}
+
+def handler(event, context):
+    # Handle warmup event
+    if event.get("source") == "serverless-plugin-warmup":
+        logger.info("Event received: %s", event)
+        return {}
+    try:
+        responseUtils = ResponseUtils(logger)
+        logger.info(f"Starting ASGI handler {event}")
+        asgi_handler = Mangum(app)
+        response = asgi_handler(event, context)
+    except Exception as e:
+        logger.error("Error processing request: %s", str(e))
+        response = responseUtils.error_response(500, message=str(e))
+    return response

@@ -6,24 +6,20 @@ Resources:
     UpdateReplacePolicy: Retain
     Type: "AWS::DynamoDB::Table"
     Properties:
-      TableName: ${param:templateTableName}-${sls:stage}
+      TableName: template-dev
       AttributeDefinitions:
         - AttributeName: "TemplateName"
-          AttributeType: "S"
-        - AttributeName: "Timestamp"
           AttributeType: "S"
       KeySchema:
         - AttributeName: "TemplateName"
           KeyType: "HASH"
-        - AttributeName: "Timestamp"
-          KeyType: "RANGE"
       BillingMode: PAY_PER_REQUEST
   UsersTable:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Type: "AWS::DynamoDB::Table"
     Properties:
-      TableName: ${param:userTableNamePrefix}-${sls:stage}
+      TableName: users-dev
       AttributeDefinitions:
         - AttributeName: "Userid"
           AttributeType: "S"
@@ -42,7 +38,7 @@ Resources:
     UpdateReplacePolicy: Retain
     Type: "AWS::DynamoDB::Table"
     Properties:
-      TableName: ${param:blockTableNamePrefix}-${sls:stage}
+      TableName: blocks-dev
       AttributeDefinitions:
         - AttributeName: "Userid"
           AttributeType: "S"

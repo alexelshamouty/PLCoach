@@ -42,7 +42,7 @@ functions:
         enabled: true
     events:
       - http:
-          path: /createTrackerTemplate
+          path: /createTracker
           method: POST
           timeout: 60
           cors: true
@@ -51,7 +51,7 @@ functions:
             name: cognitoAuthorizer
             arn: ${param:cognitoArn}
       - http:
-        path: /updateTrackerForUser
+        path: /updateTracker
         method: POST
         timeout: 60
         cors: true
@@ -60,7 +60,7 @@ functions:
           name: cognitoAuthorizer
           arn: ${param:cognitoArn}
       - http:
-        path: /getTrackerForUser
+        path: /getTracker
         method: GET
         timeout: 60
         cors: true
@@ -70,6 +70,8 @@ functions:
           arn: ${param:cognitoArn}
     environment:
       TABLE_NAME: ${param:trackerTableArn}
+      TEMPLATE_TABLE_NAME: ${param:trackerTableName}
+
   
 plugins:
   - serverless-plugin-warmup

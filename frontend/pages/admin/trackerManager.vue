@@ -52,6 +52,7 @@
 <script setup>
 import { ref } from 'vue';
 import TrackerDialog from '~/components/admin/TrackerDialog.vue';
+import { createTemplate, updateTemplate } from '~/composables/trackerManagement';
 
 const showDialog = ref(false);
 const trackerTemplates = ref([]);
@@ -76,17 +77,37 @@ function editTemplate(template) {
   showDialog.value = true;
 }
 
-function handleSaveTemplate(templateData) {
-  if (isEditing.value) {
-    const index = trackerTemplates.value.findIndex(t => t.name === selectedTemplate.value.name);
-    if (index !== -1) {
-      trackerTemplates.value[index] = templateData;
+async function handleSaveTemplate(templateData) {
+  let apiResult;
+
+  try {
+    if (isEditing.value) {
+      // Update existing template
+      apiResult = await updateTemplate(templateData);
+    } else {
+      // Create new template
+      apiResult = await createTemplate(templateData);
     }
-  } else {
-    trackerTemplates.value.push(templateData);
+
+    if (apiResult.error) {
+      // You might want to add error handling UI here
+      console.error('Failed to save template:', apiResult.error);
+      return;
+    }
+
+    // Update local state only after successful API call
+    if (isEditing.value) {
+      const index = trackerTemplates.value.findIndex(t => t.name === selectedTemplate.value.name);
+      if (index !== -1) {
+        trackerTemplates.value[index] = templateData;
+      }
+    } else {
+      trackerTemplates.value.push(templateData);
+    }
+    
+    showDialog.value = false;
+  } catch (error) {
+    console.error('Error saving template:', error);
   }
-  
-  console.log('Template saved:', templateData);
-  showDialog.value = false;
 }
 </script>
