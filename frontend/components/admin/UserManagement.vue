@@ -1,5 +1,6 @@
 <template>
   <div class="mt-4 bg-gray-800 p-4 rounded-lg">
+    <ErrorAlert :message="error" @clear="error = ''" />
     <button @click="toggleManage" class="w-full flex justify-between items-center p-4 focus:outline-none">
       <h3 class="text-lg font-semibold">Manage Athlete</h3>
       <span :class="{'rotate-180': manageOpen}" class="transition-transform duration-300">
@@ -43,11 +44,13 @@
 
 <script setup>
 import { ref } from 'vue';
+import ErrorAlert from '~/components/shared/ErrorAlert.vue';
 
 const manageOpen = ref(false);
 const newBlockLabel = ref('');
 const newWeekTitle = ref('');
 const newDayTitle = ref('');
+const error = ref('');
 
 const emit = defineEmits(['add-block', 'add-week', 'add-day']);
 
@@ -56,16 +59,28 @@ function toggleManage() {
 }
 
 function handleAddBlock() {
+  if (!newBlockLabel.value.trim()) {
+    error.value = 'Block label is required';
+    return;
+  }
   emit('add-block', newBlockLabel.value);
   newBlockLabel.value = '';
 }
 
 function handleAddWeek() {
+  if (!newWeekTitle.value.trim()) {
+    error.value = 'Week title is required';
+    return;
+  }
   emit('add-week', newWeekTitle.value);
   newWeekTitle.value = '';
 }
 
 function handleAddDay() {
+  if (!newDayTitle.value.trim()) {
+    error.value = 'Day title is required';
+    return;
+  }
   emit('add-day', newDayTitle.value);
   newDayTitle.value = '';
 }

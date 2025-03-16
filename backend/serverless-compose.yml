@@ -85,3 +85,7 @@ services:
 ############################################
   trackerManagement:
     path: trackerManagement
+  getTrackers:
+    path: getTrackers
+  updateTrackers:
+    path: updateTrackers

@@ -1,6 +1,8 @@
 <template>
   <div v-if="modelValue" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
     <div class="bg-gray-800 bg-opacity-90 p-6 rounded-2xl shadow-lg w-full max-w-2xl mx-auto">
+      <ErrorAlert :message="error" @clear="error = ''" />
+      
       <h3 class="text-xl font-bold mb-4">{{ isEditing ? 'Edit' : 'Create New' }} Tracker Template</h3>
 
       <!-- Template name input -->
@@ -92,6 +94,7 @@
 
 <script setup>
 import { ref, defineEmits, defineProps, watch } from 'vue';
+import ErrorAlert from '~/components/shared/ErrorAlert.vue';
 
 const props = defineProps({
   modelValue: {
@@ -122,6 +125,7 @@ const newMetric = ref({
   metric: '',
   unit: ''
 });
+const error = ref('');
 
 watch(() => props.template, (newTemplate) => {
   templateName.value = newTemplate.name;
@@ -129,14 +133,17 @@ watch(() => props.template, (newTemplate) => {
 }, { immediate: true });
 
 function addMetric() {
-  if (newMetric.value.metric && newMetric.value.unit) {
-    metrics.value.push({
-      metric: newMetric.value.metric,
-      unit: newMetric.value.unit
-    });
-    newMetric.value.metric = '';
-    newMetric.value.unit = '';
+  if (!newMetric.value.metric || !newMetric.value.unit) {
+    error.value = 'Both metric name and unit are required';
+    return;
   }
+  
+  metrics.value.push({
+    metric: newMetric.value.metric,
+    unit: newMetric.value.unit
+  });
+  newMetric.value.metric = '';
+  newMetric.value.unit = '';
 }
 
 function removeMetric(index) {
@@ -148,11 +155,19 @@ function handleClose() {
 }
 
 function handleSave() {
-  if (templateName.value.trim() && metrics.value.length > 0) {
-    emits('save', {
-      name: templateName.value,
-      metrics: metrics.value
-    });
+  if (!templateName.value.trim()) {
+    error.value = 'Template name is required';
+    return;
   }
+  
+  if (metrics.value.length === 0) {
+    error.value = 'At least one metric is required';
+    return;
+  }
+
+  emits('save', {
+    name: templateName.value,
+    metrics: metrics.value
+  });
 }
 </script>

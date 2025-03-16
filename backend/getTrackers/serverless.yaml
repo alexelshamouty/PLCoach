@@ -1,5 +1,5 @@
 
-service: trackerManagment
+service: getTrackers
 app: sweaty-duck-backend
 
 custom:
@@ -28,13 +28,13 @@ provider:
           
 
 functions:
-  trackerManagement:
+  getTrackers:
     layers: 
       - ${param:fastapiLayer}
       - ${param:mangumLayer}
       - ${param:utilsLayer}
-    handler: trackerManagement.handler
-    name: trackerManagement-${sls:stage}
+    handler: getTrackers.handler
+    name: getTrackers-${sls:stage}
     memorySize: 128
     timeout: 60
     warmup:
@@ -42,8 +42,8 @@ functions:
         enabled: true
     events:
       - http:
-          path: /createTracker
-          method: POST
+          path: /getTrackers
+          method: GET
           timeout: 60
           cors: true
           integration: lambda-proxy

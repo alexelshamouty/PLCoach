@@ -63,3 +63,37 @@ export const updateTemplate = async (templateData) => {
     };
   }
 };
+
+export const getTrackers = async () => {
+  const { api } = getStores();
+  
+  try {
+    const response = await api.authenticatedFetch(
+      `${BASE_URL}/getTrackers`,
+      {
+        method: 'GET'
+      }
+    );
+
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to fetch templates'
+      };
+    }
+
+    // Transform the data to match our frontend structure
+    const templates = data.map(item => ({
+      name: item.tableName,
+      metrics: item.metrics
+    }));
+
+    return { success: true, data: templates };
+  } catch (error) {
+    console.error('Error fetching templates:', error);
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
+  }
+};

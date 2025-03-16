@@ -1,7 +1,19 @@
 <template>
   <div class="container mx-auto p-4">
+    <ErrorAlert :message="error" @clear="error = ''" />
+    
+    <!-- Loading state -->
+    <div v-if="loading" class="text-center py-8">
+      <p>Loading templates...</p>
+    </div>
+
+    <!-- Error state -->
+    <div v-else-if="error" class="bg-red-500 bg-opacity-20 p-4 rounded-lg mb-6">
+      <p class="text-red-400">{{ error }}</p>
+    </div>
+
     <!-- Main trackers templates table -->
-    <div class="mb-6">
+    <div v-else class="mb-6">
       <h2 class="text-xl font-bold mb-4">Current Tracker Templates</h2>
       <div class="space-y-6">
         <div v-for="template in trackerTemplates" :key="template.name" class="bg-gray-800 rounded-lg p-4">
@@ -50,16 +62,41 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import TrackerDialog from '~/components/admin/TrackerDialog.vue';
-import { createTemplate, updateTemplate } from '~/composables/trackerManagement';
+import ErrorAlert from '~/components/shared/ErrorAlert.vue';
+import { createTemplate, updateTemplate, getTrackers } from '~/composables/trackerManagement';
 
 const showDialog = ref(false);
 const trackerTemplates = ref([]);
 const isEditing = ref(false);
+const loading = ref(true);
+const error = ref('');
 const selectedTemplate = ref({
   name: '',
   metrics: []
+});
+
+async function fetchTemplates() {
+  loading.value = true;
+  error.value = '';
+  
+  try {
+    const result = await getTrackers();
+    if (result.error) {
+      error.value = result.error;
+    } else {
+      trackerTemplates.value = result.data;
+    }
+  } catch (e) {
+    error.value = 'Failed to load tracker templates';
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(() => {
+  fetchTemplates();
 });
 
 function openNewDialog() {
@@ -82,32 +119,22 @@ async function handleSaveTemplate(templateData) {
 
   try {
     if (isEditing.value) {
-      // Update existing template
       apiResult = await updateTemplate(templateData);
     } else {
-      // Create new template
       apiResult = await createTemplate(templateData);
     }
 
     if (apiResult.error) {
-      // You might want to add error handling UI here
-      console.error('Failed to save template:', apiResult.error);
+      error.value = apiResult.error;
       return;
     }
 
-    // Update local state only after successful API call
-    if (isEditing.value) {
-      const index = trackerTemplates.value.findIndex(t => t.name === selectedTemplate.value.name);
-      if (index !== -1) {
-        trackerTemplates.value[index] = templateData;
-      }
-    } else {
-      trackerTemplates.value.push(templateData);
-    }
-    
+    // Refresh the templates list after successful save
+    await fetchTemplates();
     showDialog.value = false;
-  } catch (error) {
-    console.error('Error saving template:', error);
+  } catch (e) {
+    error.value = 'Failed to save template';
+    console.error('Error saving template:', e);
   }
 }
 </script>
