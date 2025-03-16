@@ -4,10 +4,10 @@
   
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-4xl">
         <!-- Add Athlete -->
-        <NuxtLink to="/admin/addAthlete" class="dashboard-card">
+        <NuxtLink to="/admin/trackerManager" class="dashboard-card">
           <div class="p-6 bg-blue-600 hover:bg-blue-500 rounded-lg shadow-md text-center">
-            <h2 class="text-xl font-semibold">Add Athlete</h2>
-            <p class="text-sm mt-2">Create a new athlete profile</p>
+            <h2 class="text-xl font-semibold">Manage Trackers</h2>
+            <p class="text-sm mt-2">Create Tracking Templats</p>
           </div>
         </NuxtLink>
     
