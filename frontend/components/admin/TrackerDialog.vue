@@ -128,7 +128,7 @@ const newMetric = ref({
 const error = ref('');
 
 watch(() => props.template, (newTemplate) => {
-  templateName.value = newTemplate.templateName;
+  templateName.value = newTemplate.templateName || newTemplate.TemplateName || '';
   metrics.value = [...(newTemplate.metrics || [])];
 }, { immediate: true });
 

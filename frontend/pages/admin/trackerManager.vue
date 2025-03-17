@@ -16,12 +16,13 @@
     <div v-else class="mb-6">
       <h2 class="text-xl font-bold mb-4">Current Tracker Templates</h2>
       <div class="space-y-6">
-        <div v-for="template in trackerTemplates" :key="template.templateName" class="bg-gray-800 rounded-lg p-4">
+        <div v-for="template in trackerTemplates" :key="template.TemplateName" class="bg-gray-800 rounded-lg p-4">
           <h3 
             @click="editTemplate(template)" 
-            class="text-lg font-semibold mb-3 cursor-pointer hover:text-blue-400 transition-colors"
+            class="text-lg font-semibold mb-3 cursor-pointer hover:text-blue-400 transition-colors flex items-center gap-2"
           >
-            {{ template.templateName }}
+            {{ template.TemplateName }}
+            <span class="text-sm text-blue-400">(click to edit)</span>
           </h3>
           <table class="w-full bg-gray-700 rounded-lg overflow-hidden">
             <thead>
@@ -110,7 +111,10 @@ function openNewDialog() {
 
 function editTemplate(template) {
   isEditing.value = true;
-  selectedTemplate.value = { ...template };
+  selectedTemplate.value = {
+    templateName: template.TemplateName,
+    metrics: template.metrics
+  };
   showDialog.value = true;
 }
 

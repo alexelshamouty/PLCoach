@@ -85,9 +85,11 @@ export const getTrackers = async () => {
       };
     }
 
+    console.log(data)
+
     // Transform the data to match our frontend structure
     const templates = data.map(item => ({
-      templateName: item.tableName,
+      TemplateName: item.TemplateName,
       metrics: item.metrics
     }));
 
