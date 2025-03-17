@@ -42,7 +42,7 @@ export const updateTemplate = async (templateData) => {
   
   try {
     const response = await api.authenticatedFetch(
-      `${UPDATE_URL}/updateTracker`,
+      `${UPDATE_URL}/updateTrackers`,
       {
         method: 'POST',
         body: JSON.stringify(templateData)

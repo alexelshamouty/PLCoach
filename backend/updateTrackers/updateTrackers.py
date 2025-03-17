@@ -27,7 +27,7 @@ app.add_middleware(
 userTable = os.environ['TABLE_NAME']
 templateTableName = os.environ['TEMPLATE_TABLE_NAME']
 
-@app.post("/updateTracker")
+@app.post("/updateTrackers")
 def create_tracker(newTracker: dict):
     templateTable = DBUtils(templateTableName)
     response = templateTable.update_template(newTracker)
