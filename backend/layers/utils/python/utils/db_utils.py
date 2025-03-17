@@ -43,21 +43,19 @@ class DBUtils:
         """
         try:
             item = {
-                "TemplateName": template["templateName"],
+                "TemplateName": template["templateName"],  
                 "metrics": template["metrics"]
             }
             logger.info(f"Saving a new template {item}")
-            template_exists, error = self.get_template_by_name(item["templateName"])
+            template_exists = self.get_template_by_name(item["TemplateName"])
             
-            if error:
-                return error
-
-            if template_exists: # If the template already exists, update it
+            if template_exists:
                 return self.responseUtils.error_response(409, f'Template with name {item["TemplateName"]} already exists')
                         
-            self.table.put_item(Item=item)  # Changed from template to item
+            self.table.put_item(Item=item)
             return None
         except Exception as e:
+            logger.error(f"Error saving template: {str(e)}")
             return self.responseUtils.error_response(500, f'Error saving template: {str(e)}')
         
     def update_template(self, template):
@@ -70,7 +68,7 @@ class DBUtils:
                 "TemplateName": template["templateName"],
                 "metrics": template["metrics"]
             }
-            self.table.put_item(Item=item)  # Changed from template to item
+            self.table.put_item(Item=item)
             return None
         except Exception as e:
             return self.responseUtils.error_response(500, f'Error updating template: {str(e)}')
@@ -91,9 +89,7 @@ class DBUtils:
     def get_template_by_name(self, template_name):
         """
         Get a template by its name
-        Returns (template, error_response)
-        If successful: returns (template, None)
-        If error: returns (None, error_response)
+        Returns template if found, None if not found
         """
         try:
             response = self.table.query(
@@ -106,4 +102,5 @@ class DBUtils:
             return response['Items'][0]
             
         except Exception as e:
-            return None, self.responseUtils.error_response(500, f'Error querying template: {str(e)}')
+            logger.error(f"Error querying template: {str(e)}")
+            return None
