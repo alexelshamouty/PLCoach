@@ -1,4 +1,3 @@
-
 service: updateTrackers
 app: sweaty-duck-backend
 
@@ -25,11 +24,10 @@ provider:
           Action:
             - dynamodb:*
           Resource: "${param:trackerTableArn}"
-          
 
 functions:
   updateTrackers:
-    layers: 
+    layers:
       - ${param:fastapiLayer}
       - ${param:mangumLayer}
       - ${param:utilsLayer}
@@ -42,9 +40,33 @@ functions:
         enabled: true
     events:
       - http:
-          path: /updateTrackers
+          path: /getTrackers
+          method: GET
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+      - http:
+          path: /createTracker
           method: POST
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+      - http:
+          path: /updateTrackers
+          method: PUT
           timeout: 60
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+      - http:
+          path: /deleteTemplate
+          method: DELETE
           cors: true
           integration: lambda-proxy
           authorizer:
@@ -54,6 +76,5 @@ functions:
       TABLE_NAME: ${param:trackerTableArn}
       TEMPLATE_TABLE_NAME: ${param:trackerTableName}
 
-  
 plugins:
   - serverless-plugin-warmup

@@ -1,8 +1,6 @@
 import { ref } from 'vue';
 import { useApi } from './useApi';
-
-const USERS_URL = 'https://c1yi9fd6kc.execute-api.eu-north-1.amazonaws.com/dev/users';
-const GET_USER_URL = 'https://6yztzyjul9.execute-api.eu-north-1.amazonaws.com/dev/getUser';
+import { API_URLS } from './config';
 
 export const useAthleteManagement = () => {
   const athletes = ref([]);
@@ -24,7 +22,7 @@ export const useAthleteManagement = () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await authenticatedFetch(USERS_URL, { method: 'GET' });
+      const response = await authenticatedFetch(API_URLS.USERS_API, { method: 'GET' });
       const data = await response.json();
 
       if (!data || !data.body || !Array.isArray(data.body)) {
@@ -46,7 +44,7 @@ export const useAthleteManagement = () => {
     try {
         console.log("Fetching athlete with id: ", userId);
       const response = await authenticatedFetch(
-        `${GET_USER_URL}?userId=${userId}`,
+        `${API_URLS.GET_USER_API}?userId=${userId}`,
         { method: 'GET' }
       );
       const data = await response.json();

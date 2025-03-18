@@ -167,7 +167,8 @@ function handleSave() {
 
   emits('save', {
     templateName: templateName.value,
-    metrics: metrics.value
+    metrics: metrics.value,
+    oldName: props.template.templateName || props.template.TemplateName // Add oldName field
   });
 }
 </script>

@@ -1,6 +1,8 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: alexelshamouty
 app: sweaty-duck-backend
+configValidationMode: warn # This is from now till the end of life my dearest friend
+
 # Serverless Framework can deploy multiple types of templates:
 #   1) Traditional Serverless Framework templates
 #   2) AWS Cloudformation Templates
@@ -18,7 +20,7 @@ stages:
       domain: "https://sweatyduckz.netlify.app/" # This is the value of the "domain" param in the dev stage
       fastapiLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:fastapim:2'
       mangumLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:mangumm:4'
-      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:19'
+      utilsLayer: 'arn:aws:lambda:eu-north-1:034362059781:layer:utils-dev:24'
       tableName: users-dev
       tableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/users-dev
       blockTableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/blocks-dev
@@ -81,9 +83,5 @@ services:
 ############################################
 # Handling Templating Logic
 ############################################
-  trackerManagement:
-    path: trackerManagement
-  getTrackers:
-    path: getTrackers
   updateTrackers:
     path: updateTrackers

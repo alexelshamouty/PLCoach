@@ -42,18 +42,22 @@ class DBUtils:
         Returns error_response if there was an error, or None if successful
         """
         try:
-            item = {
-                "TemplateName": template["templateName"],  
-                "metrics": template["metrics"]
-            }
-            logger.info(f"Saving a new template {item}")
-            template_exists = self.get_template_by_name(item["TemplateName"])
-            
-            if template_exists:
-                return self.responseUtils.error_response(409, f'Template with name {item["TemplateName"]} already exists')
-                        
-            self.table.put_item(Item=item)
-            return None
+            templateName = template.get("templateName")
+            if templateName:
+                # Fetch the existing template using TemplateName if it exists
+                existing_template = self.get_template_by_name(templateName)
+                if not existing_template:
+                    item = {
+                        "TemplateName": templateName,
+                        "metrics": template["metrics"]
+                    }
+                    self.table.put_item(Item=item)
+                    logger.info(f"Updated template {existing_template}")
+                    return None
+                else:
+                    return self.responseUtils.error_response(400, f'Template with name {templateName} already exists')
+            else:
+                return self.responseUtils.error_response(400, f'Template name is required {str(template)}')
         except Exception as e:
             logger.error(f"Error saving template: {str(e)}")
             return self.responseUtils.error_response(500, f'Error saving template: {str(e)}')
@@ -64,13 +68,21 @@ class DBUtils:
         Returns error_response if there was an error, or None if successful
         """
         try:
-            item = {
-                "TemplateName": template["templateName"],
-                "metrics": template["metrics"]
-            }
-            self.table.put_item(Item=item)
+            # Fetch the existing template using oldName
+            existing_template = self.get_template_by_name(template["oldName"])
+            if not existing_template:
+                return self.responseUtils.error_response(404, f'Template with name {template["oldName"]} not found')
+
+            # Update the existing template values
+            existing_template["TemplateName"] = template["templateName"]
+            existing_template["metrics"] = template["metrics"]
+
+            # Save the updated template
+            self.table.put_item(Item=existing_template)
+            logger.info(f"Updated template {existing_template}")
             return None
         except Exception as e:
+            logger.error(f"Error updating template: {str(e)}")
             return self.responseUtils.error_response(500, f'Error updating template: {str(e)}')
         
     def get_templates(self):
@@ -104,3 +116,26 @@ class DBUtils:
         except Exception as e:
             logger.error(f"Error querying template: {str(e)}")
             return None
+
+    def delete_template(self, template_name):
+        """
+        Delete a template from the database by its name
+        Returns error_response if there was an error, or None if successful
+        """
+        try:
+            # First check if the template exists
+            template = self.get_template_by_name(template_name)
+            if not template:
+                return self.responseUtils.error_response(404, f'Template with name {template_name} not found')
+            
+            # Delete the template
+            self.table.delete_item(
+                Key={
+                    'TemplateName': template_name
+                }
+            )
+            logger.info(f"Deleted template with name: {template_name}")
+            return None
+        except Exception as e:
+            logger.error(f"Error deleting template: {str(e)}")
+            return self.responseUtils.error_response(500, f'Error deleting template: {str(e)}')

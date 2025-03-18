@@ -1,6 +1,5 @@
 import { useApi } from './useApi';
-
-const BASE_URL = 'https://deecu3zbcl.execute-api.eu-north-1.amazonaws.com/dev/getBlockInformation';
+import { API_URLS } from './config';
 
 export const useBlockInformation = () => {
   const { authenticatedFetch } = useApi();
@@ -8,7 +7,7 @@ export const useBlockInformation = () => {
   const getAllBlocks = async (userId) => {
     try {
       const response = await authenticatedFetch(
-        `${BASE_URL}?action=getAllBlocks&userId=${userId}`,
+        `${API_URLS.BLOCK_INFO_API}?action=getAllBlocks&userId=${userId}`,
         { method: 'GET' }
       );
 
@@ -27,7 +26,7 @@ export const useBlockInformation = () => {
   const getDaysByWeek = async (userId, blockId, weekId) => {
     try {
       const response = await authenticatedFetch(
-        `${BASE_URL}?action=getDaysByWeek&userId=${userId}&blockId=${blockId}&weekId=${weekId}`,
+        `${API_URLS.BLOCK_INFO_API}?action=getDaysByWeek&userId=${userId}&blockId=${blockId}&weekId=${weekId}`,
         { method: 'GET' }
       );
 

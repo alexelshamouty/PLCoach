@@ -1,8 +1,5 @@
 import { useApi } from './useApi';
-
-const CREATE_URL = 'https://hehvg40uyl.execute-api.eu-north-1.amazonaws.com/dev';
-const GET_URL = 'https://cjmc559rhg.execute-api.eu-north-1.amazonaws.com/dev';
-const UPDATE_URL = 'https://lh6jm1r61f.execute-api.eu-north-1.amazonaws.com/dev';
+import { API_URLS } from './config';
 
 const getStores = () => ({
   api: useApi()
@@ -13,7 +10,7 @@ export const createTemplate = async (templateData) => {
   
   try {
     const response = await api.authenticatedFetch(
-      `${CREATE_URL}/createTracker`,
+      `${API_URLS.TRACKER_API}/createTracker`,
       {
         method: 'POST',
         body: JSON.stringify(templateData)
@@ -39,12 +36,14 @@ export const createTemplate = async (templateData) => {
 
 export const updateTemplate = async (templateData) => {
   const { api } = getStores();       
-  
+
+  console.log('updateTemplate data:', templateData); // Log the data being sent
+
   try {
     const response = await api.authenticatedFetch(
-      `${UPDATE_URL}/updateTrackers`,
+      `${API_URLS.TRACKER_API}/updateTrackers`,
       {
-        method: 'POST',
+        method: 'PUT',
         body: JSON.stringify(templateData)
       }
     );
@@ -71,7 +70,7 @@ export const getTrackers = async () => {
   
   try {
     const response = await api.authenticatedFetch(
-      `${GET_URL}/getTrackers`,
+      `${API_URLS.TRACKER_API}/getTrackers`,
       {
         method: 'GET'
       }
@@ -90,12 +89,42 @@ export const getTrackers = async () => {
     // Transform the data to match our frontend structure
     const templates = data.map(item => ({
       TemplateName: item.TemplateName,
-      metrics: item.metrics
+      metrics: item.metrics // Remove mapping of Timestamp
     }));
 
     return { success: true, data: templates };
   } catch (error) {
     console.error('Error fetching templates:', error);
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
+  }
+};
+
+export const deleteTemplate = async (templateName) => {
+  const { api } = getStores();
+  
+  console.log('deleteTemplate:', templateName);
+  
+  try {
+    const response = await api.authenticatedFetch(
+      `${API_URLS.TRACKER_API}/deleteTemplate?templateName=${encodeURIComponent(templateName)}`,
+      {
+        method: 'DELETE'
+      }
+    );
+
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to delete template'
+      };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error deleting template:', error);
     return {
       error: error.message || 'An unexpected error occurred'
     };

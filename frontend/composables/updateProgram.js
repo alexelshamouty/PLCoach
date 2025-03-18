@@ -1,6 +1,5 @@
 import { useApi } from './useApi';
-
-const BASE_URL = 'https://j1v6bnyoh2.execute-api.eu-north-1.amazonaws.com/dev/updateAddBlock';
+import { API_URLS } from './config';
 
 const getStores = () => ({
   api: useApi()
@@ -11,7 +10,7 @@ export const addBlock = async (userId, newBlockLabel) => {
   
   try {
     const response = await api.authenticatedFetch(
-      BASE_URL,
+      API_URLS.UPDATE_PROGRAM_API,
       {
         method: 'POST',
         body: JSON.stringify({
@@ -44,7 +43,7 @@ export const addWeek = async (userId, blockId, newWeekId) => {
   
   try {
     const response = await api.authenticatedFetch(
-      BASE_URL,
+      API_URLS.UPDATE_PROGRAM_API,
       {
         method: 'POST',
         body: JSON.stringify({
@@ -78,7 +77,7 @@ export const addDay = async (userId, blockId, weekId, newDayId) => {
   
   try {
     const response = await api.authenticatedFetch(
-      BASE_URL,
+      API_URLS.UPDATE_PROGRAM_API,
       {
         method: 'POST',
         body: JSON.stringify({
@@ -113,7 +112,7 @@ export const addExercise = async (userId, blockId, weekId, dayId, exercise) => {
   
   try {
     const response = await api.authenticatedFetch(
-      BASE_URL,
+      API_URLS.UPDATE_PROGRAM_API,
       {
         method: 'POST',
         body: JSON.stringify({
@@ -156,7 +155,7 @@ export const deleteExercise = async (userId, blockId, weekId, dayId, exerciseNam
   
   try {
     const response = await api.authenticatedFetch(
-      BASE_URL,
+      API_URLS.UPDATE_PROGRAM_API,
       {
         method: 'POST',
         body: JSON.stringify({
@@ -193,7 +192,7 @@ export const updateExercise = async (userId, blockId, weekId, dayId, exerciseNam
   
   try {
     const response = await api.authenticatedFetch(
-      BASE_URL,
+      API_URLS.UPDATE_PROGRAM_API,
       {
         method: 'POST',
         body: JSON.stringify({

@@ -27,10 +27,42 @@ app.add_middleware(
 userTable = os.environ['TABLE_NAME']
 templateTableName = os.environ['TEMPLATE_TABLE_NAME']
 
-@app.post("/updateTrackers")
+@app.put("/updateTrackers")
 def create_tracker(newTracker: dict):
     templateTable = DBUtils(templateTableName)
     response = templateTable.update_template(newTracker)
+    if response:
+        logger.error(f"Error saving template: {response}")
+        raise HTTPException(status_code=500, detail=response)
+    logger.info(f"New template is saved {newTracker}")
+    return {"It went well": "itWentWell"}
+
+@app.get("/getTrackers")
+def create_tracker():
+    templateTable = DBUtils(templateTableName)
+    response, error = templateTable.get_templates()
+    if error:
+        logger.error(f"Error getting templates: {response}")
+        raise HTTPException(status_code=500, detail=response)
+    logger.info(f"Templates are retrieved {response}")
+    return response
+
+@app.delete("/deleteTemplate")
+def delete_tracker(templateName: str):  
+    templateTable = DBUtils(templateTableName)
+    response = templateTable.delete_template(templateName)
+    
+    if response:
+        logger.error(f"Error deleting template: {response}")
+        raise HTTPException(status_code=response.get("statusCode", 500), detail=response)
+    
+    logger.info(f"Template deleted successfully: {templateName}")
+    return {"success": True, "message": f"Template '{templateName}' deleted successfully"}
+
+@app.post("/createTracker")
+def create_tracker(newTracker: dict):
+    templateTable = DBUtils(templateTableName)
+    response = templateTable.save_template(newTracker)
     if response:
         logger.error(f"Error saving template: {response}")
         raise HTTPException(status_code=500, detail=response)
