@@ -7,6 +7,22 @@
         :athlete-weight="props.weight"
       />
       
+      <!-- Add Tracker Form Component -->
+      <div class="mt-6">
+        <AddTrackerForm @add-tracker="handleAddTracker" />
+      </div>
+      
+      <!-- User Trackers Table Component -->
+      <div class="mt-6">
+        <UserTrackerTable 
+          :trackers="userTrackers" 
+          @remove-tracker="handleRemoveTracker" 
+        />
+      </div>
+      
+      <!-- Adding more vertical space between trackers table and blocks -->
+      <div class="mt-10"></div>
+      
       <div class="space-y-4">
         <div v-for="block in blocks" :key="block.id" class="bg-gray-800 rounded-lg">
           <!-- Block Header with hover effect matching parent -->
@@ -103,8 +119,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import UserDashboard from './UserDashboard.vue';  // Add this import at the top
+import { ref, computed, onMounted } from 'vue';
+import UserDashboard from './UserDashboard.vue';
+import AddTrackerForm from './AddTrackerForm.vue';
+import UserTrackerTable from './UserTrackerTable.vue';
 
 const props = defineProps({
   blocks: {
@@ -196,4 +214,34 @@ const getWeekExercises = (blockId, week) => {
 const isCurrentBlockAndWeek = (blockId, week) => {
   return blockId === props.selectedBlock && week === props.selectedWeek;
 };
+
+// Tracker management
+const userTrackers = ref([]);
+
+// Handle adding a tracker
+function handleAddTracker(tracker) {
+  // Check if tracker already added
+  const exists = userTrackers.value.some(
+    t => t.TemplateName === tracker.TemplateName
+  );
+  
+  if (!exists) {
+    userTrackers.value.push(tracker);
+    console.log('Added tracker:', tracker);
+    console.log('Current user trackers:', userTrackers.value);
+  }
+}
+
+// Handle removing a tracker
+function handleRemoveTracker(tracker) {
+  userTrackers.value = userTrackers.value.filter(
+    t => t.TemplateName !== tracker.TemplateName
+  );
+  console.log('Removed tracker:', tracker);
+  console.log('Current user trackers:', userTrackers.value);
+}
+
+onMounted(() => {
+  fetchTrackerTemplates();
+});
 </script>
