@@ -85,3 +85,10 @@ services:
 ############################################
   updateTrackers:
     path: updateTrackers
+
+
+################################################
+# Handling Activity Tracker Logic
+################################################
+  activityTracker:
+    path: activityTracker
