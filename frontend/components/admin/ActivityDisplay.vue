@@ -1,5 +1,8 @@
 <template>
   <div class="space-y-4">
+    <!-- Add LoadingOverlay component -->
+    <LoadingOverlay :show="isLoadingTrackers" message="Loading trackers..." />
+    
     <div class="bg-gray-700 p-4 rounded-lg">
       <UserDashboard
         :completed-workouts="totalBlocks"
@@ -123,6 +126,11 @@ import { ref, computed, onMounted } from 'vue';
 import UserDashboard from './UserDashboard.vue';
 import AddTrackerForm from './AddTrackerForm.vue';
 import UserTrackerTable from './UserTrackerTable.vue';
+import LoadingOverlay from '~/components/shared/LoadingOverlay.vue';
+import { getTrackers } from '~/composables/trackerManagement';
+
+// Add loading state for trackers
+const isLoadingTrackers = ref(false);
 
 const props = defineProps({
   blocks: {
@@ -241,6 +249,28 @@ function handleRemoveTracker(tracker) {
   );
   console.log('Removed tracker:', tracker);
   console.log('Current user trackers:', userTrackers.value);
+}
+
+// Define fetchTrackerTemplates function with loading state
+async function fetchTrackerTemplates() {
+  isLoadingTrackers.value = true;
+  try {
+    const result = await getTrackers();
+    
+    if (result.error) {
+      console.error('Error fetching tracker templates:', result.error);
+    } else {
+      // Process tracker templates if needed
+      console.log('Fetched tracker templates:', result.data);
+      
+      // Initialize user trackers with data if needed
+      // userTrackers.value = result.data.filter(...) or other processing
+    }
+  } catch (error) {
+    console.error('Error in fetchTrackerTemplates:', error);
+  } finally {
+    isLoadingTrackers.value = false;
+  }
 }
 
 onMounted(() => {
