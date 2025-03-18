@@ -29,14 +29,18 @@
         <input v-model.number="exercise.sets" 
                type="number" 
                placeholder="e.g. 3" 
+               :class="{'border-red-500 border': errors.sets}"
                class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
+        <span v-if="errors.sets" class="text-red-500 text-xs mt-1">{{ errors.sets }}</span>
       </div>
       <div class="flex flex-col w-full md:w-1/6">
         <label class="text-sm text-gray-300 mb-1">Reps</label>
         <input v-model.number="exercise.reps" 
                type="number" 
                placeholder="e.g. 8" 
+               :class="{'border-red-500 border': errors.reps}"
                class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
+        <span v-if="errors.reps" class="text-red-500 text-xs mt-1">{{ errors.reps }}</span>
       </div>
       <div class="flex flex-col w-full md:w-1/6">
         <label class="text-sm text-gray-300 mb-1">RPE</label>
@@ -45,7 +49,9 @@
                min="6" 
                max="10" 
                placeholder="6-10" 
+               :class="{'border-red-500 border': errors.rpe}"
                class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
+        <span v-if="errors.rpe" class="text-red-500 text-xs mt-1">{{ errors.rpe }}</span>
       </div>
       <div class="flex flex-col w-full md:w-1/6">
         <label class="text-sm text-gray-300 mb-1">Comments</label>
@@ -87,6 +93,8 @@ const errors = reactive({
   reps: '',
   rpe: ''
 });
+
+// Initialize exercise with the correct structure matching what's shown in TrainingDisplay
 const exercise = reactive({
   name: '',
   label: '',
@@ -111,14 +119,20 @@ function emitExercise(exerciseData) {
   emit('exercise-added', { ...exerciseData, dayId: props.dayId });
 }
 
+// Fix reset form to use proper initial values
 function resetForm() {
   Object.assign(exercise, {
     name: '',
     label: '',
-    sets: [],
-    reps: [],
-    rpe: [],
+    sets: null,
+    reps: null,
+    rpe: null,
     comments: ''
+  });
+  
+  // Clear any validation errors
+  Object.keys(errors).forEach(key => {
+    errors[key] = '';
   });
 }
 

@@ -43,30 +43,11 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import ErrorAlert from '~/components/shared/ErrorAlert.vue';
 
-const props = defineProps({
-  // Add a prop to receive the current days count
-  existingDaysCount: {
-    type: Number,
-    default: 0,
-    validator: (value) => !isNaN(value) // Ensure value is a valid number
-  }
-});
-
-// Initialize dayIndex based on existing days count, ensuring it's a number
-const dayIndex = ref(Number(props.existingDaysCount) || 0);
-
-// Watch for changes in existingDaysCount prop to update dayIndex
-watch(() => props.existingDaysCount, (newCount) => {
-  // Ensure newCount is a valid number
-  const count = Number(newCount) || 0;
-  dayIndex.value = Math.max(dayIndex.value, count);
-  console.log("Updated dayIndex:", dayIndex.value);
-  console.log("New count from prop:", count);
-  console.log("Existing days count:", props.existingDaysCount);
-}, { immediate: true });
+// Remove props section since it's empty
+// Remove dayIndex ref
 
 const manageOpen = ref(false);
 const newBlockLabel = ref('');
@@ -104,17 +85,8 @@ function handleAddDay() {
     return;
   }
   
-  // Create a day object with title and index
-  const dayObj = {
-    title: newDayTitle.value,
-    index: dayIndex.value
-  };
-  
-  // Emit the day object
-  emit('add-day', dayObj);
-  
-  // Increment the day index for the next day
-  dayIndex.value++;
+  // Just emit the day title as a string, not an object
+  emit('add-day', newDayTitle.value);
   
   // Reset the input field
   newDayTitle.value = '';

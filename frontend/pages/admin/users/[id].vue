@@ -49,7 +49,6 @@
           </select>
         </div>
         <UserManagement 
-          :existingDaysCount="existingDaysCount"
           @add-block="handleAddBlock" 
           @add-week="handleAddWeek"
           @add-day="handleAddDay"
@@ -182,10 +181,6 @@ watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
 
 const errorMessage = ref(null);
 
-const existingDaysCount = computed(() => {
-  return Array.isArray(filteredOptions3.value) ? filteredOptions3.value.length : 0;
-});
-
 // Replace error handling refs
 // Remove showError ref since ErrorAlert handles visibility
 async function handleAddExercise(exerciseData) {
@@ -212,13 +207,27 @@ async function handleAddExercise(exerciseData) {
       return;
     }
 
-    // Refresh days after adding exercise
-    const days = await getDaysByWeek(userId, selectedOption1.value, selectedOption2.value);
-    if (!days.error) {
-      filteredOptions3.value = Object.entries(days).map(([dayId, dayData]) => ({
-        title: dayId,
-        content: dayData.Exercises || []
-      }));
+    // Find the day in filteredOptions3 and update it directly
+    const dayIndex = filteredOptions3.value.findIndex(day => day.title === dayId);
+    if (dayIndex !== -1) {
+      // Create a deep copy of the current state to maintain reactivity
+      const updatedOptions = JSON.parse(JSON.stringify(filteredOptions3.value));
+      
+      // Add the new exercise to the appropriate day's content array
+      updatedOptions[dayIndex].content.push({
+        name: exercise.name,
+        label: exercise.label,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        rpe: exercise.rpe,
+        comments: exercise.comments
+      });
+      
+      // Update the state with the new array
+      filteredOptions3.value = updatedOptions;
+    } else {
+      console.error('Day not found in current view:', dayId);
+      errorMessage.value = 'Day not found in current view';
     }
   } catch (error) {
     console.error('Error in handleAddExercise:', error);
@@ -325,13 +334,10 @@ async function handleAddWeek(weekTitle) {
   }
 }
 
-async function handleAddDay(dayObj) {
+async function handleAddDay(title) {
   try {
-    // Extract title and index from the dayObj
-    const { title, index } = dayObj;
-    
-    // Pass both the title and index to the addDay function
-    const result = await addDay(userId, selectedOption1.value, selectedOption2.value, title, index);
+    // Simply pass the title to the addDay function without index
+    const result = await addDay(userId, selectedOption1.value, selectedOption2.value, title);
     if (result.error) {
       errorMessage.value = result.error;
       return;
@@ -340,12 +346,12 @@ async function handleAddDay(dayObj) {
     // Fetch updated days after adding new day
     const days = await getDaysByWeek(userId, selectedOption1.value, selectedOption2.value);
     if (!days.error) {
-      // Map days with appropriate index values
+      // Map days without adding index calculation for the new day
       filteredOptions3.value = Object.entries(days).map(([dayId, dayData]) => ({
         title: dayId,
         content: dayData.Exercises || [],
-        // Convert dayIndex to number or use the provided index if it's the new day
-        index: dayId === title ? index : (dayData.dayIndex ? parseInt(dayData.dayIndex, 10) : 999)
+        // Use dayIndex from data if available, otherwise default
+        index: dayData.dayIndex ? parseInt(dayData.dayIndex, 10) : 999
       }));
       
       // Sort based on index

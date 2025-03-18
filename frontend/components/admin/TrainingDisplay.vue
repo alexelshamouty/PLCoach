@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useLabelsStore } from '~/stores/labels';
 import AddTraining from './AddTraining.vue';
 
@@ -93,10 +93,22 @@ const emit = defineEmits(['delete-exercise', 'exercise-added']);
 const activeIndex = ref(null);
 const labelsStore = useLabelsStore();
 
+// Create a local reactive copy of items that we can sort
+const localItems = ref([]);
+
+// Update local items whenever props.items changes
+watch(() => props.items, (newItems) => {
+  if (newItems && newItems.length) {
+    localItems.value = [...newItems];
+  } else {
+    localItems.value = [];
+  }
+}, { immediate: true, deep: true });
+
 // Sort items based on index
 const sortedItems = computed(() => {
   // Create a copy of the items and ensure each has an index
-  const itemsWithIndices = props.items.map(item => ({
+  const itemsWithIndices = localItems.value.map(item => ({
     ...item,
     index: item.index !== undefined ? parseInt(item.index, 10) : 999
   }));
