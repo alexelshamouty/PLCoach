@@ -72,10 +72,12 @@ export const addWeek = async (userId, blockId, newWeekId) => {
   }
 };
 
-export const addDay = async (userId, blockId, weekId, newDayId) => {
+export const addDay = async (userId, blockId, weekId, newDayId, index) => {
   const { api } = getStores();
   
   try {
+    console.log("-==========")
+    console.log(userId, blockId, weekId, newDayId, index)
     const response = await api.authenticatedFetch(
       API_URLS.UPDATE_PROGRAM_API,
       {
@@ -85,7 +87,8 @@ export const addDay = async (userId, blockId, weekId, newDayId) => {
           userId,
           blockId,
           weekId,
-          newDayId
+          newDayId,
+          index
         })
       }
     );

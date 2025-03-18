@@ -49,6 +49,7 @@
           </select>
         </div>
         <UserManagement 
+          :existingDaysCount="existingDaysCount"
           @add-block="handleAddBlock" 
           @add-week="handleAddWeek"
           @add-day="handleAddDay"
@@ -158,10 +159,21 @@ watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
   if (newBlock && newWeek) {
     const response = await getDaysByWeek(userId, newBlock, newWeek);
     if (!response.error) {
-      filteredOptions3.value = Object.entries(response).map(([dayId, dayData]) => ({
+      filteredOptions3.value = Object.entries(response || {}).map(([dayId, dayData]) => ({
         title: dayId,
-        content: dayData.Exercises || []
+        content: dayData.Exercises || [],
+        // Convert dayIndex to number if it exists, otherwise use a default high value
+        index: dayData.dayIndex ? parseInt(dayData.dayIndex, 10) : 999
       }));
+      
+      // Sort based on index
+      filteredOptions3.value.sort((a, b) => a.index - b.index);
+      
+      console.log("Updated filteredOptions3 with indices:", 
+          filteredOptions3.value.map(item => ({ title: item.title, index: item.index })));
+    } else {
+      // Set to empty array if there's an error
+      filteredOptions3.value = [];
     }
   } else {
     filteredOptions3.value = [];
@@ -169,6 +181,10 @@ watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
 }, { immediate: true });
 
 const errorMessage = ref(null);
+
+const existingDaysCount = computed(() => {
+  return Array.isArray(filteredOptions3.value) ? filteredOptions3.value.length : 0;
+});
 
 // Replace error handling refs
 // Remove showError ref since ErrorAlert handles visibility
@@ -309,9 +325,13 @@ async function handleAddWeek(weekTitle) {
   }
 }
 
-async function handleAddDay(dayTitle) {
+async function handleAddDay(dayObj) {
   try {
-    const result = await addDay(userId, selectedOption1.value, selectedOption2.value, dayTitle);
+    // Extract title and index from the dayObj
+    const { title, index } = dayObj;
+    
+    // Pass both the title and index to the addDay function
+    const result = await addDay(userId, selectedOption1.value, selectedOption2.value, title, index);
     if (result.error) {
       errorMessage.value = result.error;
       return;
@@ -320,10 +340,16 @@ async function handleAddDay(dayTitle) {
     // Fetch updated days after adding new day
     const days = await getDaysByWeek(userId, selectedOption1.value, selectedOption2.value);
     if (!days.error) {
+      // Map days with appropriate index values
       filteredOptions3.value = Object.entries(days).map(([dayId, dayData]) => ({
         title: dayId,
-        content: dayData.Exercises || []
+        content: dayData.Exercises || [],
+        // Convert dayIndex to number or use the provided index if it's the new day
+        index: dayId === title ? index : (dayData.dayIndex ? parseInt(dayData.dayIndex, 10) : 999)
       }));
+      
+      // Sort based on index
+      filteredOptions3.value.sort((a, b) => a.index - b.index);
     }
   } catch (error) {
     console.error('Error in handleAddDay:', error);

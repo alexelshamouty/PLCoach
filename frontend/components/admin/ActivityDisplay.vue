@@ -192,12 +192,14 @@ const toggleWeek = async (weekKey) => {
     // Fetch days data when week is opened
     const response = await props.getDaysByWeek(props.userId, blockId, week);
     if (!response.error) {
+      // Modified to preserve original order from response
       weekData.value[weekKey] = Object.entries(response).map(
         ([dayId, dayData]) => ({
           title: dayId,
           content: dayData.Exercises || []
         })
       );
+      // No sorting applied, maintaining the order received from API
     }
   } else {
     openWeeks.value.splice(index, 1);

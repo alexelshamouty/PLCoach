@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md mt-4">
-    <div v-for="(item, index) in items" :key="index" class="border-b border-gray-600">
+    <div v-for="(item, index) in sortedItems" :key="index" class="border-b border-gray-600">
       <button @click="toggle(index)" class="w-full flex justify-between items-center p-4 focus:outline-none">
         <span class="font-semibold">{{ item.title }}</span>
         <span :class="{'rotate-180': activeIndex === index}" class="transition-transform duration-300">
@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useLabelsStore } from '~/stores/labels';
 import AddTraining from './AddTraining.vue';
 
@@ -92,6 +92,18 @@ const emit = defineEmits(['delete-exercise', 'exercise-added']);
 
 const activeIndex = ref(null);
 const labelsStore = useLabelsStore();
+
+// Sort items based on index
+const sortedItems = computed(() => {
+  // Create a copy of the items and ensure each has an index
+  const itemsWithIndices = props.items.map(item => ({
+    ...item,
+    index: item.index !== undefined ? parseInt(item.index, 10) : 999
+  }));
+  
+  // Sort by index
+  return itemsWithIndices.sort((a, b) => a.index - b.index);
+});
 
 function toggle(index) {
   activeIndex.value = activeIndex.value === index ? null : index;

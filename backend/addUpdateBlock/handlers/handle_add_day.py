@@ -41,6 +41,7 @@ def handle_add_day(data, dbUtils, responseUtils):
             ExpressionAttributeValues={
                 ':new_day': {
                     'dayId': data['newDayId'],
+                    'dayIndex': str(len(days)),
                     'Exercises': []
                 }
             }
