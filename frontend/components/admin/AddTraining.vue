@@ -26,8 +26,8 @@
       </div>
       <div class="flex flex-col w-full md:w-1/6">
         <label class="text-sm text-gray-300 mb-1">Sets</label>
-        <input v-model.number="exercise.sets" 
-               type="number" 
+        <input v-model="exercise.sets" 
+               type="text" 
                placeholder="e.g. 3" 
                :class="{'border-red-500 border': errors.sets}"
                class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
@@ -35,8 +35,8 @@
       </div>
       <div class="flex flex-col w-full md:w-1/6">
         <label class="text-sm text-gray-300 mb-1">Reps</label>
-        <input v-model.number="exercise.reps" 
-               type="number" 
+        <input v-model="exercise.reps" 
+               type="text" 
                placeholder="e.g. 8" 
                :class="{'border-red-500 border': errors.reps}"
                class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
@@ -44,10 +44,8 @@
       </div>
       <div class="flex flex-col w-full md:w-1/6">
         <label class="text-sm text-gray-300 mb-1">RPE</label>
-        <input v-model.number="exercise.rpe" 
-               type="number" 
-               min="6" 
-               max="10" 
+        <input v-model="exercise.rpe" 
+               type="text" 
                placeholder="6-10" 
                :class="{'border-red-500 border': errors.rpe}"
                class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none" />
@@ -61,8 +59,6 @@
       </div>
     </div>
     <button @click="handleSubmit" 
-            :disabled="!isValid"
-            :class="{'opacity-50 cursor-not-allowed': !isValid}"
             class="w-full mt-2 p-2 bg-green-600 rounded-lg hover:bg-green-700">
       Add Exercise
     </button>
@@ -70,7 +66,7 @@
 </template>
 
 <script setup>
-import { reactive, computed, ref } from 'vue';
+import { reactive, ref } from 'vue';
 import { useLabelsStore } from '~/stores/labels';
 import LoadingOverlay from '~/components/shared/LoadingOverlay.vue';
 
@@ -95,25 +91,17 @@ const errors = reactive({
 });
 
 // Initialize exercise with the correct structure matching what's shown in TrainingDisplay
+// Changed to use string values for sets, reps, rpe
 const exercise = reactive({
   name: '',
   label: '',
-  sets: null,
-  reps: null,
-  rpe: null,
+  sets: '',
+  reps: '',
+  rpe: '',
   comments: ''
 });
 
 const isLoading = ref(false);
-
-const isValid = computed(() => {
-  return exercise.name && 
-         exercise.label && 
-         exercise.sets > 0 && 
-         exercise.reps > 0 && 
-         exercise.rpe >= 6 && 
-         exercise.rpe <= 10;
-});
 
 function emitExercise(exerciseData) {
   emit('exercise-added', { ...exerciseData, dayId: props.dayId });
@@ -124,9 +112,9 @@ function resetForm() {
   Object.assign(exercise, {
     name: '',
     label: '',
-    sets: null,
-    reps: null,
-    rpe: null,
+    sets: '',
+    reps: '',
+    rpe: '',
     comments: ''
   });
   
@@ -140,9 +128,9 @@ function validateForm() {
   let isValid = true;
   errors.name = !exercise.name ? 'Exercise name is required' : '';
   errors.label = !exercise.label ? 'Movement type is required' : '';
-  errors.sets = !exercise.sets || exercise.sets <= 0 ? 'Sets must be greater than 0' : '';
-  errors.reps = !exercise.reps || exercise.reps <= 0 ? 'Reps must be greater than 0' : '';
-  errors.rpe = !exercise.rpe || exercise.rpe < 6 || exercise.rpe > 10 ? 'RPE must be between 6 and 10' : '';
+  errors.sets = !exercise.sets ? 'Sets is required' : '';
+  errors.reps = !exercise.reps ? 'Reps is required' : '';
+  errors.rpe = !exercise.rpe ? 'RPE is required' : '';
   
   return !Object.values(errors).some(error => error !== '');
 }
