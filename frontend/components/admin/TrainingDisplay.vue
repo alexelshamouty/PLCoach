@@ -194,12 +194,14 @@ function openVideoManager(dayId, exerciseName, exerciseLabel) {
   showVideoManager.value = true;
 }
 
-// Simplified event handlers
+// Real implementation for handling video events
 function handleVideoUploaded(data) {
-  console.log('Video uploaded:', data);
+  console.log('Video uploaded successfully:', data);
+  // You can add UI notifications or other logic here
 }
 
 function handleVideoDeleted(data) {
-  console.log('Video deleted:', data);
+  console.log('Video deleted successfully:', data);
+  // You can add UI notifications or other logic here
 }
 </script>

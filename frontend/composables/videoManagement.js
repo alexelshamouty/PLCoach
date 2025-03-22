@@ -1,17 +1,33 @@
 import { useState } from '#app';
 import { useApi } from './useApi';
+import { API_URLS } from './config';
 
 export const useVideoManagement = () => {
   const loading = useState('videoManagement.loading', () => false);
   const error = useState('videoManagement.error', () => null);
   
-  const baseUrl = '/api/videos';
+  const getStores = () => ({
+    api: useApi()
+  });
   
-
+  /**
+   * List videos uploaded by regular users (athletes)
+   */
   const listUserVideos = async (params = {}) => {
     loading.value = true;
     try {
-      return [];
+      const { api } = getStores();
+      const queryParams = new URLSearchParams({ 
+        type: 'athlete',
+        ...params
+      }).toString();
+      
+      const response = await api.authenticatedFetch(
+        `${API_URLS.VIDEO_MANAGEMENT_API}/listVideos?${queryParams}`,
+        { method: 'GET' }
+      );
+      const data = await response.json();
+      return data;
     } catch (err) {
       error.value = err.message || 'An error occurred';
       return [];
@@ -26,8 +42,18 @@ export const useVideoManagement = () => {
   const listCoachVideos = async (params = {}) => {
     loading.value = true;
     try {
-      // Return empty array for now
-      return [];
+      const { api } = getStores();
+      const queryParams = new URLSearchParams({ 
+        type: 'coach',
+        ...params
+      }).toString();
+      
+      const response = await api.authenticatedFetch(
+        `${API_URLS.VIDEO_MANAGEMENT_API}/listVideos?${queryParams}`,
+        { method: 'GET' }
+      );
+      const data = await response.json();
+      return data;
     } catch (err) {
       error.value = err.message || 'An error occurred';
       return [];
@@ -42,8 +68,17 @@ export const useVideoManagement = () => {
   const uploadUserVideo = async (formData) => {
     loading.value = true;
     try {
-      // Return mock successful response
-      return { id: 'mock-user-video-id' };
+      const { api } = getStores();
+      
+      const response = await api.authenticatedFetch(
+        `${API_URLS.VIDEO_MANAGEMENT_API}/uploadUserVideo`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+      const data = await response.json();
+      return data;
     } catch (err) {
       error.value = err.message || 'An error occurred';
       throw err;
@@ -58,8 +93,17 @@ export const useVideoManagement = () => {
   const uploadCoachVideo = async (formData) => {
     loading.value = true;
     try {
-      // Return mock successful response
-      return { id: 'mock-coach-video-id' };
+      const { api } = getStores();
+      
+      const response = await api.authenticatedFetch(
+        `${API_URLS.VIDEO_MANAGEMENT_API}/uploadCoachVideo`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+      const data = await response.json();
+      return data;
     } catch (err) {
       error.value = err.message || 'An error occurred';
       throw err;
@@ -74,8 +118,14 @@ export const useVideoManagement = () => {
   const deleteUserVideo = async (videoId) => {
     loading.value = true;
     try {
-      // Return mock successful response
-      return { success: true };
+      const { api } = getStores();
+      
+      const response = await api.authenticatedFetch(
+        `${API_URLS.VIDEO_MANAGEMENT_API}/deleteVideo/${videoId}?type=athlete`,
+        { method: 'DELETE' }
+      );
+      const data = await response.json();
+      return data;
     } catch (err) {
       error.value = err.message || 'An error occurred';
       throw err;
@@ -90,8 +140,14 @@ export const useVideoManagement = () => {
   const deleteCoachVideo = async (videoId) => {
     loading.value = true;
     try {
-      // Return mock successful response
-      return { success: true };
+      const { api } = getStores();
+      
+      const response = await api.authenticatedFetch(
+        `${API_URLS.VIDEO_MANAGEMENT_API}/deleteVideo/${videoId}?type=coach`,
+        { method: 'DELETE' }
+      );
+      const data = await response.json();
+      return data;
     } catch (err) {
       error.value = err.message || 'An error occurred';
       throw err;
@@ -106,8 +162,17 @@ export const useVideoManagement = () => {
   const updateUserVideo = async (videoId, data) => {
     loading.value = true;
     try {
-      // Return mock successful response
-      return { id: videoId, ...data };
+      const { api } = getStores();
+      
+      const response = await api.authenticatedFetch(
+        `${API_URLS.VIDEO_MANAGEMENT_API}/updateVideo/${videoId}?type=athlete`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(data)
+        }
+      );
+      const responseData = await response.json();
+      return responseData;
     } catch (err) {
       error.value = err.message || 'An error occurred';
       throw err;
@@ -122,8 +187,17 @@ export const useVideoManagement = () => {
   const updateCoachVideo = async (videoId, data) => {
     loading.value = true;
     try {
-      // Return mock successful response
-      return { id: videoId, ...data };
+      const { api } = getStores();
+      
+      const response = await api.authenticatedFetch(
+        `${API_URLS.VIDEO_MANAGEMENT_API}/updateVideo/${videoId}?type=coach`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(data)
+        }
+      );
+      const responseData = await response.json();
+      return responseData;
     } catch (err) {
       error.value = err.message || 'An error occurred';
       throw err;

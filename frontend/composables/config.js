@@ -13,5 +13,8 @@ export const API_URLS = {
   BLOCK_INFO_API: 'https://deecu3zbcl.execute-api.eu-north-1.amazonaws.com/dev/getBlockInformation',
 
   // Program Update API
-  UPDATE_PROGRAM_API: 'https://19wpsimo00.execute-api.eu-north-1.amazonaws.com/dev/updateAddBlock'
+  UPDATE_PROGRAM_API: 'https://19wpsimo00.execute-api.eu-north-1.amazonaws.com/dev/updateAddBlock',
+
+  // video Management API
+  VIDEO_MANAGEMENT_API: 'https://kajwr8l7rb.execute-api.eu-north-1.amazonaws.com/dev'
 };

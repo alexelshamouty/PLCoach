@@ -274,10 +274,24 @@ async function fetchVideos() {
   videoManagement.resetLoadingState(); 
   
   try {
-    // Simplified - return empty arrays
-    videos.value = [];
+    const params = {
+      dayId: props.dayId,
+      exerciseName: props.exerciseName,
+      block: props.block,
+      week: props.week
+    };
+    
+    // Fetch both types of videos and combine them
+    const [coachResults, athleteResults] = await Promise.all([
+      videoManagement.listCoachVideos(params),
+      videoManagement.listUserVideos(params)
+    ]);
+    
+    // Combine the results
+    videos.value = [...(coachResults || []), ...(athleteResults || [])];
   } catch (error) {
     console.error('Error fetching videos:', error);
+    // Handle error state
   } finally {
     isLoading.value = false;
   }
@@ -291,15 +305,37 @@ async function uploadVideo() {
   
   isUploading.value = true;
   try {
-    // Simplified mock response
-    const result = { id: 'mock-video-id' };
+    // Create form data for upload
+    const formData = new FormData();
+    formData.append('file', selectedFile.value);
+    formData.append('title', newVideo.value.title);
+    formData.append('description', newVideo.value.description);
+    formData.append('dayId', props.dayId);
+    formData.append('exerciseName', props.exerciseName);
+    formData.append('exerciseLabel', props.exerciseLabel);
+    formData.append('block', props.block);
+    formData.append('week', props.week);
+    formData.append('isCoach', props.coach ? 'true' : 'false');
+    
+    let result;
+    // Check the coach prop to determine which upload function to use
+    if (props.coach) {
+      // If coach is true, use uploadCoachVideo regardless of the video type
+      result = await videoManagement.uploadCoachVideo(formData);
+    } else {
+      // If coach is false, use uploadUserVideo
+      result = await videoManagement.uploadUserVideo(formData);
+    }
     
     // Reset form
     newVideo.value.title = '';
     newVideo.value.description = '';
     selectedFile.value = null;
     
-    // Emit event with simplified data
+    // Refresh video list
+    await fetchVideos();
+    
+    // Emit event with upload result and type
     emit('video-uploaded', { 
       videoId: result.id, 
       type: newVideo.value.type,
@@ -315,8 +351,8 @@ async function uploadVideo() {
 }
 
 function playVideo(video) {
-  // Simplified - just log instead of opening
-  console.log('Playing video:', video.url);
+  // Open video in modal or new window
+  window.open(video.url, '_blank');
 }
 
 async function deleteVideo(videoId, type) {
@@ -325,10 +361,17 @@ async function deleteVideo(videoId, type) {
   }
   
   try {
-    // Simplified - just remove from local state
+    // Call the appropriate delete function based on video type
+    if (type === 'coach') {
+      await videoManagement.deleteCoachVideo(videoId);
+    } else {
+      await videoManagement.deleteUserVideo(videoId);
+    }
+    
+    // Remove from local state
     videos.value = videos.value.filter(v => v.id !== videoId);
     
-    // Emit simplified event
+    // Emit event with deleted video ID and type
     emit('video-deleted', { 
       videoId, 
       type,
