@@ -55,6 +55,8 @@
         />
         <TrainingDisplay 
           :items="filteredOptions3"
+          :block="selectedOption1"
+          :week="selectedOption2"
           @delete-exercise="handleDeleteExercise"
           @exercise-added="handleAddExercise"
         />

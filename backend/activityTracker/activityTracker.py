@@ -26,6 +26,7 @@ app.add_middleware(
 
 userTable = os.environ['TABLE_NAME']
 templateTableName = os.environ['TEMPLATE_TABLE_NAME']
+responseUtils = ResponseUtils(logger)
 
 @app.put("/updateTrackers")
 def create_tracker(newTracker: dict):
@@ -38,7 +39,7 @@ def create_tracker(newTracker: dict):
     return {"It went well": "itWentWell"}
 
 @app.get("/getTrackers")
-def create_tracker():
+def get_trackers():
     templateTable = DBUtils(templateTableName)
     response, error = templateTable.get_templates()
     if error:
@@ -47,6 +48,9 @@ def create_tracker():
     logger.info(f"Templates are retrieved {response}")
     return response
 
+@app.post("/assignTracker")
+def assign_tracker(tracker: dict):
+    templateTable = DBUtils(templateTableName)
 
 def handler(event, context):
     # Handle warmup event
@@ -54,7 +58,6 @@ def handler(event, context):
         logger.info("Event received: %s", event)
         return {}
     try:
-        responseUtils = ResponseUtils(logger)
         logger.info(f"Starting ASGI handler {event}")
         asgi_handler = Mangum(app)
         response = asgi_handler(event, context)

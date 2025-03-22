@@ -32,11 +32,19 @@
                   </td>
                   <td class="py-2 px-2 md:px-4 block md:table-cell">
                     <span class="inline-block w-1/3 md:hidden font-bold">Label:</span>
-                    <button @click="handleLabelClick(exercise.label)" 
-                           :style="{ backgroundColor: getLabelColor(exercise.label) }" 
-                           class="text-black px-2 md:px-4 py-1 md:py-2 rounded-full hover:opacity-75 transition text-xs md:text-sm">
-                      {{ exercise.label }}
-                    </button>
+                    <div class="flex items-center">
+                      <button @click="handleLabelClick(exercise.label)" 
+                             :style="{ backgroundColor: getLabelColor(exercise.label) }" 
+                             class="text-black px-2 md:px-4 py-1 md:py-2 rounded-full hover:opacity-75 transition text-xs md:text-sm">
+                        {{ exercise.label }}
+                      </button>
+                      <button 
+                        @click="openVideoManager(item.title, exercise.name, exercise.label)" 
+                        class="ml-2 p-1 bg-gray-700 rounded hover:bg-gray-600" 
+                        title="Manage Videos">
+                        <Icon name="mdi:video" class="text-lg text-white" />
+                      </button>
+                    </div>
                   </td>
                   <td class="py-2 px-2 md:px-4 block md:table-cell">
                     <span class="inline-block w-1/3 md:hidden font-bold">Sets:</span>
@@ -73,6 +81,18 @@
         <AddTraining :day-id="item.title" @exercise-added="handleExerciseAdded" />
       </div>
     </div>
+    
+    <!-- Video Manager Dialog -->
+    <VideoManager 
+      v-if="showVideoManager"
+      :show="showVideoManager"
+      :block="currentBlock"
+      :week="currentWeek"
+      :day-id="selectedDayId"
+      :exercise-name="selectedExerciseName"
+      :exercise-label="selectedExerciseLabel"
+      @close="showVideoManager = false"
+    />
   </div>
 </template>
 
@@ -80,11 +100,20 @@
 import { ref, computed, watch } from 'vue';
 import { useLabelsStore } from '~/stores/labels';
 import AddTraining from './AddTraining.vue';
+import VideoManager from './VideoManager.vue';
 
 const props = defineProps({
   items: {
     type: Array,
     required: true
+  },
+  block: {
+    type: String,
+    default: ''
+  },
+  week: {
+    type: String,
+    default: ''
   }
 });
 
@@ -95,6 +124,15 @@ const labelsStore = useLabelsStore();
 
 // Create a local reactive copy of items that we can sort
 const localItems = ref([]);
+// Track the current block and week
+const currentBlock = ref('');
+const currentWeek = ref('');
+
+// Variables for VideoManager
+const showVideoManager = ref(false);
+const selectedDayId = ref('');
+const selectedExerciseName = ref('');
+const selectedExerciseLabel = ref('');
 
 // Update local items whenever props.items changes
 watch(() => props.items, (newItems) => {
@@ -104,6 +142,19 @@ watch(() => props.items, (newItems) => {
     localItems.value = [];
   }
 }, { immediate: true, deep: true });
+
+// Watch for block and week changes
+watch(() => props.block, (newBlock) => {
+  if (newBlock) {
+    currentBlock.value = newBlock;
+  }
+}, { immediate: true });
+
+watch(() => props.week, (newWeek) => {
+  if (newWeek) {
+    currentWeek.value = newWeek;
+  }
+}, { immediate: true });
 
 // Sort items based on index
 const sortedItems = computed(() => {
@@ -135,5 +186,12 @@ function handleDeleteExercise(dayIndex, exerciseIndex) {
 
 function handleExerciseAdded(exercise) {
   emit('exercise-added', exercise);
+}
+
+function openVideoManager(dayId, exerciseName, exerciseLabel) {
+  selectedDayId.value = dayId;
+  selectedExerciseName.value = exerciseName;
+  selectedExerciseLabel.value = exerciseLabel;
+  showVideoManager.value = true;
 }
 </script>

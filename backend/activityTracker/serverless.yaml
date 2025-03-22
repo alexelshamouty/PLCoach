@@ -58,6 +58,14 @@ functions:
           authorizer:
             name: cognitoAuthorizer
             arn: ${param:cognitoArn}
+      - http:
+          path: /assignTracker
+          method: POST
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
     environment:
       TABLE_NAME: ${param:tableArn}
       TEMPLATE_TABLE_NAME: ${param:trackerTableName}

@@ -14,14 +14,22 @@
       </div>
       <div class="flex flex-col w-full md:w-1/6">
         <label class="text-sm text-gray-300 mb-1">Movement Type</label>
-        <select v-model="exercise.label" 
-                :class="{'border-red-500 border': errors.label}"
-                class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none">
-          <option value="" disabled>Select Label</option>
-          <option v-for="(color, label) in labels" :key="label" :value="label">
-            {{ label }}
-          </option>
-        </select>
+        <div class="flex items-center">
+          <select v-model="exercise.label" 
+                 :class="{'border-red-500 border': errors.label}"
+                 class="w-full p-2 bg-gray-700 text-white rounded-lg outline-none">
+            <option value="" disabled>Select Label</option>
+            <option v-for="(color, label) in labels" :key="label" :value="label">
+              {{ label }}
+            </option>
+          </select>
+          <button 
+            @click="openVideoManager" 
+            class="ml-2 p-2 bg-gray-700 rounded hover:bg-gray-600" 
+            title="Manage Videos">
+            <Icon name="mdi:video" class="text-lg text-white" />
+          </button>
+        </div>
         <span v-if="errors.label" class="text-red-500 text-xs mt-1">{{ errors.label }}</span>
       </div>
       <div class="flex flex-col w-full md:w-1/6">
@@ -62,6 +70,18 @@
             class="w-full mt-2 p-2 bg-green-600 rounded-lg hover:bg-green-700">
       Add Exercise
     </button>
+    
+    <!-- Video Manager Dialog -->
+    <VideoManager 
+      v-if="showVideoManager"
+      :show="showVideoManager"
+      :block="currentBlock"
+      :week="currentWeek"
+      :day-id="dayId"
+      :exercise-name="exercise.name"
+      :exercise-label="exercise.label"
+      @close="showVideoManager = false"
+    />
   </div>
 </template>
 
@@ -69,11 +89,20 @@
 import { reactive, ref } from 'vue';
 import { useLabelsStore } from '~/stores/labels';
 import LoadingOverlay from '~/components/shared/LoadingOverlay.vue';
+import VideoManager from '~/components/admin/VideoManager.vue';
 
 const props = defineProps({
   dayId: {
     type: String,
     required: true
+  },
+  currentBlock: {
+    type: String,
+    default: 'selectionOption1'
+  },
+  currentWeek: {
+    type: String,
+    default: 'SelectionOption3'
   }
 });
 
@@ -81,6 +110,8 @@ const emit = defineEmits(['exercise-added']);
 
 const labelsStore = useLabelsStore();
 const labels = labelsStore.labels;
+
+const showVideoManager = ref(false);
 
 const errors = reactive({
   name: '',
@@ -145,5 +176,16 @@ async function handleSubmit() {
       isLoading.value = false;
     }
   }
+}
+
+function openVideoManager() {
+  if (!exercise.name || !exercise.label) {
+    // Require at least exercise name and label to be set before opening video manager
+    if (!exercise.name) errors.name = 'Exercise name is required for video management';
+    if (!exercise.label) errors.label = 'Movement type is required for video management';
+    return;
+  }
+  
+  showVideoManager.value = true;
 }
 </script>
