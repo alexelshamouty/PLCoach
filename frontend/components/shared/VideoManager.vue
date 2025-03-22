@@ -51,10 +51,16 @@
                 </div>
                 <div class="flex space-x-1 sm:space-x-2 flex-shrink-0 ml-1">
                   <button @click="playVideo(video)" class="p-1 sm:p-2 bg-blue-600 rounded hover:bg-blue-700">
-                    <Icon name="mdi:play" size="20" />
+                    <!-- Play Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
+                      <path d="M5 3.867v16.266c0 .667.733 1.067 1.333.733l13.334-8.133c.6-.333.6-1.133 0-1.467L6.333 3.134C5.733 2.8 5 3.2 5 3.867z" />
+                    </svg>
                   </button>
                   <button @click="deleteVideo(video.id, 'coach')" class="p-1 sm:p-2 bg-red-600 rounded hover:bg-red-700">
-                    <Icon name="mdi:trash-can" size="20" />
+                    <!-- Delete Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
+                      <path d="M9 3v1H4v2h16V4h-5V3H9zm-3 6v10c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V9H6z" />
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -80,10 +86,16 @@
                 </div>
                 <div class="flex space-x-1 sm:space-x-2 flex-shrink-0 ml-1">
                   <button @click="playVideo(video)" class="p-1 sm:p-2 bg-blue-600 rounded hover:bg-blue-700">
-                    <Icon name="mdi:play" size="20" />
+                    <!-- Play Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
+                      <path d="M5 3.867v16.266c0 .667.733 1.067 1.333.733l13.334-8.133c.6-.333.6-1.133 0-1.467L6.333 3.134C5.733 2.8 5 3.2 5 3.867z" />
+                    </svg>
                   </button>
                   <button @click="deleteVideo(video.id, 'athlete')" class="p-1 sm:p-2 bg-red-600 rounded hover:bg-red-700">
-                    <Icon name="mdi:trash-can" size="20" />
+                    <!-- Delete Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
+                      <path d="M9 3v1H4v2h16V4h-5V3H9zm-3 6v10c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V9H6z" />
+                    </svg>
                   </button>
                 </div>
               </div>
