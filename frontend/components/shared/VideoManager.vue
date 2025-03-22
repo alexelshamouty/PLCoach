@@ -171,6 +171,14 @@
         </button>
       </div>
     </div>
+    <VideoPlayer 
+      v-if="showVideoPlayer"
+      :show="showVideoPlayer"
+      :title="selectedVideo.title"
+      :description="selectedVideo.description"
+      :video-url="selectedVideo.url"
+      @close="showVideoPlayer = false"
+    />
   </div>
 </template>
 
@@ -179,6 +187,7 @@ import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import { useVideoManagement } from '~/composables/videoManagement';
 import { useState, useRoute } from '#app'; // Import useRoute
 import { CDN_URL } from '~/composables/config'; // Import CDN_URL
+import VideoPlayer from '~/components/shared/VideoPlayer.vue';
 
 const props = defineProps({
   show: {
@@ -230,6 +239,13 @@ const videoManagementLoading = useState('videoManagement.loading');
 const videoManagementError = useState('videoManagement.error');
 
 const route = useRoute(); // Get route object
+
+const showVideoPlayer = ref(false);
+const selectedVideo = ref({
+  title: '',
+  description: '',
+  url: ''
+});
 
 // Make sure loading is reset when the component mounts
 onMounted(() => {
@@ -341,8 +357,12 @@ async function uploadVideo() {
 }
 
 function playVideo(video) {
-  const videoUrl = `${CDN_URL}/${video.s3Key}`; // Construct the video URL
-  window.open(videoUrl, '_blank'); // Open the video URL in a new browser window
+  selectedVideo.value = {
+    title: video.title,
+    description: video.description,
+    url: `${CDN_URL}/${video.s3Key}`
+  };
+  showVideoPlayer.value = true;
 }
 
 async function deleteVideo(videoId) {
