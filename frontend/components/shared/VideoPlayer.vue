@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2">
+  <div v-if="show" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2" @click.self="$emit('close')">
     <div class="bg-gray-800 rounded-lg p-4 sm:p-6 w-full max-w-3xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto hide-scrollbar">
       <div class="flex justify-between items-center mb-4 sm:mb-6">
         <h2 class="text-lg sm:text-xl font-bold truncate pr-2">{{ title }}</h2>
