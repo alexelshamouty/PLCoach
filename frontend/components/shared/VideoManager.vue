@@ -315,10 +315,12 @@ async function fetchVideos() {
     // Fetch videos using the new getVideos method
     const fetchedVideos = await videoManagement.getVideos(params);
     console.log('Fetched videos:', fetchedVideos); // Log the results
-    videos.value = fetchedVideos;
+
+    // Handle empty response gracefully
+    videos.value = Array.isArray(fetchedVideos) ? fetchedVideos : [];
   } catch (error) {
     console.error('Error fetching videos:', error);
-    // Handle error state
+    videos.value = []; // Ensure videos is reset to an empty array on error
   } finally {
     isLoading.value = false;
   }
