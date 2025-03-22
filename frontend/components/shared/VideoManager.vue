@@ -339,9 +339,7 @@ async function uploadVideo() {
 
 function playVideo(video) {
   const videoUrl = `${CDN_URL}/${video.s3Key}`; // Construct the video URL
-  console.log('Playing video:', videoUrl);
-  // Use Nuxt component for video playback
-  $nuxt.$emit('show-video-player', { url: videoUrl });
+  window.open(videoUrl, '_blank'); // Open the video URL in a new browser window
 }
 
 async function deleteVideo(videoId) {

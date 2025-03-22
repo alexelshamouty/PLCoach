@@ -38,10 +38,13 @@
                   </button>
                 </td>
                 <td class="py-2 px-4">
-                  <button :style="{ backgroundColor: getLabelColor(exercise.label) }" 
-                          class="text-black px-4 py-2 rounded-full hover:opacity-75 transition">
-                    {{ exercise.label }}
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <button :style="{ backgroundColor: getLabelColor(exercise.label) }" 
+                            class="text-black px-4 py-2 rounded-full hover:opacity-75 transition">
+                      {{ exercise.label }}
+                    </button>
+                    <VideoUploadButton @click="openVideoManager(item.title, exercise.name, exercise.label)" />
+                  </div>
                 </td>
                 <td class="py-2 px-4 text-center">{{ exercise.sets }}</td>
                 <td class="py-2 px-4 text-center">{{ exercise.reps }}</td>
@@ -63,10 +66,13 @@
               </button>
               <div class="flex justify-between items-center">
                 <span class="text-gray-400">Label:</span>
-                <button :style="{ backgroundColor: getLabelColor(exercise.label) }" 
-                        class="text-black px-3 py-1 rounded-full hover:opacity-75 transition text-sm">
-                  {{ exercise.label }}
-                </button>
+                <div class="flex items-center gap-2">
+                  <button :style="{ backgroundColor: getLabelColor(exercise.label) }" 
+                          class="text-black px-3 py-1 rounded-full hover:opacity-75 transition text-sm">
+                    {{ exercise.label }}
+                  </button>
+                  <VideoUploadButton @click="openVideoManager(item.title, exercise.name, exercise.label)" />
+                </div>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-400">Sets:</span>
@@ -89,16 +95,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Video Manager Dialog -->
+    <VideoManager 
+      v-if="showVideoManager"
+      :show="showVideoManager"
+      :block="currentBlock"
+      :week="currentWeek"
+      :day-id="selectedDayId"
+      :exercise-name="selectedExerciseName"
+      :exercise-label="selectedExerciseLabel"
+      @close="showVideoManager = false"
+      @video-uploaded="handleVideoUploaded"
+      @video-deleted="handleVideoDeleted"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useLabelsStore } from '~/stores/labels';
+import VideoManager from '~/components/shared/VideoManager.vue';
+import VideoUploadButton from '~/components/shared/VideoUploadButton.vue';
 
 const props = defineProps({
   days: {
     type: Array,
+    required: true
+  },
+  block: {
+    type: String,
+    required: true
+  },
+  week: {
+    type: String,
     required: true
   }
 });
@@ -107,6 +137,22 @@ const emit = defineEmits(['exercise-click', 'day-finished']);
 
 const activeIndex = ref(null);
 const labelsStore = useLabelsStore();
+
+const showVideoManager = ref(false);
+const selectedDayId = ref('');
+const selectedExerciseName = ref('');
+const selectedExerciseLabel = ref('');
+const currentBlock = ref('');
+const currentWeek = ref('');
+
+// Watch for changes in block and week props
+watch(() => props.block, (newBlock) => {
+  currentBlock.value = newBlock;
+}, { immediate: true });
+
+watch(() => props.week, (newWeek) => {
+  currentWeek.value = newWeek;
+}, { immediate: true });
 
 function handleDayFinish(index, dayId) {
   emit('day-finished', { index, dayId });
@@ -118,5 +164,20 @@ function toggle(index) {
 
 function getLabelColor(label) {
   return labelsStore.getColorByLabel(label);
+}
+
+function openVideoManager(dayId, exerciseName, exerciseLabel) {
+  selectedDayId.value = dayId;
+  selectedExerciseName.value = exerciseName;
+  selectedExerciseLabel.value = exerciseLabel;
+  showVideoManager.value = true;
+}
+
+function handleVideoUploaded(data) {
+  console.log('Video uploaded successfully:', data);
+}
+
+function handleVideoDeleted(data) {
+  console.log('Video deleted successfully:', data);
 }
 </script>

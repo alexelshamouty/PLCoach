@@ -75,6 +75,8 @@
       <!-- Training -->
       <TrainingSchedule 
         :days="filteredOptions3"
+        :block="selectedOption1"
+        :week="selectedOption2"
         @exercise-click="openDialog"
         @day-finished="dayFinished"
       />
@@ -296,6 +298,17 @@ async function handleFileUpload(event) {
     event.target.value = '';
   }
 }
+
+// Watch for changes in selectedOption1 and selectedOption2
+watch([selectedOption1, selectedOption2], ([newBlock, newWeek]) => {
+  if (newBlock && newWeek) {
+    currentBlock.value = newBlock;
+    currentWeek.value = newWeek;
+  }
+}, { immediate: true });
+
+const currentBlock = ref('');
+const currentWeek = ref('');
 </script>
 
 <style scoped>
