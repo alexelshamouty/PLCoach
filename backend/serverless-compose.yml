@@ -28,7 +28,7 @@ stages:
       cognitoArn: arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC
       trackerTableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/template-dev
       trackerTableName: template-dev
-      cndBucketName: sweatyducksco-dev
+      cdnBucketName: sweatyducksco-dev
       cdnBucketArn: arn:aws:s3:::sweatyducksco-dev
   prod:
     params:

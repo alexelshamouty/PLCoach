@@ -30,7 +30,7 @@ provider:
           Action:
             - s3:*
           Resource:
-            - "${param:cdnBucketName}"
+            - "${param:cdnBucketArn}"
 
 functions:
   videoManagement:
