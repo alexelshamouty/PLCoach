@@ -16,7 +16,82 @@
           <p class="truncate"><span class="font-semibold">Week:</span> {{ week }}</p>
         </div>
       </div>
-      
+
+      <!-- Video Listing Section -->
+      <div class="mb-6"> <!-- Added margin-bottom for spacing -->
+        <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Exercise Videos</h3>
+        
+        <div v-if="isLoading || videoManagementLoading" class="text-center p-8">
+          <Icon name="mdi:loading" class="animate-spin text-3xl" />
+          <p class="mt-2">Loading videos...</p>
+        </div>
+        
+        <div v-else-if="videos.length === 0" class="text-center p-8 bg-gray-700 rounded">
+          <Icon name="mdi:video-off" size="48" class="text-gray-400 mx-auto mb-2" />
+          <p class="text-gray-300">No videos available for this exercise</p>
+        </div>
+        
+        <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Coach Videos Column -->
+          <div class="space-y-3 sm:space-y-4">
+            <h4 class="text-sm sm:text-md font-semibold pb-2 border-b border-gray-600">Coach Videos</h4>
+            <div v-if="coachVideos.length === 0" class="text-center p-3 sm:p-4 bg-gray-700 rounded">
+              <p class="text-gray-300 text-sm">No coach videos available</p>
+            </div>
+            <div v-else v-for="video in coachVideos" :key="video.id" class="bg-gray-700 rounded-lg p-2 sm:p-3">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 w-20 sm:w-32 h-16 sm:h-20 bg-gray-900 rounded overflow-hidden">
+                  <video class="w-full h-full object-cover">
+                    <source :src="video.url" type="video/mp4">
+                  </video>
+                </div>
+                <div class="ml-2 sm:ml-4 flex-grow min-w-0">
+                  <h4 class="text-white font-semibold text-sm sm:text-base truncate">{{ video.title }}</h4>
+                  <p class="text-gray-300 text-xs sm:text-sm truncate">{{ video.description }}</p>
+                </div>
+                <div class="flex space-x-1 sm:space-x-2 flex-shrink-0 ml-1">
+                  <button @click="playVideo(video)" class="p-1 sm:p-2 bg-blue-600 rounded hover:bg-blue-700">
+                    <Icon name="mdi:play" size="20" />
+                  </button>
+                  <button @click="deleteVideo(video.id, 'coach')" class="p-1 sm:p-2 bg-red-600 rounded hover:bg-red-700">
+                    <Icon name="mdi:trash-can" size="20" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Athlete Videos Column -->
+          <div class="space-y-3 sm:space-y-4 mt-4 lg:mt-0">
+            <h4 class="text-sm sm:text-md font-semibold pb-2 border-b border-gray-600">Athlete Videos</h4>
+            <div v-if="athleteVideos.length === 0" class="text-center p-3 sm:p-4 bg-gray-700 rounded">
+              <p class="text-gray-300 text-sm">No athlete videos available</p>
+            </div>
+            <div v-else v-for="video in athleteVideos" :key="video.id" class="bg-gray-700 rounded-lg p-2 sm:p-3">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 w-20 sm:w-32 h-16 sm:h-20 bg-gray-900 rounded overflow-hidden">
+                  <video class="w-full h-full object-cover">
+                    <source :src="video.url" type="video/mp4">
+                  </video>
+                </div>
+                <div class="ml-2 sm:ml-4 flex-grow min-w-0">
+                  <h4 class="text-white font-semibold text-sm sm:text-base truncate">{{ video.title }}</h4>
+                  <p class="text-gray-300 text-xs sm:text-sm truncate">{{ video.description }}</p>
+                </div>
+                <div class="flex space-x-1 sm:space-x-2 flex-shrink-0 ml-1">
+                  <button @click="playVideo(video)" class="p-1 sm:p-2 bg-blue-600 rounded hover:bg-blue-700">
+                    <Icon name="mdi:play" size="20" />
+                  </button>
+                  <button @click="deleteVideo(video.id, 'athlete')" class="p-1 sm:p-2 bg-red-600 rounded hover:bg-red-700">
+                    <Icon name="mdi:trash-can" size="20" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Video Upload Section -->
       <div class="p-3 sm:p-4 bg-gray-700 rounded mb-4 sm:mb-6">
         <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Upload New Video</h3>
@@ -99,82 +174,6 @@
           Close
         </button>
       </div>
-      
-      <!-- Video Listing Section -->
-      <div>
-        <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Exercise Videos</h3>
-        
-        <div v-if="isLoading || videoManagementLoading" class="text-center p-8">
-          <Icon name="mdi:loading" class="animate-spin text-3xl" />
-          <p class="mt-2">Loading videos...</p>
-        </div>
-        
-        <div v-else-if="videos.length === 0" class="text-center p-8 bg-gray-700 rounded">
-          <Icon name="mdi:video-off" size="48" class="text-gray-400 mx-auto mb-2" />
-          <p class="text-gray-300">No videos available for this exercise</p>
-        </div>
-        
-        <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- Coach Videos Column -->
-          <div class="space-y-3 sm:space-y-4">
-            <h4 class="text-sm sm:text-md font-semibold pb-2 border-b border-gray-600">Coach Videos</h4>
-            <div v-if="coachVideos.length === 0" class="text-center p-3 sm:p-4 bg-gray-700 rounded">
-              <p class="text-gray-300 text-sm">No coach videos available</p>
-            </div>
-            <div v-else v-for="video in coachVideos" :key="video.id" class="bg-gray-700 rounded-lg p-2 sm:p-3">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 w-20 sm:w-32 h-16 sm:h-20 bg-gray-900 rounded overflow-hidden">
-                  <video class="w-full h-full object-cover">
-                    <source :src="video.url" type="video/mp4">
-                  </video>
-                </div>
-                <div class="ml-2 sm:ml-4 flex-grow min-w-0">
-                  <h4 class="text-white font-semibold text-sm sm:text-base truncate">{{ video.title }}</h4>
-                  <p class="text-gray-300 text-xs sm:text-sm truncate">{{ video.description }}</p>
-                </div>
-                <div class="flex space-x-1 sm:space-x-2 flex-shrink-0 ml-1">
-                  <button @click="playVideo(video)" class="p-1 sm:p-2 bg-blue-600 rounded hover:bg-blue-700">
-                    <Icon name="mdi:play" size="20" />
-                  </button>
-                  <button @click="deleteVideo(video.id, 'coach')" class="p-1 sm:p-2 bg-red-600 rounded hover:bg-red-700">
-                    <Icon name="mdi:trash-can" size="20" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Athlete Videos Column -->
-          <div class="space-y-3 sm:space-y-4 mt-4 lg:mt-0">
-            <h4 class="text-sm sm:text-md font-semibold pb-2 border-b border-gray-600">Athlete Videos</h4>
-            <div v-if="athleteVideos.length === 0" class="text-center p-3 sm:p-4 bg-gray-700 rounded">
-              <p class="text-gray-300 text-sm">No athlete videos available</p>
-            </div>
-            <div v-else v-for="video in athleteVideos" :key="video.id" class="bg-gray-700 rounded-lg p-2 sm:p-3">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 w-20 sm:w-32 h-16 sm:h-20 bg-gray-900 rounded overflow-hidden">
-                  <video class="w-full h-full object-cover">
-                    <source :src="video.url" type="video/mp4">
-                  </video>
-                </div>
-                <div class="ml-2 sm:ml-4 flex-grow min-w-0">
-                  <h4 class="text-white font-semibold text-sm sm:text-base truncate">{{ video.title }}</h4>
-                  <p class="text-gray-300 text-xs sm:text-sm truncate">{{ video.description }}</p>
-                </div>
-                <div class="flex space-x-1 sm:space-x-2 flex-shrink-0 ml-1">
-                  <button @click="playVideo(video)" class="p-1 sm:p-2 bg-blue-600 rounded hover:bg-blue-700">
-                    <Icon name="mdi:play" size="20" />
-                  </button>
-                  <button @click="deleteVideo(video.id, 'athlete')" class="p-1 sm:p-2 bg-red-600 rounded hover:bg-red-700">
-                    <Icon name="mdi:trash-can" size="20" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
     </div>
   </div>
 </template>
