@@ -75,7 +75,10 @@
       :day-id="dayId"
       :exercise-name="exercise.name"
       :exercise-label="exercise.label"
+      :coach="true"
       @close="showVideoManager = false"
+      @video-uploaded="handleVideoUploaded"
+      @video-deleted="handleVideoDeleted"
     />
   </div>
 </template>
@@ -174,9 +177,18 @@ async function handleSubmit() {
   }
 }
 
+// Simplified event handlers
+function handleVideoUploaded(data) {
+  console.log('Video uploaded:', data);
+}
+
+function handleVideoDeleted(data) {
+  console.log('Video deleted:', data);
+}
+
 function openVideoManager() {
   if (!exercise.name || !exercise.label) {
-    // Require at least exercise name and label to be set before opening video manager
+    // Require at least exercise name and label
     if (!exercise.name) errors.name = 'Exercise name is required for video management';
     if (!exercise.label) errors.label = 'Movement type is required for video management';
     return;

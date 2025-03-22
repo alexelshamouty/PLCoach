@@ -75,12 +75,12 @@
         
         <button 
           @click="uploadVideo"
-          :disabled="isUploading"
+          :disabled="isUploading || videoManagementLoading"
           class="w-full p-2 bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-500"
         >
           <div class="flex items-center justify-center">
-            <Icon v-if="isUploading" name="mdi:loading" class="animate-spin mr-2" />
-            {{ isUploading ? 'Uploading...' : 'Upload Video' }}
+            <Icon v-if="isUploading || videoManagementLoading" name="mdi:loading" class="animate-spin mr-2" />
+            {{ isUploading || videoManagementLoading ? 'Uploading...' : 'Upload Video' }}
           </div>
         </button>
       </div>
@@ -100,7 +100,7 @@
       <div>
         <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Exercise Videos</h3>
         
-        <div v-if="isLoading" class="text-center p-8">
+        <div v-if="isLoading || videoManagementLoading" class="text-center p-8">
           <Icon name="mdi:loading" class="animate-spin text-3xl" />
           <p class="mt-2">Loading videos...</p>
         </div>
@@ -132,7 +132,7 @@
                   <button @click="playVideo(video)" class="p-1 sm:p-2 bg-blue-600 rounded hover:bg-blue-700">
                     <Icon name="mdi:play" size="20" />
                   </button>
-                  <button @click="deleteVideo(video.id)" class="p-1 sm:p-2 bg-red-600 rounded hover:bg-red-700">
+                  <button @click="deleteVideo(video.id, 'coach')" class="p-1 sm:p-2 bg-red-600 rounded hover:bg-red-700">
                     <Icon name="mdi:trash-can" size="20" />
                   </button>
                 </div>
@@ -161,6 +161,9 @@
                   <button @click="playVideo(video)" class="p-1 sm:p-2 bg-blue-600 rounded hover:bg-blue-700">
                     <Icon name="mdi:play" size="20" />
                   </button>
+                  <button @click="deleteVideo(video.id, 'athlete')" class="p-1 sm:p-2 bg-red-600 rounded hover:bg-red-700">
+                    <Icon name="mdi:trash-can" size="20" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -173,7 +176,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
+import { useVideoManagement } from '~/composables/videoManagement';
+import { useState } from '#app';
 
 const props = defineProps({
   show: {
@@ -199,10 +204,14 @@ const props = defineProps({
   exerciseLabel: {
     type: String,
     required: true
+  },
+  coach: {
+    type: Boolean,
+    default: false
   }
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'video-uploaded', 'video-deleted']);
 
 const videos = ref([]);
 const isLoading = ref(false);
@@ -214,15 +223,32 @@ const newVideo = ref({
   type: 'coach' // Default to coach video
 });
 
-// Watch for dialog visibility to load videos when opened
-watch(() => props.show, (newValue) => {
-  if (newValue) {
+// Initialize the video management composable with shared state
+const videoManagement = useVideoManagement();
+// Get the shared loading state
+const videoManagementLoading = useState('videoManagement.loading');
+const videoManagementError = useState('videoManagement.error');
+
+// Make sure loading is reset when the component mounts
+onMounted(() => {
+  // Reset loading state initially
+  videoManagement.resetLoadingState();
+  
+  if (props.show) {
     fetchVideos();
   }
 });
 
-onMounted(() => {
-  if (props.show) {
+// Also ensure loading state is reset when the component is unmounted
+onBeforeUnmount(() => {
+  videoManagement.resetLoadingState();
+});
+
+// Watch for dialog visibility to load videos when opened
+watch(() => props.show, (newValue) => {
+  if (newValue) {
+    // Reset loading state when dialog is opened
+    videoManagement.resetLoadingState();
     fetchVideos();
   }
 });
@@ -245,47 +271,13 @@ function handleFileChange(event) {
 
 async function fetchVideos() {
   isLoading.value = true;
+  videoManagement.resetLoadingState(); 
+  
   try {
-    // Replace with actual API call
-    // Example: const response = await fetch(`/api/videos?dayId=${props.dayId}&exerciseName=${props.exerciseName}`);
-    // videos.value = await response.json();
-    
-    // Simulated response for development
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    videos.value = [
-      // Example data - replace with actual API response structure
-      {
-        id: '1',
-        title: 'Proper Form Demo',
-        description: 'This video demonstrates the correct form for the exercise',
-        url: 'https://example.com/video1.mp4',
-        type: 'coach'
-      },
-      {
-        id: '2',
-        title: 'Common Mistakes',
-        description: 'Common mistakes to avoid during this exercise',
-        url: 'https://example.com/video2.mp4',
-        type: 'coach'
-      },
-      {
-        id: '3',
-        title: 'Athlete Progress - Week 1',
-        description: 'Athlete demonstration of exercise',
-        url: 'https://example.com/video3.mp4',
-        type: 'athlete'
-      },
-      {
-        id: '4',
-        title: 'Athlete Progress - Week 2',
-        description: 'Improved form from the athlete',
-        url: 'https://example.com/video4.mp4',
-        type: 'athlete'
-      }
-    ];
+    // Simplified - return empty arrays
+    videos.value = [];
   } catch (error) {
     console.error('Error fetching videos:', error);
-    // Handle error state
   } finally {
     isLoading.value = false;
   }
@@ -299,37 +291,21 @@ async function uploadVideo() {
   
   isUploading.value = true;
   try {
-    // Create form data for upload
-    const formData = new FormData();
-    formData.append('file', selectedFile.value);
-    formData.append('title', newVideo.value.title);
-    formData.append('description', newVideo.value.description);
-    formData.append('type', newVideo.value.type);
-    formData.append('dayId', props.dayId);
-    formData.append('exerciseName', props.exerciseName);
-    formData.append('exerciseLabel', props.exerciseLabel);
-    formData.append('block', props.block);
-    formData.append('week', props.week);
-    
-    // Replace with actual API call
-    // Example: const response = await fetch('/api/videos/upload', {
-    //   method: 'POST',
-    //   body: formData
-    // });
-    
-    // Simulated upload delay for development
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Simplified mock response
+    const result = { id: 'mock-video-id' };
     
     // Reset form
     newVideo.value.title = '';
     newVideo.value.description = '';
     selectedFile.value = null;
     
-    // Refresh video list
-    await fetchVideos();
+    // Emit event with simplified data
+    emit('video-uploaded', { 
+      videoId: result.id, 
+      type: newVideo.value.type,
+      isCoach: props.coach
+    });
     
-    // Show success notification
-    alert('Video uploaded successfully!');
   } catch (error) {
     console.error('Error uploading video:', error);
     alert('Failed to upload video. Please try again.');
@@ -339,29 +315,26 @@ async function uploadVideo() {
 }
 
 function playVideo(video) {
-  // Open video in modal or new window
-  window.open(video.url, '_blank');
+  // Simplified - just log instead of opening
+  console.log('Playing video:', video.url);
 }
 
-async function deleteVideo(videoId) {
+async function deleteVideo(videoId, type) {
   if (!confirm('Are you sure you want to delete this video?')) {
     return;
   }
   
   try {
-    // Replace with actual API call
-    // Example: await fetch(`/api/videos/${videoId}`, {
-    //   method: 'DELETE'
-    // });
-    
-    // Simulated deletion for development
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Remove from local state
+    // Simplified - just remove from local state
     videos.value = videos.value.filter(v => v.id !== videoId);
     
-    // Show success notification
-    alert('Video deleted successfully!');
+    // Emit simplified event
+    emit('video-deleted', { 
+      videoId, 
+      type,
+      isCoach: props.coach
+    });
+    
   } catch (error) {
     console.error('Error deleting video:', error);
     alert('Failed to delete video. Please try again.');

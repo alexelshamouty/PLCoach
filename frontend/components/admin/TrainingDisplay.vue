@@ -86,7 +86,10 @@
       :day-id="selectedDayId"
       :exercise-name="selectedExerciseName"
       :exercise-label="selectedExerciseLabel"
+      :coach="true"
       @close="showVideoManager = false"
+      @video-uploaded="handleVideoUploaded"
+      @video-deleted="handleVideoDeleted"
     />
   </div>
 </template>
@@ -189,5 +192,14 @@ function openVideoManager(dayId, exerciseName, exerciseLabel) {
   selectedExerciseName.value = exerciseName;
   selectedExerciseLabel.value = exerciseLabel;
   showVideoManager.value = true;
+}
+
+// Simplified event handlers
+function handleVideoUploaded(data) {
+  console.log('Video uploaded:', data);
+}
+
+function handleVideoDeleted(data) {
+  console.log('Video deleted:', data);
 }
 </script>
