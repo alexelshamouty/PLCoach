@@ -9,10 +9,12 @@
       </div>
       
       <div class="mb-4">
-        <video controls class="w-full rounded-lg bg-black">
-          <source :src="videoUrl" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+        <div class="relative w-full aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden">
+          <video controls class="absolute inset-0 w-full h-full object-cover">
+            <source :src="videoUrl" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
       </div>
 
       <div class="text-gray-300">
@@ -55,5 +57,13 @@ const emit = defineEmits(['close']);
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
+}
+
+.aspect-w-16 {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-h-9 {
+  aspect-ratio: 16 / 9;
 }
 </style>
