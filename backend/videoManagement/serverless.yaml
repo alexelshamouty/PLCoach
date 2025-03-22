@@ -1,0 +1,110 @@
+service: videoManagement
+app: sweaty-duck-backend
+
+custom:
+  warmup:
+    officeHoursWarmer:
+      enabled: true
+      events:
+        - schedule: cron(0/5 8-21 ? * MON-SUN *)
+      concurrency: 3
+      verbose: true
+      logRetentionInDays: 3
+      folderName: .warmup
+      cleanFolder: true
+      prewarm: true
+
+provider:
+  name: aws
+  runtime: python3.8
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: 
+            - "${param:trackerTableArn}"
+            - "${param:tableArn}"
+        - Effect: Allow
+          Action:
+            - s3:*
+          Resource:
+            - "${param:cdnBucketName}"
+
+functions:
+  videoManagement:
+    layers:
+      - ${param:fastapiLayer}
+      - ${param:mangumLayer}
+      - ${param:utilsLayer}
+    handler: videoManagement.handler
+    name: videoManagement-${sls:stage}
+    memorySize: 128
+    timeout: 60
+    warmup:
+      officeHoursWarmer:
+        enabled: true
+    events:
+      - http:
+          path: /getUserVideos
+          method: GET
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+      - http:
+          path: /getCoachVideos
+          method: GET
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+      - http:
+          path: /uploadUserVideo
+          method: POST
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+      - http:
+          path: /uploadCoachVideo
+          method: POST
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+      - http:
+          path: /updateUserVideo
+          method: POST
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+      - http:
+          path: /deleteCoachVideo
+          method: DELETE
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+      - http:
+          path: /deleteUserVideo
+          method: DELETE
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: cognitoAuthorizer
+            arn: ${param:cognitoArn}
+    environment:
+      TABLE_NAME: ${param:tableArn}
+      TEMPLATE_TABLE_NAME: ${param:trackerTableName}
+
+plugins:
+  - serverless-plugin-warmup

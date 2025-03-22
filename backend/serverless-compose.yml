@@ -28,6 +28,8 @@ stages:
       cognitoArn: arn:aws:cognito-idp:eu-north-1:034362059781:userpool/eu-north-1_kx8XYWEzC
       trackerTableArn: arn:aws:dynamodb:eu-north-1:034362059781:table/template-dev
       trackerTableName: template-dev
+      cndBucketName: sweatyducksco-dev
+      cdnBucketArn: arn:aws:s3:::sweatyducksco-dev
   prod:
     params:
       domain: "https://sweatyduckz.netlify.app/" # This is the value of the "domain" param in the prod stage
@@ -65,14 +67,6 @@ services:
     path: get-user
 
 ############################################
-# Handling Upload Logic
-############################################
-  cdn:
-    path: cdn
-    params:
-      cdnBucketName: sweatyducksco
-      
-############################################
 # Handling Block Logic
 ############################################
   updateAddBlock:
@@ -86,9 +80,14 @@ services:
   updateTrackers:
     path: updateTrackers
 
-
 ################################################
 # Handling Activity Tracker Logic
 ################################################
   activityTracker:
     path: activityTracker
+
+############################################
+# Handling Video Management Logic
+############################################
+  videoManagement:
+    path: videoManagement
