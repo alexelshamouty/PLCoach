@@ -1,25 +1,25 @@
 <template>
-  <div v-if="show" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-    <div class="bg-gray-800 rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">Video Manager</h2>
-        <button @click="$emit('close')" class="text-gray-400 hover:text-white">
+  <div v-if="show" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2">
+    <div class="bg-gray-800 rounded-lg p-4 sm:p-6 w-full max-w-3xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto hide-scrollbar">
+      <div class="flex justify-between items-center mb-4 sm:mb-6">
+        <h2 class="text-lg sm:text-xl font-bold truncate pr-2">Video Manager</h2>
+        <button @click="$emit('close')" class="text-gray-400 hover:text-white flex-shrink-0">
           <Icon name="mdi:close" size="24" />
         </button>
       </div>
       
       <div class="mb-4">
-        <div class="text-gray-300 mb-2">
-          <p><span class="font-semibold">Exercise:</span> {{ exerciseName }}</p>
-          <p><span class="font-semibold">Type:</span> {{ exerciseLabel }}</p>
-          <p><span class="font-semibold">Block:</span> {{ block }}</p>
-          <p><span class="font-semibold">Week:</span> {{ week }}</p>
+        <div class="text-gray-300 mb-2 text-sm sm:text-base">
+          <p class="truncate"><span class="font-semibold">Exercise:</span> {{ exerciseName }}</p>
+          <p class="truncate"><span class="font-semibold">Type:</span> {{ exerciseLabel }}</p>
+          <p class="truncate"><span class="font-semibold">Block:</span> {{ block }}</p>
+          <p class="truncate"><span class="font-semibold">Week:</span> {{ week }}</p>
         </div>
       </div>
       
       <!-- Video Upload Section -->
-      <div class="p-4 bg-gray-700 rounded mb-6">
-        <h3 class="text-lg font-semibold mb-3">Upload New Video</h3>
+      <div class="p-3 sm:p-4 bg-gray-700 rounded mb-4 sm:mb-6">
+        <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Upload New Video</h3>
         
         <div class="mb-4">
           <label class="block text-sm text-gray-300 mb-1">Video Title</label>
@@ -38,6 +38,17 @@
             rows="3"
             class="w-full p-2 bg-gray-600 text-white rounded outline-none resize-none"
           ></textarea>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm text-gray-300 mb-1">Video Type</label>
+          <select 
+            v-model="newVideo.type" 
+            class="w-full p-2 bg-gray-600 text-white rounded outline-none"
+          >
+            <option value="coach">Coach Video</option>
+            <option value="athlete">Athlete Video</option>
+          </select>
         </div>
         
         <div class="mb-4">
@@ -75,10 +86,10 @@
       </div>
       
       <!-- Close button above video listing -->
-      <div class="mb-6 flex justify-end">
+      <div class="mb-4 sm:mb-6 flex justify-end">
         <button 
           @click="$emit('close')" 
-          class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center"
+          class="px-3 py-1 sm:px-4 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center text-sm sm:text-base"
         >
           <Icon name="mdi:close" class="mr-2" />
           Close
@@ -87,7 +98,7 @@
       
       <!-- Video Listing Section -->
       <div>
-        <h3 class="text-lg font-semibold mb-3">Exercise Videos</h3>
+        <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Exercise Videos</h3>
         
         <div v-if="isLoading" class="text-center p-8">
           <Icon name="mdi:loading" class="animate-spin text-3xl" />
@@ -99,25 +110,58 @@
           <p class="text-gray-300">No videos available for this exercise</p>
         </div>
         
-        <div v-else class="space-y-4">
-          <div v-for="video in videos" :key="video.id" class="bg-gray-700 rounded-lg p-3">
-            <div class="flex items-center">
-              <div class="flex-shrink-0 w-32 h-20 bg-gray-900 rounded overflow-hidden">
-                <video class="w-full h-full object-cover">
-                  <source :src="video.url" type="video/mp4">
-                </video>
+        <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Coach Videos Column -->
+          <div class="space-y-3 sm:space-y-4">
+            <h4 class="text-sm sm:text-md font-semibold pb-2 border-b border-gray-600">Coach Videos</h4>
+            <div v-if="coachVideos.length === 0" class="text-center p-3 sm:p-4 bg-gray-700 rounded">
+              <p class="text-gray-300 text-sm">No coach videos available</p>
+            </div>
+            <div v-else v-for="video in coachVideos" :key="video.id" class="bg-gray-700 rounded-lg p-2 sm:p-3">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 w-20 sm:w-32 h-16 sm:h-20 bg-gray-900 rounded overflow-hidden">
+                  <video class="w-full h-full object-cover">
+                    <source :src="video.url" type="video/mp4">
+                  </video>
+                </div>
+                <div class="ml-2 sm:ml-4 flex-grow min-w-0">
+                  <h4 class="text-white font-semibold text-sm sm:text-base truncate">{{ video.title }}</h4>
+                  <p class="text-gray-300 text-xs sm:text-sm truncate">{{ video.description }}</p>
+                </div>
+                <div class="flex space-x-1 sm:space-x-2 flex-shrink-0 ml-1">
+                  <button @click="playVideo(video)" class="p-1 sm:p-2 bg-blue-600 rounded hover:bg-blue-700">
+                    <Icon name="mdi:play" size="20" />
+                  </button>
+                  <button @click="deleteVideo(video.id)" class="p-1 sm:p-2 bg-red-600 rounded hover:bg-red-700">
+                    <Icon name="mdi:trash-can" size="20" />
+                  </button>
+                </div>
               </div>
-              <div class="ml-4 flex-grow">
-                <h4 class="text-white font-semibold">{{ video.title }}</h4>
-                <p class="text-gray-300 text-sm truncate">{{ video.description }}</p>
-              </div>
-              <div class="flex space-x-2">
-                <button @click="playVideo(video)" class="p-2 bg-blue-600 rounded hover:bg-blue-700">
-                  <Icon name="mdi:play" />
-                </button>
-                <button @click="deleteVideo(video.id)" class="p-2 bg-red-600 rounded hover:bg-red-700">
-                  <Icon name="mdi:trash-can" />
-                </button>
+            </div>
+          </div>
+          
+          <!-- Athlete Videos Column -->
+          <div class="space-y-3 sm:space-y-4 mt-4 lg:mt-0">
+            <h4 class="text-sm sm:text-md font-semibold pb-2 border-b border-gray-600">Athlete Videos</h4>
+            <div v-if="athleteVideos.length === 0" class="text-center p-3 sm:p-4 bg-gray-700 rounded">
+              <p class="text-gray-300 text-sm">No athlete videos available</p>
+            </div>
+            <div v-else v-for="video in athleteVideos" :key="video.id" class="bg-gray-700 rounded-lg p-2 sm:p-3">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 w-20 sm:w-32 h-16 sm:h-20 bg-gray-900 rounded overflow-hidden">
+                  <video class="w-full h-full object-cover">
+                    <source :src="video.url" type="video/mp4">
+                  </video>
+                </div>
+                <div class="ml-2 sm:ml-4 flex-grow min-w-0">
+                  <h4 class="text-white font-semibold text-sm sm:text-base truncate">{{ video.title }}</h4>
+                  <p class="text-gray-300 text-xs sm:text-sm truncate">{{ video.description }}</p>
+                </div>
+                <div class="flex space-x-1 sm:space-x-2 flex-shrink-0 ml-1">
+                  <button @click="playVideo(video)" class="p-1 sm:p-2 bg-blue-600 rounded hover:bg-blue-700">
+                    <Icon name="mdi:play" size="20" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -166,7 +210,8 @@ const isUploading = ref(false);
 const selectedFile = ref(null);
 const newVideo = ref({
   title: '',
-  description: ''
+  description: '',
+  type: 'coach' // Default to coach video
 });
 
 // Watch for dialog visibility to load videos when opened
@@ -180,6 +225,15 @@ onMounted(() => {
   if (props.show) {
     fetchVideos();
   }
+});
+
+// Computed properties to filter videos by type
+const coachVideos = computed(() => {
+  return videos.value.filter(video => video.type === 'coach');
+});
+
+const athleteVideos = computed(() => {
+  return videos.value.filter(video => video.type === 'athlete');
 });
 
 function handleFileChange(event) {
@@ -204,13 +258,29 @@ async function fetchVideos() {
         id: '1',
         title: 'Proper Form Demo',
         description: 'This video demonstrates the correct form for the exercise',
-        url: 'https://example.com/video1.mp4'
+        url: 'https://example.com/video1.mp4',
+        type: 'coach'
       },
       {
         id: '2',
         title: 'Common Mistakes',
         description: 'Common mistakes to avoid during this exercise',
-        url: 'https://example.com/video2.mp4'
+        url: 'https://example.com/video2.mp4',
+        type: 'coach'
+      },
+      {
+        id: '3',
+        title: 'Athlete Progress - Week 1',
+        description: 'Athlete demonstration of exercise',
+        url: 'https://example.com/video3.mp4',
+        type: 'athlete'
+      },
+      {
+        id: '4',
+        title: 'Athlete Progress - Week 2',
+        description: 'Improved form from the athlete',
+        url: 'https://example.com/video4.mp4',
+        type: 'athlete'
       }
     ];
   } catch (error) {
@@ -234,6 +304,7 @@ async function uploadVideo() {
     formData.append('file', selectedFile.value);
     formData.append('title', newVideo.value.title);
     formData.append('description', newVideo.value.description);
+    formData.append('type', newVideo.value.type);
     formData.append('dayId', props.dayId);
     formData.append('exerciseName', props.exerciseName);
     formData.append('exerciseLabel', props.exerciseLabel);
@@ -297,3 +368,13 @@ async function deleteVideo(videoId) {
   }
 }
 </script>
+
+<style scoped>
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+</style>
