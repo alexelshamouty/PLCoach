@@ -23,12 +23,7 @@
               {{ label }}
             </option>
           </select>
-          <button 
-            @click="openVideoManager" 
-            class="ml-2 p-2 bg-gray-700 rounded hover:bg-gray-600" 
-            title="Manage Videos">
-            <Icon name="mdi:video" class="text-lg text-white" />
-          </button>
+          <VideoUploadButton @click="openVideoManager" />
         </div>
         <span v-if="errors.label" class="text-red-500 text-xs mt-1">{{ errors.label }}</span>
       </div>
@@ -89,7 +84,8 @@
 import { reactive, ref } from 'vue';
 import { useLabelsStore } from '~/stores/labels';
 import LoadingOverlay from '~/components/shared/LoadingOverlay.vue';
-import VideoManager from '~/components/admin/VideoManager.vue';
+import VideoManager from '~/components/shared/VideoManager.vue';
+import VideoUploadButton from '~/components/shared/VideoUploadButton.vue';
 
 const props = defineProps({
   dayId: {

@@ -38,12 +38,7 @@
                              class="text-black px-2 md:px-4 py-1 md:py-2 rounded-full hover:opacity-75 transition text-xs md:text-sm">
                         {{ exercise.label }}
                       </button>
-                      <button 
-                        @click="openVideoManager(item.title, exercise.name, exercise.label)" 
-                        class="ml-2 p-1 bg-gray-700 rounded hover:bg-gray-600" 
-                        title="Manage Videos">
-                        <Icon name="mdi:video" class="text-lg text-white" />
-                      </button>
+                      <VideoUploadButton @click="openVideoManager(item.title, exercise.name, exercise.label)" />
                     </div>
                   </td>
                   <td class="py-2 px-2 md:px-4 block md:table-cell">
@@ -100,7 +95,8 @@
 import { ref, computed, watch } from 'vue';
 import { useLabelsStore } from '~/stores/labels';
 import AddTraining from './AddTraining.vue';
-import VideoManager from './VideoManager.vue';
+import VideoManager from '~/components/shared/VideoManager.vue';
+import VideoUploadButton from '~/components/shared/VideoUploadButton.vue';
 
 const props = defineProps({
   items: {
