@@ -40,7 +40,7 @@
           ></textarea>
         </div>
         
-        <div class="mb-4">
+        <div v-if="isAdmin" class="mb-4">
           <label class="block text-sm text-gray-300 mb-1">Video Type</label>
           <select 
             v-model="newVideo.type" 
@@ -49,6 +49,10 @@
             <option value="coach">Coach Video</option>
             <option value="athlete">Athlete Video</option>
           </select>
+        </div>
+        
+        <div v-else class="hidden">
+          <input type="hidden" v-model="newVideo.type" value="athlete" />
         </div>
         
         <div class="mb-4">
@@ -205,6 +209,10 @@ const props = defineProps({
   exerciseLabel: {
     type: String,
     required: true
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -217,7 +225,7 @@ const selectedFile = ref(null);
 const newVideo = ref({
   title: '',
   description: '',
-  type: 'coach' // Default to coach video
+  type: props.isAdmin ? 'coach' : 'athlete' // Default to "coach" for admin, "athlete" otherwise
 });
 
 // Initialize the video management composable with shared state
