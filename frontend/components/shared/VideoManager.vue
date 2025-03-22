@@ -126,10 +126,6 @@
           </select>
         </div>
         
-        <div v-else class="hidden">
-          <input type="hidden" v-model="newVideo.type" value="athlete" />
-        </div>
-        
         <div class="mb-4">
           <label class="block text-sm text-gray-300 mb-1">Video File</label>
           <div class="relative border-2 border-dashed border-gray-500 rounded-lg p-6 text-center">
