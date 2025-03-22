@@ -24,13 +24,13 @@ provider:
           Action:
             - dynamodb:*
           Resource: 
-            - "${param:trackerTableArn}"
+            - "${param:blockTableArn}"
             - "${param:tableArn}"
         - Effect: Allow
           Action:
             - s3:*
           Resource:
-            - "${param:cdnBucketArn}"
+            - "${param:cdnBucketArn}/*"
 
 functions:
   videoManagement:
@@ -47,7 +47,7 @@ functions:
         enabled: true
     events:
       - http:
-          path: /getUserVideos
+          path: /getVideos
           method: GET
           cors: true
           integration: lambda-proxy
@@ -55,15 +55,7 @@ functions:
             name: cognitoAuthorizer
             arn: ${param:cognitoArn}
       - http:
-          path: /getCoachVideos
-          method: GET
-          cors: true
-          integration: lambda-proxy
-          authorizer:
-            name: cognitoAuthorizer
-            arn: ${param:cognitoArn}
-      - http:
-          path: /uploadUserVideo
+          path: /uploadVideo
           method: POST
           cors: true
           integration: lambda-proxy
@@ -71,7 +63,7 @@ functions:
             name: cognitoAuthorizer
             arn: ${param:cognitoArn}
       - http:
-          path: /uploadCoachVideo
+          path: /updateVideo
           method: POST
           cors: true
           integration: lambda-proxy
@@ -79,7 +71,7 @@ functions:
             name: cognitoAuthorizer
             arn: ${param:cognitoArn}
       - http:
-          path: /updateUserVideo
+          path: /finalizeUpload
           method: POST
           cors: true
           integration: lambda-proxy
@@ -87,15 +79,7 @@ functions:
             name: cognitoAuthorizer
             arn: ${param:cognitoArn}
       - http:
-          path: /deleteCoachVideo
-          method: DELETE
-          cors: true
-          integration: lambda-proxy
-          authorizer:
-            name: cognitoAuthorizer
-            arn: ${param:cognitoArn}
-      - http:
-          path: /deleteUserVideo
+          path: /deleteVideo
           method: DELETE
           cors: true
           integration: lambda-proxy
@@ -104,7 +88,8 @@ functions:
             arn: ${param:cognitoArn}
     environment:
       TABLE_NAME: ${param:tableArn}
-      TEMPLATE_TABLE_NAME: ${param:trackerTableName}
+      BLOCK_TABLE_NAME: ${param:blockTableName}
+      BUCKET_NAME: ${param:cdnBucketName}
 
 plugins:
   - serverless-plugin-warmup

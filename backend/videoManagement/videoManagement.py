@@ -22,6 +22,7 @@ from handlers import (
     update_user_video_handler,
     delete_coach_video_handler,
     delete_user_video_handler,
+    finalize_upload_handler
 )
 
 from generate_pre_signed_post_handler import generate_pre_signed_post_handler
@@ -30,6 +31,7 @@ import os
 import logging
 
 import boto3 
+from botocore.config import Config
 
 # Initialize logger
 logger = logging.getLogger()
@@ -45,29 +47,69 @@ app.add_middleware(
 )
 
 USER_TABLE = os.environ.get("VIDEO_TABLE","videoTable")
-BUCKET_NAME = os.environ.get("VIDEO_BUCKET","sweatyducksco")
+BLOCK_TABLE = os.environ.get("BLOCK_TABLE","blocks-dev")
+BUCKET_NAME = os.environ.get("VIDEO_BUCKET","sweatyducksco-dev")
 videoTable = DBUtils(USER_TABLE)
 
 
 # GET endpoints
-@app.get("/getUserVideos")
-async def get_user_videos(userID: str):
+@app.get("/getVideos")
+async def get_user_videos(userID: str, blockName: str, week: str, dayId: str, exerciseName: str):
     """
     Get videos uploaded by the user
     """
-    return get_user_videos_handler(videoTable, userID)
+    logger.info("Fetching videos for user %s", userID)
+    blockTable = DBUtils(BLOCK_TABLE)
+    # Fetch the block
+    block, error = blockTable.get_block_by_name(userID, blockName)
+    if error:
+        logger.error("Error retrieving block: %s", error)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Block not found",
+    )
+
+    week_data = block.get("Block", {}).get("Weeks", {}).get(week)
+    if not week_data:
+        logger.error("Week %s not found in block %s", week, block)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Week not found",
+        )
+
+    # Access the day
+    day_data = week_data.get("Days", {}).get(dayId)
+    if not day_data:
+        logger.error("Day %s not found in week %s", dayId, week)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Day not found",
+        )
+    
+    exercises = day_data.get("Exercises", [])
+
+    excersise = next((ex for ex in exercises if ex.get("name") == exerciseName), None)
+
+    if not excersise:
+        logger.error("Exercise %s not found in day %s", exerciseName, dayId)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Exercise not found",
+        )
+    
+    videos = excersise.get("Videos", [])
+    if not videos:
+        logger.error("No videos found for exercise %s", exerciseName)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No videos found",
+        )
+    logger.info(f"Videos found for user {videos}")
+    return videos
 
 
-@app.get("/getCoachVideos")
-async def get_coach_videos(userID: str):
-    """
-    Get videos uploaded by coaches
-    """
-    return get_coach_videos_handler(videoTable, userID)
-
-
-@app.post("/uploadUserVideo")
-async def generate_pre_signed_post(userID: str, filename: str, exercise_path: str, comment: str):
+@app.post("/uploadVideo")
+async def generate_pre_signed_post(userID: str, filename: str, title:str, exercise_path: str, contentType:str, comment: str):
     """
     Generate a pre-signed POST URL for uploading a video directly to S3
     
@@ -76,81 +118,44 @@ async def generate_pre_signed_post(userID: str, filename: str, exercise_path: st
     - filename: Name of the file to be uploaded
     - expiration: URL expiration time in seconds (default: 1 hour)
     """
-    session = boto3.session.Session(profile_name='wetbox')
-    s3_client = session.client('s3')
-    return generate_pre_signed_post_handler(s3_client, BUCKET_NAME, videoTable, userID, filename, exercise_path, comment)
+    #TODO We need somethng here to route between admin and non admin..
+    logger.info("Generating pre-signed URL for user %s", userID)
+    #This is so annoying...
+    session = boto3.session.Session()
+    s3_client = session.client('s3',config=Config(signature_version='s3v4'))
+    return generate_pre_signed_post_handler(s3_client, BUCKET_NAME, videoTable, userID, filename, exercise_path, title, contentType, comment)
 
-@app.post("/uploadCoachVideo")
-async def generate_pre_signed_post_coach(userID: str, filename: str, exercise_path: str, comment: str):
-    """
-    Generate a pre-signed POST URL for uploading a coach video directly to S3
-    
-    Parameters:
-    - userID: The ID of the user requesting upload access
-    - filename: Name of the file to be uploaded
-    - expiration: URL expiration time in seconds (default: 1 hour)
-    """
-    session = boto3.session.Session(profile_name='wetbox')
-    s3_client = session.client('s3')
-    return generate_pre_signed_post_handler(s3_client, BUCKET_NAME, videoTable, userID, filename, exercise_path, coach=True)
-
-# PUT endpoint
-@app.put("/uploadVideo")
-async def upload_video(
-    file: UploadFile = File(...),
-    title: str = None,
-    description: Optional[str] = None,
-    type: str = None,
-    dayId: str = None,
-    exerciseName: str = None,
-    exerciseLabel: str = None,
-    block: str = None,
-    week: str = None
+@app.post("/finalizeUpload")
+def finalize_upload(
+    s3Key: str,
+    title: str,
+    filetype: str,
+    description: str,
+    dayId: str,
+    exerciseName: str,
+    exerciseLabel: str,
+    block: str,
+    week: str,
+    userID: str,
+    # Optional parameters
+    type: Optional[str] = "athlete",
 ):
     """
-    Upload a new video (coach or athlete)
+    Finalize the upload process by extracting metadata and updating the block table.
     """
-    return upload_video_handler(
-        videoTable,
-        file,
-        title,
-        description,
-        type,
-        dayId,
-        exerciseName,
-        exerciseLabel,
-        block,
-        week
+    return finalize_upload_handler(
+        s3Key, title, filetype, description, dayId, exerciseName, exerciseLabel, block, week, userID, type
     )
 
-
-# POST endpoints
-@app.post("/updateCoachVideo")
-async def update_coach_video(videoID: str):
+@app.post("/updateVideo")
+async def update_video():
     """
-    Update an existing coach video
+    Update a video by ID
     """
-    return update_coach_video_handler(videoTable, videoID)
+    return {}
 
 
-@app.post("/updateUserVideo")
-async def update_user_video(videoID: str, userID: str):
-    """
-    Update an existing user video
-    """
-    return update_user_video_handler(videoTable, videoID, userID)
-
-
-# DELETE endpoints
-@app.delete("/deleteCoachVideo")
-async def delete_coach_video(video_id: str):
-    """
-    Delete a coach video by ID
-    """
-    return delete_coach_video_handler(videoTable, video_id)
-
-
-@app.delete("/deleteUserVideo")
+@app.delete("/deleteVideo")
 async def delete_user_video(video_id: str, userID: str):
     """
     Delete a user video by ID

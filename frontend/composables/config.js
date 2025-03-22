@@ -18,3 +18,6 @@ export const API_URLS = {
   // video Management API
   VIDEO_MANAGEMENT_API: 'https://kajwr8l7rb.execute-api.eu-north-1.amazonaws.com/dev'
 };
+
+// CDN Base URL
+export const CDN_URL = 'https://d2cu7vju76n2na.cloudfront.net'; // Replace with your actual CDN URL

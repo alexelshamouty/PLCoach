@@ -75,7 +75,6 @@
       :day-id="dayId"
       :exercise-name="exercise.name"
       :exercise-label="exercise.label"
-      :coach="true"
       @close="showVideoManager = false"
       @video-uploaded="handleVideoUploaded"
       @video-deleted="handleVideoDeleted"

@@ -6,24 +6,27 @@ export const useVideoManagement = () => {
   const loading = useState('videoManagement.loading', () => false);
   const error = useState('videoManagement.error', () => null);
   
-  const getStores = () => ({
+  const getAPI = () => ({
     api: useApi()
   });
   
   /**
-   * List videos uploaded by regular users (athletes)
+   * Fetch videos for a specific exercise
    */
-  const listUserVideos = async (params = {}) => {
+  const getVideos = async ({ userID, blockName, week, dayId, exerciseName }) => {
     loading.value = true;
     try {
-      const { api } = getStores();
-      const queryParams = new URLSearchParams({ 
-        type: 'athlete',
-        ...params
+      const { api } = getAPI();
+      const queryParams = new URLSearchParams({
+        userID,
+        blockName,
+        week,
+        dayId,
+        exerciseName
       }).toString();
-      
+  
       const response = await api.authenticatedFetch(
-        `${API_URLS.VIDEO_MANAGEMENT_API}/listVideos?${queryParams}`,
+        `${API_URLS.VIDEO_MANAGEMENT_API}/getVideos?${queryParams}`,
         { method: 'GET' }
       );
       const data = await response.json();
@@ -37,48 +40,143 @@ export const useVideoManagement = () => {
   };
   
   /**
-   * List videos uploaded by coaches
+   * Helper function to sanitize a filename
    */
-  const listCoachVideos = async (params = {}) => {
+  const sanitizeFilename = (filename) => {
+    // Remove special characters and spaces
+    return filename
+      .replace(/[^\w\s.-]/g, '')
+      .replace(/\s+/g, '_')
+      .toLowerCase();
+  };
+
+  /**
+   * Helper function to handle pre-signed URL upload process
+   * This combines the common logic for handling the presigned URL upload
+   */
+  const handlePresignedUpload = async (formData, presignedData, videoType) => {
+    const { api } = getAPI();
+    
+    // Extract data from the form
+    const file = formData.get('file');
+    const type = formData.get('type');
+    const title = formData.get('title');
+    const description = formData.get('description');
+    const dayId = formData.get('dayId');
+    const exerciseName = formData.get('exerciseName');
+    const exerciseLabel = formData.get('exerciseLabel');
+    const block = formData.get('block');
+    const week = formData.get('week');
+    
+    // Parse the body from the response
+    const { url, fields, s3Key } = presignedData;
+    
+    // Prepare form data for S3 upload
+    const s3FormData = new FormData();
+    
+    // Add all the fields from the pre-signed URL (ensure fields is valid)
+    if (fields && typeof fields === 'object') {
+      Object.entries(fields).forEach(([key, value]) => {
+        s3FormData.append(key, value);
+      });
+    }
+    
+    // Add the file content last
+    s3FormData.append('file', file);
+    // Log the contents of s3FormData
+    for (const [key, value] of s3FormData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    
+    // Upload directly to S3 using the pre-signed URL
+    const uploadResponse = await fetch(url, {
+      method: 'POST',
+      body: s3FormData
+    });
+    
+    if (!uploadResponse.ok) {
+      throw new Error(`Upload failed: ${await uploadResponse.text()}`);
+    }
+    
+    // After successful upload to S3, notify our backend
+    const queryParams = new URLSearchParams({
+      userID: formData.get('userId'),
+      s3Key: s3Key,
+      title: title,
+      filetype: file.type,
+      description: description,
+      dayId: dayId,
+      exerciseName: exerciseName,
+      exerciseLabel: exerciseLabel,
+      block: block,
+      week: week,
+      type: type,
+    }).toString();
+    
+    const finalizeResponse = await api.authenticatedFetch(
+      `${API_URLS.VIDEO_MANAGEMENT_API}/finalizeUpload?${queryParams}`,
+      {
+        method: 'POST'
+      }
+    );
+    
+    if (!finalizeResponse.ok) {
+      throw new Error(`Finalize upload failed: ${await finalizeResponse.text()}`);
+    }
+    
+    return await finalizeResponse.json();
+  };
+
+  /**
+   * Upload a new video
+   */
+  const uploadVideo = async (formData) => {
     loading.value = true;
     try {
-      const { api } = getStores();
-      const queryParams = new URLSearchParams({ 
-        type: 'coach',
-        ...params
+      const { api } = getAPI();
+      
+      // Extract data for generating the presigned URL
+      const title = formData.get('title');
+      const type = formData.get('type');
+      const filename = formData.get('filename');
+      const description = formData.get('description');
+      const block = formData.get('block');
+      const week = formData.get('week');
+      const dayId = formData.get('dayId');
+      const exerciseName = formData.get('exerciseName');
+      const exerciseLabel = formData.get('exerciseLabel');
+      const userId = formData.get('userId'); // Extract userId from formData
+      const file = formData.get('file');
+      const contentType = file.type;
+      
+      // Create the exercise path
+      const exercise_path = `${block}#${week}#${dayId}#${exerciseName}#${exerciseLabel}`;
+      
+      // Sanitize filename
+      const sanitizedFilename = sanitizeFilename(filename);
+      
+      // Construct query parameters
+      const queryParams = new URLSearchParams({
+        userID: userId,
+        filename: sanitizedFilename,
+        title: title,
+        exercise_path: exercise_path,
+        comment: description,
+        contentType: contentType,
+        type: type,
       }).toString();
       
-      const response = await api.authenticatedFetch(
-        `${API_URLS.VIDEO_MANAGEMENT_API}/listVideos?${queryParams}`,
-        { method: 'GET' }
-      );
-      const data = await response.json();
-      return data;
-    } catch (err) {
-      error.value = err.message || 'An error occurred';
-      return [];
-    } finally {
-      loading.value = false;
-    }
-  };
-  
-  /**
-   * Upload a new user/athlete video
-   */
-  const uploadUserVideo = async (formData) => {
-    loading.value = true;
-    try {
-      const { api } = getStores();
-      
-      const response = await api.authenticatedFetch(
-        `${API_URLS.VIDEO_MANAGEMENT_API}/uploadUserVideo`,
+      // Call the API endpoint with query parameters
+      const presignedUrlResponse = await api.authenticatedFetch(
+        `${API_URLS.VIDEO_MANAGEMENT_API}/uploadVideo?${queryParams}`,
         {
-          method: 'POST',
-          body: formData
+          method: 'POST'
         }
       );
-      const data = await response.json();
-      return data;
+      const presignedData = await presignedUrlResponse.json();
+      console.log('Presigned URL response:', presignedData);
+      // Handle the upload using the helper function
+      return await handlePresignedUpload(formData, presignedData);
     } catch (err) {
       error.value = err.message || 'An error occurred';
       throw err;
@@ -88,40 +186,15 @@ export const useVideoManagement = () => {
   };
   
   /**
-   * Upload a new coach video
+   * Delete a video
    */
-  const uploadCoachVideo = async (formData) => {
+  const deleteVideo = async (videoId) => {
     loading.value = true;
     try {
-      const { api } = getStores();
+      const { api } = getAPI();
       
       const response = await api.authenticatedFetch(
-        `${API_URLS.VIDEO_MANAGEMENT_API}/uploadCoachVideo`,
-        {
-          method: 'POST',
-          body: formData
-        }
-      );
-      const data = await response.json();
-      return data;
-    } catch (err) {
-      error.value = err.message || 'An error occurred';
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-  
-  /**
-   * Delete a user/athlete video
-   */
-  const deleteUserVideo = async (videoId) => {
-    loading.value = true;
-    try {
-      const { api } = getStores();
-      
-      const response = await api.authenticatedFetch(
-        `${API_URLS.VIDEO_MANAGEMENT_API}/deleteVideo/${videoId}?type=athlete`,
+        `${API_URLS.VIDEO_MANAGEMENT_API}/deleteVideo/${videoId}`,
         { method: 'DELETE' }
       );
       const data = await response.json();
@@ -135,62 +208,15 @@ export const useVideoManagement = () => {
   };
   
   /**
-   * Delete a coach video
+   * Update a video
    */
-  const deleteCoachVideo = async (videoId) => {
+  const updateVideo = async (videoId, data) => {
     loading.value = true;
     try {
-      const { api } = getStores();
+      const { api } = getAPI();
       
       const response = await api.authenticatedFetch(
-        `${API_URLS.VIDEO_MANAGEMENT_API}/deleteVideo/${videoId}?type=coach`,
-        { method: 'DELETE' }
-      );
-      const data = await response.json();
-      return data;
-    } catch (err) {
-      error.value = err.message || 'An error occurred';
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-  
-  /**
-   * Update a user/athlete video
-   */
-  const updateUserVideo = async (videoId, data) => {
-    loading.value = true;
-    try {
-      const { api } = getStores();
-      
-      const response = await api.authenticatedFetch(
-        `${API_URLS.VIDEO_MANAGEMENT_API}/updateVideo/${videoId}?type=athlete`,
-        {
-          method: 'PUT',
-          body: JSON.stringify(data)
-        }
-      );
-      const responseData = await response.json();
-      return responseData;
-    } catch (err) {
-      error.value = err.message || 'An error occurred';
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-  
-  /**
-   * Update a coach video
-   */
-  const updateCoachVideo = async (videoId, data) => {
-    loading.value = true;
-    try {
-      const { api } = getStores();
-      
-      const response = await api.authenticatedFetch(
-        `${API_URLS.VIDEO_MANAGEMENT_API}/updateVideo/${videoId}?type=coach`,
+        `${API_URLS.VIDEO_MANAGEMENT_API}/updateVideo/${videoId}`,
         {
           method: 'PUT',
           body: JSON.stringify(data)
@@ -216,14 +242,11 @@ export const useVideoManagement = () => {
   return {
     loading,
     error,
-    listUserVideos,
-    listCoachVideos,
-    uploadUserVideo,
-    uploadCoachVideo,
-    deleteUserVideo,
-    deleteCoachVideo,
-    updateUserVideo,
-    updateCoachVideo,
-    resetLoadingState
+    getVideos, // Updated method
+    uploadVideo,
+    deleteVideo,
+    updateVideo,
+    resetLoadingState,
+    sanitizeFilename
   };
 };

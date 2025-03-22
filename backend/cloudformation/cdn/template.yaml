@@ -6,7 +6,7 @@ Resources:
       Properties:
         OriginAccessControlConfig:
           Description: "CloudFront OAC for SweatyDuckz"
-          Name: ${param:domain}
+          Name: https://sweatyduckz.netlify.app/
           OriginAccessControlOriginType: s3
           SigningBehavior: always
           SigningProtocol: sigv4
@@ -15,10 +15,25 @@ Resources:
       DeletionPolicy: Retain
       UpdateReplacePolicy: Retain
       Properties:
-        BucketName: ${param:cdnBucketName}-${sls:stage}
+        BucketName: sweatyducksco-dev-dev
         OwnershipControls:
           Rules:
             - ObjectOwnership: BucketOwnerEnforced
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              AllowedHeaders:
+                - '*'
+              ExposedHeaders:
+                - ETag
+              MaxAge: 3000
     BucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:

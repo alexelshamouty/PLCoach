@@ -178,7 +178,8 @@
 <script setup>
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import { useVideoManagement } from '~/composables/videoManagement';
-import { useState } from '#app';
+import { useState, useRoute } from '#app'; // Import useRoute
+import { CDN_URL } from '~/composables/config'; // Import CDN_URL
 
 const props = defineProps({
   show: {
@@ -204,10 +205,6 @@ const props = defineProps({
   exerciseLabel: {
     type: String,
     required: true
-  },
-  coach: {
-    type: Boolean,
-    default: false
   }
 });
 
@@ -228,6 +225,8 @@ const videoManagement = useVideoManagement();
 // Get the shared loading state
 const videoManagementLoading = useState('videoManagement.loading');
 const videoManagementError = useState('videoManagement.error');
+
+const route = useRoute(); // Get route object
 
 // Make sure loading is reset when the component mounts
 onMounted(() => {
@@ -271,24 +270,21 @@ function handleFileChange(event) {
 
 async function fetchVideos() {
   isLoading.value = true;
-  videoManagement.resetLoadingState(); 
-  
+  videoManagement.resetLoadingState();
+
   try {
     const params = {
+      userID: route.params.id, // Retrieve userID from route params
+      blockName: props.block,
+      week: props.week,
       dayId: props.dayId,
-      exerciseName: props.exerciseName,
-      block: props.block,
-      week: props.week
+      exerciseName: props.exerciseName
     };
-    
-    // Fetch both types of videos and combine them
-    const [coachResults, athleteResults] = await Promise.all([
-      videoManagement.listCoachVideos(params),
-      videoManagement.listUserVideos(params)
-    ]);
-    
-    // Combine the results
-    videos.value = [...(coachResults || []), ...(athleteResults || [])];
+
+    // Fetch videos using the new getVideos method
+    const fetchedVideos = await videoManagement.getVideos(params);
+    console.log('Fetched videos:', fetchedVideos); // Log the results
+    videos.value = fetchedVideos;
   } catch (error) {
     console.error('Error fetching videos:', error);
     // Handle error state
@@ -298,6 +294,8 @@ async function fetchVideos() {
 }
 
 async function uploadVideo() {
+  const userId = route.params.id; // Retrieve userId from route params
+
   if (!selectedFile.value || !newVideo.value.title) {
     alert('Please add a title and select a video file');
     return;
@@ -308,24 +306,18 @@ async function uploadVideo() {
     // Create form data for upload
     const formData = new FormData();
     formData.append('file', selectedFile.value);
+    formData.append('filename', selectedFile.value.name); // Add filename to form data
     formData.append('title', newVideo.value.title);
+    formData.append('type', newVideo.value.type);
     formData.append('description', newVideo.value.description);
     formData.append('dayId', props.dayId);
     formData.append('exerciseName', props.exerciseName);
     formData.append('exerciseLabel', props.exerciseLabel);
     formData.append('block', props.block);
     formData.append('week', props.week);
-    formData.append('isCoach', props.coach ? 'true' : 'false');
+    formData.append('userId', userId); // Add userId to form data
     
-    let result;
-    // Check the coach prop to determine which upload function to use
-    if (props.coach) {
-      // If coach is true, use uploadCoachVideo regardless of the video type
-      result = await videoManagement.uploadCoachVideo(formData);
-    } else {
-      // If coach is false, use uploadUserVideo
-      result = await videoManagement.uploadUserVideo(formData);
-    }
+    const result = await videoManagement.uploadVideo(formData);
     
     // Reset form
     newVideo.value.title = '';
@@ -335,13 +327,8 @@ async function uploadVideo() {
     // Refresh video list
     await fetchVideos();
     
-    // Emit event with upload result and type
-    emit('video-uploaded', { 
-      videoId: result.id, 
-      type: newVideo.value.type,
-      isCoach: props.coach
-    });
-    
+    // Emit event with upload result
+    emit('video-uploaded', { videoId: result.id });
   } catch (error) {
     console.error('Error uploading video:', error);
     alert('Failed to upload video. Please try again.');
@@ -351,32 +338,25 @@ async function uploadVideo() {
 }
 
 function playVideo(video) {
-  // Open video in modal or new window
-  window.open(video.url, '_blank');
+  const videoUrl = `${CDN_URL}/${video.s3Key}`; // Construct the video URL
+  console.log('Playing video:', videoUrl);
+  // Use Nuxt component for video playback
+  $nuxt.$emit('show-video-player', { url: videoUrl });
 }
 
-async function deleteVideo(videoId, type) {
+async function deleteVideo(videoId) {
   if (!confirm('Are you sure you want to delete this video?')) {
     return;
   }
   
   try {
-    // Call the appropriate delete function based on video type
-    if (type === 'coach') {
-      await videoManagement.deleteCoachVideo(videoId);
-    } else {
-      await videoManagement.deleteUserVideo(videoId);
-    }
+    await videoManagement.deleteVideo(videoId);
     
     // Remove from local state
     videos.value = videos.value.filter(v => v.id !== videoId);
     
-    // Emit event with deleted video ID and type
-    emit('video-deleted', { 
-      videoId, 
-      type,
-      isCoach: props.coach
-    });
+    // Emit event with deleted video ID
+    emit('video-deleted', { videoId });
     
   } catch (error) {
     console.error('Error deleting video:', error);

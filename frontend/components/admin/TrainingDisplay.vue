@@ -86,7 +86,6 @@
       :day-id="selectedDayId"
       :exercise-name="selectedExerciseName"
       :exercise-label="selectedExerciseLabel"
-      :coach="true"
       @close="showVideoManager = false"
       @video-uploaded="handleVideoUploaded"
       @video-deleted="handleVideoDeleted"

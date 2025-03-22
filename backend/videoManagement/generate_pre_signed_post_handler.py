@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def generate_pre_signed_post_handler(s3_client, bucket_name, video_table, user_id, filename, exercise_path, comment=None, coach=False):
+def generate_pre_signed_post_handler(s3_client, bucket_name, video_table, user_id, filename, exercise_path, title, contentType, comment=None, coach=False):
     """
     Handler for generating pre-signed POST URLs for direct file uploads to S3
     
@@ -25,9 +25,16 @@ def generate_pre_signed_post_handler(s3_client, bucket_name, video_table, user_i
     try:
         # Generate a unique key for the file
         file_extension = os.path.splitext(filename)[1]
+        logger.info(f"File extension: {file_extension}")
         object_key = f"uploads/{user_id}/{str(uuid.uuid4())}{file_extension}"
         logger.info(f"Generated object key: {object_key}")
         logger.info(f"Parameters: {user_id}, {filename}, {exercise_path}, {comment}")
+        logger.info({
+                    'acl': 'private',
+                    'x-amz-meta-exercise_path': exercise_path ,
+                    'x-amz-meta-title': title,
+                    'x-amz-meta-comment': comment if comment else '',
+                })
         try:
             # Generate the presigned POST URL
             response = s3_client.generate_presigned_post(
@@ -36,12 +43,16 @@ def generate_pre_signed_post_handler(s3_client, bucket_name, video_table, user_i
                 Fields={
                     'acl': 'private',
                     'x-amz-meta-exercise_path': exercise_path ,
+                    'Content-Type': contentType,
+                    'x-amz-meta-title': title,
                     'x-amz-meta-comment': comment if comment else '',
                 },
                 Conditions=[
                     {'acl': 'private'},
-                    ['starts-with', '$Content-Type', 'video/'],  # Accept any video content type
-                    ['content-length-range', 1, 104857600]  # 100 MB max size
+                    {'x-amz-meta-exercise_path': exercise_path},
+                    {'Content-Type': contentType},
+                    {'x-amz-meta-title': title},
+                    {'x-amz-meta-comment': comment if comment else ''},
                 ],
                 ExpiresIn=300
             )
