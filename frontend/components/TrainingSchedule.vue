@@ -55,40 +55,40 @@
           </table>
 
           <div class="md:hidden space-y-4">
-            <div v-for="(exercise, i) in item.content" 
-                 :key="i" 
-                 class="bg-gray-800 p-4 rounded-lg space-y-2">
-              <button 
-                @click="$emit('exercise-click', exercise, index)"
-                class="text-left hover:text-blue-400 transition-colors duration-200 cursor-pointer w-full text-lg font-semibold mb-2 flex items-center gap-2">
-                <span>{{ exercise.name }}</span>
-                <span class="text-blue-400 text-sm">📝</span>
-              </button>
-              <div class="flex justify-between items-center">
-                <span class="text-gray-400">Label:</span>
-                <div class="flex items-center gap-2">
-                  <button :style="{ backgroundColor: getLabelColor(exercise.label) }" 
-                          class="text-black px-3 py-1 rounded-full hover:opacity-75 transition text-sm">
-                    {{ exercise.label }}
-                  </button>
-                  <VideoUploadButton @click="openVideoManager(item.title, exercise.name, exercise.label)" />
+            <div v-for="(item, index) in sortedItems" :key="index" class="bg-gray-800 p-4 rounded-lg space-y-2">
+              <div v-for="(exercise, i) in item.content" :key="i">
+                <button 
+                  @click="$emit('exercise-click', exercise, index)"
+                  class="text-left hover:text-blue-400 transition-colors duration-200 cursor-pointer w-full text-lg font-semibold mb-2 flex items-center gap-2">
+                  <span>{{ exercise.name }}</span>
+                  <span class="text-blue-400 text-sm">📝</span>
+                </button>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-400">Label:</span>
+                  <div class="flex items-center gap-2">
+                    <button :style="{ backgroundColor: getLabelColor(exercise.label) }" 
+                            class="text-black px-3 py-1 rounded-full hover:opacity-75 transition text-sm">
+                      {{ exercise.label }}
+                    </button>
+                    <VideoUploadButton @click="openVideoManager(item.title, exercise.name, exercise.label)" />
+                  </div>
                 </div>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-400">Sets:</span>
-                <span>{{ exercise.sets }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-400">Reps:</span>
-                <span>{{ exercise.reps }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-400">RPE:</span>
-                <span class="font-semibold text-yellow-400">{{ exercise.rpe }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-400">Comments:</span>
-                <span class="font-semibold text-yellow-400">{{ exercise.comments }}</span>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Sets:</span>
+                  <span>{{ exercise.sets }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Reps:</span>
+                  <span>{{ exercise.reps }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">RPE:</span>
+                  <span class="font-semibold text-yellow-400">{{ exercise.rpe }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Comments:</span>
+                  <span class="font-semibold text-yellow-400">{{ exercise.comments }}</span>
+                </div>
               </div>
             </div>
           </div>
