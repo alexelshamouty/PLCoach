@@ -117,7 +117,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { signUp, confirmSignUp, signIn } from 'aws-amplify/auth';
 import { useAuthStore } from '~/stores/auth';
@@ -138,6 +138,18 @@ const form = reactive({
   email: '',
   password: '',
   confirmPassword: ''
+});
+
+onMounted(async () => {
+  // Redirect to index page if user is already authenticated
+  try {
+    await authStore.fetchUser();
+    if (authStore.user) {
+      router.push('/');
+    }
+  } catch (err) {
+    console.error('Auth check error:', err);
+  }
 });
 
 function validatePasswords() {
