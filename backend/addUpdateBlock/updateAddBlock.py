@@ -24,7 +24,7 @@ def handler(event, context):
     
     logger.info("Handler started with event: %s", event)
 
-    auth_response = responseUtils.authorize(event)
+    auth_response = responseUtils.authorize(event,['coaches','athletes'])
     if auth_response:
         logger.error("Authorization failed")
         return auth_response
