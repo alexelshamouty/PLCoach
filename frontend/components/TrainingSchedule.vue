@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md mt-4">
-    <div v-for="(item, index) in days" :key="index" class="border-b border-gray-600">
+    <div v-for="(item, index) in sortedItems" :key="index" class="border-b border-gray-600">
       <div class="w-full flex justify-between items-center p-4">
         <button @click="toggle(index)" class="flex-1 flex justify-between items-center focus:outline-none">
           <span class="font-semibold">{{ item.title }}</span>
@@ -113,7 +113,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useLabelsStore } from '~/stores/labels';
 import VideoManager from '~/components/shared/VideoManager.vue';
 import VideoUploadButton from '~/components/shared/VideoUploadButton.vue';
@@ -145,6 +145,9 @@ const selectedExerciseLabel = ref('');
 const currentBlock = ref('');
 const currentWeek = ref('');
 
+// Local reactive copy of days
+const localDays = ref([]);
+
 // Watch for changes in block and week props
 watch(() => props.block, (newBlock) => {
   currentBlock.value = newBlock;
@@ -153,6 +156,24 @@ watch(() => props.block, (newBlock) => {
 watch(() => props.week, (newWeek) => {
   currentWeek.value = newWeek;
 }, { immediate: true });
+
+// Update localDays whenever props.days changes
+watch(() => props.days, (newDays) => {
+  if (newDays && newDays.length) {
+    localDays.value = [...newDays];
+  } else {
+    localDays.value = [];
+  }
+}, { immediate: true, deep: true });
+
+// Sort days based on index
+const sortedItems = computed(() => {
+  const daysWithIndices = localDays.value.map(day => ({
+    ...day,
+    index: day.index !== undefined ? parseInt(day.index, 10) : 999
+  }));
+  return daysWithIndices.sort((a, b) => a.index - b.index);
+});
 
 function handleDayFinish(index, dayId) {
   emit('day-finished', { index, dayId });
