@@ -172,6 +172,7 @@ const sortedItems = computed(() => {
     ...day,
     index: day.index !== undefined ? parseInt(day.index, 10) : 999
   }));
+  console.log('Sorted days:', daysWithIndices);
   return daysWithIndices.sort((a, b) => a.index - b.index);
 });
 

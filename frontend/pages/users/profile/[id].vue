@@ -182,8 +182,13 @@ watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
     if (!response.error) {
       filteredOptions3.value = Object.entries(response).map(([dayId, dayData]) => ({
         title: dayId,
-        content: dayData.Exercises || []
+        content: dayData.Exercises || [],
+        // Add dayIndex as index, default to 999 if not provided
+        index: dayData.dayIndex ? parseInt(dayData.dayIndex, 10) : 999
       }));
+      
+      // Sort based on index
+      filteredOptions3.value.sort((a, b) => a.index - b.index);
     }
   } else {
     filteredOptions3.value = [];
