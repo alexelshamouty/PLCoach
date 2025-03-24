@@ -37,6 +37,9 @@ Athletes benefit from:
 ### Analytics Dashboard
 <img src="screenshots/analytics.png" alt="Analytics Dashboard" width="600"/>
 
+### Video uploading for coach and athlete
+<img src="screenshots/videomanager.png" alt="Video Manager" width="600"/>
+
 </div>
 
 ## Features
