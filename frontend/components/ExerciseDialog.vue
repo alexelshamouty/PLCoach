@@ -29,7 +29,7 @@
                          class="w-16 sm:w-20 px-2 py-1 bg-gray-700 text-white rounded-md text-center" />
                 </td>
                 <td class="py-2 px-2 sm:px-4 text-center">
-                  <input type="number" 
+                  <input type="text" 
                          v-model="result.weight" 
                          class="w-16 sm:w-20 px-2 py-1 bg-gray-700 text-white rounded-md text-center" />
                 </td>
@@ -57,7 +57,7 @@
                 </div>
                 <div class="flex flex-col">
                   <label class="text-gray-400 mb-1">Weight (kg):</label>
-                  <input type="number" 
+                  <input type="text" 
                          v-model="result.weight" 
                          class="w-full px-2 py-1 bg-gray-600 text-white rounded-md" />
                 </div>
