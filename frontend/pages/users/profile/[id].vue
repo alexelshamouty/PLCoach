@@ -171,11 +171,16 @@ const options2 = computed(() => {
 
 const filteredOptions2 = computed(() => options2.value || []);
 
-const selectedOption2 = computed(() => {
-  return filteredOptions2.value.length ? filteredOptions2.value[0].id : "";
+// Change selectedOption2 from computed to ref
+const selectedOption2 = ref("");
+
+// Update the watcher for `selectedOption1` to reset `selectedOption2` when the block changes
+watch(selectedOption1, (newBlock) => {
+  const options = options2.value;
+  selectedOption2.value = options.length ? options[0].id : ""; // Set the first week as default
 });
 
-const filteredOptions3 = ref([]);
+// Update the watcher for `selectedOption2` to fetch data when it changes
 watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
   if (newBlock && newWeek) {
     const response = await getDaysByWeek(userId, newBlock, newWeek);
@@ -183,17 +188,18 @@ watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
       filteredOptions3.value = Object.entries(response).map(([dayId, dayData]) => ({
         title: dayId,
         content: dayData.Exercises || [],
-        // Add dayIndex as index, default to 999 if not provided
         index: dayData.dayIndex ? parseInt(dayData.dayIndex, 10) : 999
       }));
-      
-      // Sort based on index
       filteredOptions3.value.sort((a, b) => a.index - b.index);
+    } else {
+      filteredOptions3.value = [];
     }
   } else {
     filteredOptions3.value = [];
   }
 }, { immediate: true });
+
+const filteredOptions3 = ref([]);
 
 const dialogOpen = ref(false);
 const selectedExercise = ref({
