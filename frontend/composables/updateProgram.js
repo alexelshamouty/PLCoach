@@ -107,6 +107,41 @@ export const addDay = async (userId, blockId, weekId, newDayId) => {
   }
 };
 
+export const deleteDay = async (userId, blockId, weekId, dayId) => {
+  const { api } = getStores();
+  
+  try {
+    const response = await api.authenticatedFetch(
+      API_URLS.UPDATE_PROGRAM_API,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'deleteDay',
+          userId,
+          blockId,
+          weekId,
+          dayId
+        })
+      }
+    );
+
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to delete day'
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting day:', error);
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
+  }
+};
+
 export const addExercise = async (userId, blockId, weekId, dayId, exercise) => {
   const { api } = getStores();
   

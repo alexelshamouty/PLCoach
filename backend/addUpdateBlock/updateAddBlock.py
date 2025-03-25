@@ -5,7 +5,7 @@ import logging
 from utils.response_utils import ResponseUtils
 from utils.db_utils import DBUtils
 from handlers import (handle_add_block, handle_add_week, handle_add_day, 
-                      handle_add_exercise, handle_delete_exercise, handle_update_exercise)
+                      handle_add_exercise, handle_delete_exercise, handle_update_exercise, handle_delete_day)
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -54,7 +54,8 @@ def handler(event, context):
             'addDay': handle_add_day,
             'addExercise': handle_add_exercise,
             'deleteExercise': handle_delete_exercise,
-            'updateExercise': handle_update_exercise
+            'updateExercise': handle_update_exercise,
+            'deleteDay': handle_delete_day,
         }
 
         handler = action_handlers.get(action)

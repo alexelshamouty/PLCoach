@@ -59,6 +59,8 @@
           :week="selectedOption2"
           @delete-exercise="handleDeleteExercise"
           @exercise-added="handleAddExercise"
+          @delete-day="handleDeleteDay"
+          @exercise-updated="handleExerciseUpdated"
         />
       </div>
 
@@ -88,7 +90,7 @@ import LoadingOverlay from '~/components/shared/LoadingOverlay.vue';
 import ErrorAlert from '~/components/shared/ErrorAlert.vue';
 import { useRoute } from "vue-router";
 import { useApi } from '~/composables/useApi';
-import { addBlock, addWeek, addDay, addExercise, deleteExercise } from '~/composables/updateProgram';
+import { addBlock, addWeek, addDay, addExercise, deleteExercise, deleteDay } from '~/composables/updateProgram';
 import { useBlockInformation } from '~/composables/getBlockInformation';
 import { useAthleteManagement } from '~/composables/manageAthletes';
 import { useTabs } from '~/composables/useTabs';
@@ -108,6 +110,10 @@ definePageMeta({ middleware: ['auth-admin'] });
 const options1 = ref([]);
 const selectedOption1 = ref("");
 const isLoading = ref(false);
+
+const filteredOptions3 = ref([]);
+
+const errorMessage = ref(null);
 
 // Load blocks when page loads
 onMounted(async () => {
@@ -179,9 +185,7 @@ watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
   }
 }, { immediate: true });
 
-const filteredOptions3 = ref([]);
 
-const errorMessage = ref(null);
 
 // Replace error handling refs
 // Remove showError ref since ErrorAlert handles visibility
@@ -363,6 +367,35 @@ async function handleAddDay(title) {
     console.error('Error in handleAddDay:', error);
     errorMessage.value = error.message || 'An error occurred while adding the day';
   }
+}
+
+function handleDeleteDay(blockId, weekId, dayId) {
+  if (!confirm(`Are you sure you want to delete the day "${dayId}"?`)) {
+    return;
+  }
+
+  deleteDay(userId, blockId, weekId, dayId)
+    .then((result) => {
+      if (result.error) {
+        errorMessage.value = result.error;
+        console.error('Error deleting day:', result.error);
+      } else {
+        console.log('Day deleted successfully');
+        // Update the UI locally
+        filteredOptions3.value = filteredOptions3.value.filter(day => day.title !== dayId);
+      }
+    })
+    .catch((error) => {
+      console.error('Error in handleDeleteDay:', error);
+      errorMessage.value = error.message || 'An error occurred while deleting the day';
+    });
+}
+
+function handleExerciseUpdated({ dayId, exercise }) {
+  console.log('Block ID:', selectedOption1.value);
+  console.log('Week ID:', selectedOption2.value);
+  console.log('Day ID:', dayId);
+  console.log('Exercise Data:', exercise);
 }
 
 const { tabs, activeTab, setActiveTab } = useTabs();

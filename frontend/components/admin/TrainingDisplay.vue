@@ -1,12 +1,21 @@
 <template>
   <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md mt-4">
     <div v-for="(item, index) in sortedItems" :key="index" class="border-b border-gray-600">
-      <button @click="toggle(index)" class="w-full flex justify-between items-center p-4 focus:outline-none">
-        <span class="font-semibold">{{ item.title }}</span>
-        <span :class="{'rotate-180': activeIndex === index}" class="transition-transform duration-300">
-          ⬇️
-        </span>
-      </button>
+      <div class="flex justify-between items-center">
+        <button @click="toggle(index)" class="w-full flex justify-between items-center p-4 focus:outline-none">
+          <span class="font-semibold">{{ item.title }}</span>
+          <span :class="{'rotate-180': activeIndex === index}" class="transition-transform duration-300">
+            ⬇️
+          </span>
+        </button>
+        <button 
+          @click="emitDeleteDay(item.title)" 
+          class="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600 transition-all duration-200"
+          title="Delete Day"
+        >
+          Delete
+        </button>
+      </div>
       <div v-if="activeIndex === index" class="p-4 text-gray-300">
         <div class="w-full max-w-full overflow-x-auto relative scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
           <div class="min-w-max md:min-w-full">
@@ -28,7 +37,12 @@
                     class="border-b border-gray-700 hover:bg-gray-800 block md:table-row mb-6 md:mb-0">
                   <td class="py-2 px-2 md:px-4 block md:table-cell md:whitespace-nowrap">
                     <span class="inline-block w-1/3 md:hidden font-bold">Exercise:</span>
-                    {{ exercise.name }}
+                    <button 
+                      class="text-blue-400 hover:underline focus:outline-none"
+                      @click="emitExerciseUpdated(item.title, exercise)"
+                    >
+                      {{ exercise.name }}
+                    </button>
                   </td>
                   <td class="py-2 px-2 md:px-4 block md:table-cell">
                     <span class="inline-block w-1/3 md:hidden font-bold">Label:</span>
@@ -116,7 +130,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['delete-exercise', 'exercise-added']);
+const emit = defineEmits(['delete-exercise', 'exercise-added', 'delete-day', 'exercise-updated']);
 
 const activeIndex = ref(null);
 const labelsStore = useLabelsStore();
@@ -203,5 +217,13 @@ function handleVideoUploaded(data) {
 function handleVideoDeleted(data) {
   console.log('Video deleted successfully:', data);
   // You can add UI notifications or other logic here
+}
+
+function emitDeleteDay(dayId) {
+  emit('delete-day', currentBlock.value, currentWeek.value, dayId);
+}
+
+function emitExerciseUpdated(dayId, exercise) {
+  emit('exercise-updated', { dayId, exercise });
 }
 </script>
