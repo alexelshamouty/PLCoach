@@ -1,12 +1,12 @@
 import { useApi } from './useApi';
 import { API_URLS } from './config';
 
-const getStores = () => ({
+const getAPI = () => ({
   api: useApi()
 });
 
 export const addBlock = async (userId, newBlockLabel) => {
-  const { api } = getStores();
+  const { api } = getAPI();
   
   try {
     const response = await api.authenticatedFetch(
@@ -39,7 +39,7 @@ export const addBlock = async (userId, newBlockLabel) => {
 };
 
 export const addWeek = async (userId, blockId, newWeekId) => {
-  const { api } = getStores();
+  const { api } = getAPI();
   
   try {
     const response = await api.authenticatedFetch(
@@ -73,7 +73,7 @@ export const addWeek = async (userId, blockId, newWeekId) => {
 };
 
 export const addDay = async (userId, blockId, weekId, newDayId) => {
-  const { api } = getStores();
+  const { api } = getAPI();
   
   try {
     const response = await api.authenticatedFetch(
@@ -107,43 +107,8 @@ export const addDay = async (userId, blockId, weekId, newDayId) => {
   }
 };
 
-export const deleteDay = async (userId, blockId, weekId, dayId) => {
-  const { api } = getStores();
-  
-  try {
-    const response = await api.authenticatedFetch(
-      API_URLS.UPDATE_PROGRAM_API,
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'deleteDay',
-          userId,
-          blockId,
-          weekId,
-          dayId
-        })
-      }
-    );
-
-    const data = await response.json();
-    
-    if (response.status !== 200) {
-      return {
-        error: data.error || 'Failed to delete day'
-      };
-    }
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error deleting day:', error);
-    return {
-      error: error.message || 'An unexpected error occurred'
-    };
-  }
-};
-
 export const addExercise = async (userId, blockId, weekId, dayId, exercise) => {
-  const { api } = getStores();
+  const { api } = getAPI();
   
   try {
     const response = await api.authenticatedFetch(
@@ -186,7 +151,7 @@ export const addExercise = async (userId, blockId, weekId, dayId, exercise) => {
 };
 
 export const deleteExercise = async (userId, blockId, weekId, dayId, exerciseName, exerciseLabel) => {
-  const { api } = getStores();
+  const { api } = getAPI();
   
   try {
     const response = await api.authenticatedFetch(
@@ -223,7 +188,7 @@ export const deleteExercise = async (userId, blockId, weekId, dayId, exerciseNam
 };
 
 export const updateExercise = async (userId, blockId, weekId, dayId, exerciseName, sets, comments) => {
-  const { api } = getStores();
+  const { api } = getAPI();
   
   try {
     const response = await api.authenticatedFetch(
@@ -254,6 +219,84 @@ export const updateExercise = async (userId, blockId, weekId, dayId, exerciseNam
     return { success: true };
   } catch (error) {
     console.error('Error updating exercise:', error);
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
+  }
+};
+
+export const exerciseUpdate = async (userId, blockId, weekId, dayId, exercise) => {
+  const { api } = getAPI();
+  
+  try {
+    const response = await api.authenticatedFetch(
+      API_URLS.UPDATE_PROGRAM_API,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'exerciseUpdate',
+          userId,
+          blockId,
+          weekId,
+          dayId,
+          exercise: {
+            name: exercise.name,
+            label: exercise.label,
+            sets: exercise.sets,
+            reps: exercise.reps,
+            rpe: exercise.rpe,
+            comments: exercise.comments
+          }
+        })
+      }
+    );
+
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to update exercise'
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating exercise:', error);
+    return {
+      error: error.message || 'An unexpected error occurred'
+    };
+  }
+};
+
+export const deleteDay = async (userId, blockId, weekId, dayId) => {
+  const { api } = getAPI();
+  
+  try {
+    const response = await api.authenticatedFetch(
+      API_URLS.UPDATE_PROGRAM_API,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'deleteDay',
+          userId,
+          blockId,
+          weekId,
+          dayId
+        })
+      }
+    );
+
+    const data = await response.json();
+    
+    if (response.status !== 200) {
+      return {
+        error: data.error || 'Failed to delete day'
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting day:', error);
     return {
       error: error.message || 'An unexpected error occurred'
     };
