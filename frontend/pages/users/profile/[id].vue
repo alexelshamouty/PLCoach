@@ -125,6 +125,7 @@ const route = useRoute();
 const userId = route.params.id;
 const { getAllBlocks, getDaysByWeek } = useBlockInformation();
 const { fetchAthlete } = useAthleteManagement();
+const filteredOptions3 = ref([]);
 
 // Keep other refs
 const error = ref(null);
@@ -199,7 +200,6 @@ watch([selectedOption1, selectedOption2], async ([newBlock, newWeek]) => {
   }
 }, { immediate: true });
 
-const filteredOptions3 = ref([]);
 
 const dialogOpen = ref(false);
 const selectedExercise = ref({
