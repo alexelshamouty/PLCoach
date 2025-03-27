@@ -23,12 +23,12 @@
               <thead class="bg-gray-800 text-gray-300 hidden md:table-header-group">
                 <tr>
                   <th class="py-2 px-2 md:px-4 text-left whitespace-nowrap">Exercise</th>
+                  <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">Actions</th>
                   <th class="py-2 px-2 md:px-4 text-left whitespace-nowrap">Label</th>
                   <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">Sets</th>
                   <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">Reps</th>
                   <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">RPE</th>
                   <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">Comments</th>
-                  <th class="py-2 px-2 md:px-4 text-center whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody class="block md:table-row-group">
@@ -43,6 +43,15 @@
                     >
                       {{ exercise.name }}
                     </button>
+                  </td>
+                  <td class="py-2 px-2 md:px-4 block md:table-cell">
+                    <span class="inline-block w-1/3 md:hidden font-bold">Actions:</span>
+                    <span class="md:text-center inline-block md:w-full">
+                      <button @click="handleDeleteExercise(index, i)" 
+                              class="text-red-400 hover:text-red-600 p-2 rounded-full hover:bg-red-500/10 transition-all duration-200">
+                        ✖️
+                      </button>
+                    </span>
                   </td>
                   <td class="py-2 px-2 md:px-4 block md:table-cell">
                     <span class="inline-block w-1/3 md:hidden font-bold">Label:</span>
@@ -71,15 +80,6 @@
                     <span class="inline-block w-1/3 md:hidden font-bold">Comments:</span>
                     <span class="md:text-center inline-block md:w-full font-semibold text-yellow-400 max-w-[100px] md:max-w-none truncate">
                       {{ exercise.comments }}
-                    </span>
-                  </td>
-                  <td class="py-2 px-2 md:px-4 block md:table-cell">
-                    <span class="inline-block w-1/3 md:hidden font-bold">Actions:</span>
-                    <span class="md:text-center inline-block md:w-full">
-                      <button @click="handleDeleteExercise(index, i)" 
-                              class="text-red-400 hover:text-red-600 p-2 rounded-full hover:bg-red-500/10 transition-all duration-200">
-                        ✖️
-                      </button>
                     </span>
                   </td>
                   <!-- Hidden dayIndex -->
