@@ -82,6 +82,8 @@
                       </button>
                     </span>
                   </td>
+                  <!-- Hidden dayIndex -->
+                  <input type="hidden" :value="exercise.dayIndex" />
                 </tr>
               </tbody>
             </table>

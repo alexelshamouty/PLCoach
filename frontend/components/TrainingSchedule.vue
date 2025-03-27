@@ -43,7 +43,7 @@
                             class="text-black px-4 py-2 rounded-full hover:opacity-75 transition">
                       {{ exercise.label }}
                     </button>
-                    <VideoUploadButton @click="openVideoManager(item.title, exercise.name, exercise.label)" />
+                    <VideoUploadButton @click="openVideoManager(item.title, exercise.name, exercise.label, exercise.dayIndex)" />
                   </div>
                 </td>
                 <td class="py-2 px-4 text-center">{{ exercise.sets }}</td>
@@ -103,6 +103,7 @@ const showVideoManager = ref(false);
 const selectedDayId = ref('');
 const selectedExerciseName = ref('');
 const selectedExerciseLabel = ref('');
+const selectedExerciseDayIndex = ref('');
 const currentBlock = ref('');
 const currentWeek = ref('');
 
@@ -149,10 +150,11 @@ function getLabelColor(label) {
   return labelsStore.getColorByLabel(label);
 }
 
-function openVideoManager(dayId, exerciseName, exerciseLabel) {
+function openVideoManager(dayId, exerciseName, exerciseLabel, exerciseDayIndex) {
   selectedDayId.value = dayId;
   selectedExerciseName.value = exerciseName;
   selectedExerciseLabel.value = exerciseLabel;
+  selectedExerciseDayIndex.value = exerciseDayIndex;
   showVideoManager.value = true;
 }
 

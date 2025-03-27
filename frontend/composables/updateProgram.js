@@ -150,7 +150,7 @@ export const addExercise = async (userId, blockId, weekId, dayId, exercise) => {
   }
 };
 
-export const deleteExercise = async (userId, blockId, weekId, dayId, exerciseName, exerciseLabel) => {
+export const deleteExercise = async (userId, blockId, weekId, dayId, exerciseName, exerciseLabel, dayIndex) => {
   const { api } = getAPI();
   
   try {
@@ -165,7 +165,8 @@ export const deleteExercise = async (userId, blockId, weekId, dayId, exerciseNam
           weekId,
           dayId,
           exerciseName,
-          exerciseLabel
+          exerciseLabel,
+          dayIndex
         })
       }
     );

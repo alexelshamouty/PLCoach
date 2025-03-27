@@ -226,6 +226,10 @@ const props = defineProps({
     type: String,
     required: true
   },
+  exerciseIndex: { // Add exerciseIndex prop
+    type: String,
+    required: true
+  },
   isAdmin: {
     type: Boolean,
     default: false
@@ -346,6 +350,7 @@ async function uploadVideo() {
     formData.append('dayId', props.dayId);
     formData.append('exerciseName', props.exerciseName);
     formData.append('exerciseLabel', props.exerciseLabel);
+    formData.append('exerciseIndex', props.exerciseIndex); // Include exerciseIndex
     formData.append('block', props.block);
     formData.append('week', props.week);
     formData.append('userId', userId); // Add userId to form data

@@ -58,11 +58,16 @@ def handle_add_exercise(data, dbUtils, responseUtils):
         days = week.get('Days', {})
         if data['dayId'] not in days:
             logger.error("Day %s not found in week %s", data['dayId'], data['weekId'])
-            return responseUtils.error_response(404, f"Day {data['dayId']} not found in week {data['weekId']}")
+            return responseUtils.error_response(404, f"Day {data['dayId']} not found in week %s", data['weekId'])
         
-        # Add empty results object to exercise
+        # Calculate dayIndex based on the number of existing exercises
+        exercises = days[data['dayId']].get('Exercises', [])
+        dayIndex = len(exercises)
+
+        # Add empty results object and dayIndex to exercise
         exercise = data['exercise']
         exercise['results'] = {}
+        exercise['dayIndex'] = str(dayIndex)
 
         dbUtils.table.update_item(
             Key={
@@ -81,7 +86,7 @@ def handle_add_exercise(data, dbUtils, responseUtils):
             }
         )
         
-        logger.info("Successfully added exercise to day %s", data['dayId'])
+        logger.info("Successfully added exercise to day %s with dayIndex %d", data['dayId'], dayIndex)
         return responseUtils.success_response({
             'message': 'Exercise added',
             'data': {

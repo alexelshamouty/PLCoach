@@ -193,6 +193,9 @@ async function handleAddExercise(exerciseData) {
   const { dayId, ...exercise } = exerciseData;
   
   try {
+    const day = filteredOptions3.value.find(day => day.title === dayId);
+    const dayIndex = day ? String(day.content.length) : "0"; // Calculate dayIndex as a string
+
     const result = await addExercise(
       userId,
       selectedOption1.value,
@@ -204,7 +207,8 @@ async function handleAddExercise(exerciseData) {
         sets: String(exercise.sets),
         reps: String(exercise.reps),
         rpe: String(exercise.rpe),
-        comments: String(exercise.comments)
+        comments: String(exercise.comments),
+        dayIndex // Include dayIndex
       }
     );
     
@@ -214,19 +218,20 @@ async function handleAddExercise(exerciseData) {
     }
 
     // Find the day in filteredOptions3 and update it directly
-    const dayIndex = filteredOptions3.value.findIndex(day => day.title === dayId);
-    if (dayIndex !== -1) {
+    const dayIndexInArray = filteredOptions3.value.findIndex(day => day.title === dayId);
+    if (dayIndexInArray !== -1) {
       // Create a deep copy of the current state to maintain reactivity
       const updatedOptions = JSON.parse(JSON.stringify(filteredOptions3.value));
       
       // Add the new exercise to the appropriate day's content array
-      updatedOptions[dayIndex].content.push({
+      updatedOptions[dayIndexInArray].content.push({
         name: exercise.name,
         label: exercise.label,
         sets: exercise.sets,
         reps: exercise.reps,
         rpe: exercise.rpe,
-        comments: exercise.comments
+        comments: exercise.comments,
+        dayIndex // Add dayIndex to the exercise
       });
       
       // Update the state with the new array
@@ -257,7 +262,8 @@ async function handleDeleteExercise(dayIndex, exerciseIndex) {
       selectedOption2.value,
       day.title,
       exercise.name,
-      exercise.label
+      exercise.label,
+      exercise.dayIndex,
     );
 
     if (result.error) {

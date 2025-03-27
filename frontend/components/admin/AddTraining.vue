@@ -75,6 +75,7 @@
       :day-id="dayId"
       :exercise-name="exercise.name"
       :exercise-label="exercise.label"
+      :exercise-index="exercise.dayIndex"
       :is-admin="true"
       @close="showVideoManager = false"
       @video-uploaded="handleVideoUploaded"
@@ -128,13 +129,18 @@ const exercise = reactive({
   sets: '',
   reps: '',
   rpe: '',
-  comments: ''
+  comments: '',
+  dayIndex: ''
 });
 
 const isLoading = ref(false);
 
 function emitExercise(exerciseData) {
-  emit('exercise-added', { ...exerciseData, dayId: props.dayId });
+  emit('exercise-added', { 
+    ...exerciseData, 
+    dayId: props.dayId, 
+    'exercise-index': exerciseData.dayIndex 
+  });
 }
 
 // Fix reset form to use proper initial values
@@ -145,7 +151,8 @@ function resetForm() {
     sets: '',
     reps: '',
     rpe: '',
-    comments: ''
+    comments: '',
+    dayIndex: ''
   });
   
   // Clear any validation errors

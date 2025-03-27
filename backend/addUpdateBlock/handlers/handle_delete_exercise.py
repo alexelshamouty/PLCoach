@@ -16,7 +16,8 @@ def handle_delete_exercise(data, dbUtils, responseUtils):
             'weekId': str,
             'dayId': str,
             'exerciseName': str,
-            'exerciseLabel': str
+            'exerciseLabel': str,
+            'dayIndex': str,
         }
         
         for field, field_type in required_fields.items():
@@ -45,8 +46,7 @@ def handle_delete_exercise(data, dbUtils, responseUtils):
         # Find and remove the exercise
         exercises = days[data['dayId']].get('Exercises', [])
         exercise_index = next((i for i, e in enumerate(exercises) 
-                             if e['name'] == data['exerciseName'] 
-                             and e['label'] == data['exerciseLabel']), -1)
+                             if e['dayIndex'] == data['dayIndex']), -1)
         
         if exercise_index == -1:
             logger.error("Exercise not found: %s with label %s", data['exerciseName'], data['exerciseLabel'])
